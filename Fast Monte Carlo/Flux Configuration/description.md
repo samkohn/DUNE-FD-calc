@@ -39,5 +39,4 @@ near the origin should be improved; and the statistics of the input
 histogram can be improved. At this point, we think we have a small
 enough systematic distortion to continue.
 
-[^1] Adapted from the FastMC [wiki][wikilink]
-[wikilink]:https://cdcvs.fnal.gov/redmine/projects/fast_mc/wiki/Physics_and_Detector_Inputs_and_Assumptions ""
+[^1]: Adapted from the FastMC [wiki](https://cdcvs.fnal.gov/redmine/projects/fast_mc/wiki/Physics_and_Detector_Inputs_and_Assumptions#The-flux "").
