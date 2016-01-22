@@ -1,0 +1,16 @@
+{
+    "name": "Fields-Genetic-Opt",
+    "parent": "Beam-Optimization",
+    "contacts": [
+        {
+            "name": "Laura Fields",
+            "email": "ljf26@fnal.gov"
+        }
+    ],
+    "description source description": "DUNE DocDB 56 v3",
+    "description source location": "http://docs.dunescience.org:8080/cgi-bin/ShowDocument?docid=56&version=3",
+    "data file source description": "DUNE DocDB 56 v3 table 2",
+    "data file source location": "http://docs.dunescience.org:8080/cgi-bin/ShowDocument?docid=56&version=3",
+    "data file name": "",
+    "data file type": "csv"
+}
