@@ -1,0 +1,14 @@
+{
+    "name": "Model-Systematic-Errors",
+    "parent": "Fast-Monte-Carlo",
+    "contact": [
+        {
+            "name": "Dan Cherdack",
+            "email": "daniel.cherdack@colostate.edu"
+        }
+    ],
+    "data file source description": "DUNE Fast Monte Carlo svn repository",
+    "data file source location": "https://cdcvs.fnal.gov/redmine/projects/fast_mc/repository/entry/trunk/config/FastMC_RunParams.xml",
+    "data file name": "FastMC_RunParams.xml",
+    "data file type": "xml"
+}

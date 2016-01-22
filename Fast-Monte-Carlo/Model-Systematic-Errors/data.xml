@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+  	
+<runparam_config>
+fastmcNtp_20140711_lbne_g4lbnev3r2p4_nuflux_nuebarflux_nuebar_LAr_1_g280_Ar40_5000_Default.root
+  <param_set name="Default">
+    <Genie_Files>        FMC_INPUTS </Genie_Files>
+    <Flux_Version>           v3r2p4 </Flux_Version>           <comment> v3r2p4b  </comment>
+    <Flux_Date>            20140711 </Flux_Date>              <comment> 20140724 </comment>
+    <Flux_Type>             nominal </Flux_Type>
+    <Run_No>                   5000 </Run_No>
+    <Output_Dir>        FMC_OUTPUTS </Output_Dir>
+    <Det_Conf>                LAr_1 </Det_Conf>
+    <Events_To_Gen>         1000000 </Events_To_Gen>
+    <Events_Per_File>          1000 </Events_Per_File>
+    <Skip_RW>                     0 </Skip_RW>
+    <Gen_Log>                     1 </Gen_Log>
+    <Detector>                   FD </Detector>
+    <Channel>                   all </Channel>
+    <UseNominalFlux>              1 </UseNominalFlux>   
+
+    <comment> Oscillation Params, Capozzi, et al. http://arxiv.org/pdf/1312.2878v2.pdf </comment>
+    <comment> angles are given and sin^2(q_xx) </comment>
+    <sin2q12>               0.3080  </sin2q12>
+    <sin2q13_NH>            0.0234  </sin2q13_NH>
+    <sin2q13_IH>            0.0240  </sin2q13_IH>
+    <sin2q23_NH>            0.4370  </sin2q23_NH>
+    <sin2q23_IH>            0.4550  </sin2q23_IH>
+    <dm2_21>             0.0000754  </dm2_21>
+    <dm2_31_NH>            0.00243  </dm2_31_NH>
+    <dm2_31_IH>           -0.00238  </dm2_31_IH>
+    <dcp>                      0.0  </dcp>
+
+    <all_flux>                    1 </all_flux>
+
+    <all_qel>                     1 </all_qel> 
+    <rw7_qelCCnorm>               1 </rw7_qelCCnorm>
+    <rw7_qelCCma>                 1 </rw7_qelCCma>
+    <rw7_qelCCmashape>            1 </rw7_qelCCmashape>
+    <rw7_qelNCma>                 1 </rw7_qelNCma>
+    <rw7_qelNCeta>                1 </rw7_qelNCeta>
+    <rw7_qelCCVecFFshape>         1 </rw7_qelCCVecFFshape>
+    <!-- Following is an experimental, by hand reweight -->
+    <rw7_qelCCvalenciaRPA>        1 </rw7_qelCCvalenciaRPA>
+    <rw7_qelNCvalenciaRPA>        1 </rw7_qelNCvalenciaRPA>
+
+    <all_res>                     1 </all_res>
+    <rw7_resCCmashape>            1 </rw7_resCCmashape>
+    <rw7_resCCnorm>               1 </rw7_resCCnorm>
+    <rw7_resCCmvshape>            1 </rw7_resCCmvshape>
+    <rw7_resCCmv>                 1 </rw7_resCCmv>
+    <rw7_resCCma>                 1 </rw7_resCCma>
+    <rw7_resNCmashape>            1 </rw7_resNCmashape>
+    <rw7_resNCnorm>               1 </rw7_resNCnorm>
+    <rw7_resNCmvshape>            1 </rw7_resNCmvshape>
+    <rw7_resNCmv>                 1 </rw7_resNCmv>
+    <rw7_resNCma>                 1 </rw7_resNCma>
+    <rw7_resdecayBR1gamma>        1 </rw7_resdecayBR1gamma>
+    <rw7_resdecayBR1eta>          1 </rw7_resdecayBR1eta>
+    <rw7_resdecayTheta_Delta2Npi> 1 </rw7_resdecayTheta_Delta2Npi>
+    <rw7_reslowq2>                1 </rw7_reslowq2>
+
+    <all_coh>                     0 </all_coh>
+    <rw7_cohMa>                   1 </rw7_cohMa>
+    <rw7_cohR0>                   1 </rw7_cohR0>
+
+    <all_rijk>                    1 </all_rijk>
+    <rw7_rvp1pi>                  1 </rw7_rvp1pi>
+    <rw7_rvn1pi>                  1 </rw7_rvn1pi>
+    <rw7_rvp2pi>                  1 </rw7_rvp2pi>
+    <rw7_rvn2pi>                  1 </rw7_rvn2pi>
+<!-- these need to be on if the above are on, but wont be in tuple -->
+    <internal_rvpCC1pi>                1 </internal_rvpCC1pi>
+    <internal_rvbarnCC1pi>             1 </internal_rvbarnCC1pi>
+    <internal_rvpNC1pi>                1 </internal_rvpNC1pi>
+    <internal_rvbarnNC1pi>             1 </internal_rvbarnNC1pi>
+    <internal_rvnCC1pi>                1 </internal_rvnCC1pi>
+    <internal_rvbarpCC1pi>             1 </internal_rvbarpCC1pi>
+    <internal_rvnNC1pi>                1 </internal_rvnNC1pi>
+    <internal_rvbarpNC1pi>             1 </internal_rvbarpNC1pi>
+    <internal_rvpCC2pi>                1 </internal_rvpCC2pi>
+    <internal_rvbarnCC2pi>             1 </internal_rvbarnCC2pi>
+    <internal_rvpNC2pi>                1 </internal_rvpNC2pi>
+    <internal_rvbarnNC2pi>             1 </internal_rvbarnNC2pi>
+    <internal_rvnCC2pi>                1 </internal_rvnCC2pi>
+    <internal_rvbarpCC2pi>             1 </internal_rvbarpCC2pi>
+    <internal_rvnNC2pi>                1 </internal_rvnNC2pi>
+    <internal_rvbarpNC2pi>             1 </internal_rvbarpNC2pi>
+
+    <all_dis>                     1 </all_dis>
+    <rw7_disAhtBYshape>           1 </rw7_disAhtBYshape>
+    <rw7_disBhtBYshape>           1 </rw7_disBhtBYshape>
+    <rw7_disCV1uBYshape>          1 </rw7_disCV1uBYshape>
+    <rw7_disCV2uBYshape>          1 </rw7_disCV2uBYshape>
+
+    <all_agky>                    0 </all_agky>
+    <rw7_qefgm>                   1 </rw7_qefgm>
+    <rw7_agkyxf>                  1 </rw7_agkyxf>
+    <rw7_agkypt>                  1 </rw7_agkypt>
+
+    <all_inuke>                   1 </all_inuke>
+    <rw7_inukemfppi>              1 </rw7_inukemfppi>
+    <rw7_inukemfpn>               1 </rw7_inukemfpn>
+    <rw7_inukeabspi>              1 </rw7_inukeabspi>
+    <rw7_inukecexpi>              1 </rw7_inukecexpi>
+    <rw7_inukeelaspi>             1 </rw7_inukeelaspi>
+    <rw7_inukeinelpi>             1 </rw7_inukeinelpi>
+    <rw7_inukepiprodpi>           1 </rw7_inukepiprodpi>
+    <rw7_inukeabsn>               1 </rw7_inukeabsn>
+    <rw7_inukecexn>               1 </rw7_inukecexn>
+    <rw7_inukeelasn>              1 </rw7_inukeelasn>
+    <rw7_inukeineln>              1 </rw7_inukeineln>
+    <rw7_inukepiprodn>            1 </rw7_inukepiprodn>
+    <rw7_formzone>                1 </rw7_formzone>
+
+  </param_set>
+
+
+  <param_set name="Flux_Only">
+
+    <Genie_Files>        FMC_INPUTS </Genie_Files>
+    <Flux_Version>          v3r0p10 </Flux_Version>
+    <Flux_Date>            20131216 </Flux_Date> 
+    <Flux_Type>             nominal </Flux_Type>
+    <Run_No>                   5000 </Run_No>
+    <Output_Dir>        FMC_OUTPUTS </Output_Dir>
+    <Det_Conf>                LAr_1 </Det_Conf>
+    <Events_To_Gen>         1000000 </Events_To_Gen>
+    <Events_Per_File>         10000 </Events_Per_File>
+    <Skip_RW>                     0 </Skip_RW>
+    <Gen_Log>                     1 </Gen_Log>
+    <Detector>                   FD </Detector>
+    <Channel>                   all </Channel>
+    <UseNominalFlux>              1 </UseNominalFlux>
+
+    <all_flux>                    1 </all_flux>
+
+    <all_qel>                     0 </all_qel>
+    <rw7_qelCCnorm>               1 </rw7_qelCCnorm>
+    <rw7_qelCCma>                 1 </rw7_qelCCma>
+    <rw7_qelCCmashape>            1 </rw7_qelCCmashape>
+    <rw7_qelNCma>                 1 </rw7_qelNCma>
+    <rw7_qelNCeta>                1 </rw7_qelNCeta>
+    <rw7_qelCCVecFFshape>         1 </rw7_qelCCVecFFshape>
+    <!-- Following is an experimental, by hand reweight -->
+    <rw7_qelCCvalenciaRPA>        1 </rw7_qelCCvalenciaRPA>
+    <rw7_qelNCvalenciaRPA>        1 </rw7_qelNCvalenciaRPA>
+
+    <all_res>                     0 </all_res>
+    <rw7_resCCmashape>            1 </rw7_resCCmashape>
+    <rw7_resCCnorm>               1 </rw7_resCCnorm>
+    <rw7_resCCmvshape>            1 </rw7_resCCmvshape>
+    <rw7_resCCmv>                 1 </rw7_resCCmv>
+    <rw7_resCCma>                 1 </rw7_resCCma>
+    <rw7_resNCmashape>            1 </rw7_resNCmashape>
+    <rw7_resNCnorm>               1 </rw7_resNCnorm>
+    <rw7_resNCmvshape>            1 </rw7_resNCmvshape>
+    <rw7_resNCmv>                 1 </rw7_resNCmv>
+    <rw7_resNCma>                 1 </rw7_resNCma>
+    <rw7_resdecayBR1gamma>        1 </rw7_resdecayBR1gamma>
+    <rw7_resdecayBR1eta>          1 </rw7_resdecayBR1eta>
+    <rw7_resdecayTheta_Delta2Npi> 1 </rw7_resdecayTheta_Delta2Npi>
+    <rw7_reslowq2>                1 </rw7_reslowq2>
+
+    <all_coh>                     0 </all_coh>
+    <rw7_cohMa>                   1 </rw7_cohMa>
+    <rw7_cohR0>                   1 </rw7_cohR0>
+
+    <all_rijk>                    0 </all_rijk>
+    <rw7_rvp1pi>                  1 </rw7_rvp1pi>
+    <rw7_rvn1pi>                  1 </rw7_rvn1pi>
+    <rw7_rvp2pi>                  1 </rw7_rvp2pi>
+    <rw7_rvn2pi>                  1 </rw7_rvn2pi>
+<!-- these need to be on if the above are on, but wont be in tuple -->
+    <internal_rvpCC1pi>                1 </internal_rvpCC1pi>
+    <internal_rvbarnCC1pi>             1 </internal_rvbarnCC1pi>
+    <internal_rvpNC1pi>                1 </internal_rvpNC1pi>
+    <internal_rvbarnNC1pi>             1 </internal_rvbarnNC1pi>
+    <internal_rvnCC1pi>                1 </internal_rvnCC1pi>
+    <internal_rvbarpCC1pi>             1 </internal_rvbarpCC1pi>
+    <internal_rvnNC1pi>                1 </internal_rvnNC1pi>
+    <internal_rvbarpNC1pi>             1 </internal_rvbarpNC1pi>
+    <internal_rvpCC2pi>                1 </internal_rvpCC2pi>
+    <internal_rvbarnCC2pi>             1 </internal_rvbarnCC2pi>
+    <internal_rvpNC2pi>                1 </internal_rvpNC2pi>
+    <internal_rvbarnNC2pi>             1 </internal_rvbarnNC2pi>
+    <internal_rvnCC2pi>                1 </internal_rvnCC2pi>
+    <internal_rvbarpCC2pi>             1 </internal_rvbarpCC2pi>
+    <internal_rvnNC2pi>                1 </internal_rvnNC2pi>
+    <internal_rvbarpNC2pi>             1 </internal_rvbarpNC2pi>
+
+    <all_dis>                     0 </all_dis>
+    <rw7_disAhtBYshape>           1 </rw7_disAhtBYshape>
+    <rw7_disBhtBYshape>           1 </rw7_disBhtBYshape>
+    <rw7_disCV1uBYshape>          1 </rw7_disCV1uBYshape>
+    <rw7_disCV2uBYshape>          1 </rw7_disCV2uBYshape>
+
+    <all_agky>                    0 </all_agky>
+    <rw7_qefgm>                   0 </rw7_qefgm>
+    <rw7_agkyxf>                  0 </rw7_agkyxf>
+    <rw7_agkypt>                  0 </rw7_agkypt>
+
+    <all_inuke>                   1 </all_inuke>
+    <rw7_inukemfppi>              0 </rw7_inukemfppi>
+    <rw7_inukemfpn>               0 </rw7_inukemfpn>
+    <rw7_inukeabspi>              0 </rw7_inukeabspi>
+    <rw7_inukecexpi>              0 </rw7_inukecexpi>
+    <rw7_inukeelaspi>             0 </rw7_inukeelaspi>
+    <rw7_inukeinelpi>             0 </rw7_inukeinelpi>
+    <rw7_inukepiprodpi>           0 </rw7_inukepiprodpi>
+    <rw7_inukeabsn>               0 </rw7_inukeabsn>
+    <rw7_inukecexn>               0 </rw7_inukecexn>
+    <rw7_inukeelasn>              0 </rw7_inukeelasn>
+    <rw7_inukeineln>              0 </rw7_inukeineln>
+    <rw7_inukepiprodn>            0 </rw7_inukepiprodn>
+    <!-- <rw7_formzone>                1 </rw7_formzone> -->
+
+  </param_set>
+
+  <param_set name="Minimal">
+
+    <Genie_Files>        FMC_INPUTS </Genie_Files>
+    <Flux_Version>          v3r0p10 </Flux_Version>
+    <Flux_Date>            20131216 </Flux_Date> 
+    <Flux_Type>             nominal </Flux_Type>
+    <Run_No>                   5000 </Run_No>
+    <Output_Dir>        FMC_OUTPUTS </Output_Dir>
+    <Det_Conf>                LAr_1 </Det_Conf>
+    <Events_To_Gen>           1000 </Events_To_Gen>
+    <Events_Per_File>         1000 </Events_Per_File>
+    <Skip_RW>                     0 </Skip_RW>
+    <Gen_Log>                     1 </Gen_Log>
+    <Detector>                   FD </Detector>
+    <Channel>                   all </Channel>
+    <UseNominalFlux>              1 </UseNominalFlux>
+
+    <all_flux>                    1 </all_flux>
+
+    <all_qel>                     1 </all_qel>
+    <rw7_qelCCnorm>               0 </rw7_qelCCnorm>
+    <rw7_qelCCma>                 1 </rw7_qelCCma>
+    <rw7_qelCCmashape>            0 </rw7_qelCCmashape>
+    <rw7_qelNCma>                 0 </rw7_qelNCma>
+    <rw7_qelNCeta>                0 </rw7_qelNCeta>
+    <rw7_qelCCVecFFshape>         0 </rw7_qelCCVecFFshape>
+    <!-- Following is an experimental, by hand reweight -->
+    <rw7_qelCCvalenciaRPA>        1 </rw7_qelCCvalenciaRPA>
+    <rw7_qelNCvalenciaRPA>        1 </rw7_qelNCvalenciaRPA>
+
+    <all_res>                     1 </all_res>
+    <rw7_resCCmashape>            0 </rw7_resCCmashape>
+    <rw7_resCCnorm>               0 </rw7_resCCnorm>
+    <rw7_resCCmvshape>            0 </rw7_resCCmvshape>
+    <rw7_resCCmv>                 1 </rw7_resCCmv>
+    <rw7_resCCma>                 1 </rw7_resCCma>
+    <rw7_resNCmashape>            0 </rw7_resNCmashape>
+    <rw7_resNCnorm>               0 </rw7_resNCnorm>
+    <rw7_resNCmvshape>            0 </rw7_resNCmvshape>
+    <rw7_resNCmv>                 0 </rw7_resNCmv>
+    <rw7_resNCma>                 1 </rw7_resNCma>
+    <rw7_resdecayBR1gamma>        0 </rw7_resdecayBR1gamma>
+    <rw7_resdecayBR1eta>          0 </rw7_resdecayBR1eta>
+    <rw7_resdecayTheta_Delta2Npi> 0 </rw7_resdecayTheta_Delta2Npi>
+    <rw7_reslowq2>                1 </rw7_reslowq2>
+
+    <all_coh>                     0 </all_coh>
+    <rw7_cohMa>                   1 </rw7_cohMa>
+    <rw7_cohR0>                   1 </rw7_cohR0>
+
+    <all_rijk>                    1 </all_rijk>
+    <rw7_rvp1pi>                  1 </rw7_rvp1pi>
+    <rw7_rvn1pi>                  1 </rw7_rvn1pi>
+    <rw7_rvp2pi>                  1 </rw7_rvp2pi>
+    <rw7_rvn2pi>                  1 </rw7_rvn2pi>
+
+<!-- these need to be on if the above are on, but wont be in tuple -->
+    <internal_rvpCC1pi>                1 </internal_rvpCC1pi>
+    <internal_rvbarnCC1pi>             1 </internal_rvbarnCC1pi>
+    <internal_rvpNC1pi>                1 </internal_rvpNC1pi>
+    <internal_rvbarnNC1pi>             1 </internal_rvbarnNC1pi>
+    <internal_rvnCC1pi>                1 </internal_rvnCC1pi>
+    <internal_rvbarpCC1pi>             1 </internal_rvbarpCC1pi>
+    <internal_rvnNC1pi>                1 </internal_rvnNC1pi>
+    <internal_rvbarpNC1pi>             1 </internal_rvbarpNC1pi>
+    <internal_rvpCC2pi>                1 </internal_rvpCC2pi>
+    <internal_rvbarnCC2pi>             1 </internal_rvbarnCC2pi>
+    <internal_rvpNC2pi>                1 </internal_rvpNC2pi>
+    <internal_rvbarnNC2pi>             1 </internal_rvbarnNC2pi>
+    <internal_rvnCC2pi>                1 </internal_rvnCC2pi>
+    <internal_rvbarpCC2pi>             1 </internal_rvbarpCC2pi>
+    <internal_rvnNC2pi>                1 </internal_rvnNC2pi>
+    <internal_rvbarpNC2pi>             1 </internal_rvbarpNC2pi>
+
+    <all_dis>                     0 </all_dis>
+    <rw7_disAhtBYshape>           1 </rw7_disAhtBYshape>
+    <rw7_disBhtBYshape>           1 </rw7_disBhtBYshape>
+    <rw7_disCV1uBYshape>          1 </rw7_disCV1uBYshape>
+    <rw7_disCV2uBYshape>          1 </rw7_disCV2uBYshape>
+
+    <all_agky>                    0 </all_agky>
+    <rw7_qefgm>                   0 </rw7_qefgm>
+    <rw7_agkyxf>                  0 </rw7_agkyxf>
+    <rw7_agkypt>                  0 </rw7_agkypt>
+
+    <all_inuke>                   1 </all_inuke>
+    <rw7_inukemfppi>              1 </rw7_inukemfppi>
+    <rw7_inukemfpn>               1 </rw7_inukemfpn>
+    <rw7_inukeabspi>              0 </rw7_inukeabspi>
+    <rw7_inukecexpi>              0 </rw7_inukecexpi>
+    <rw7_inukeelaspi>             0 </rw7_inukeelaspi>
+    <rw7_inukeinelpi>             0 </rw7_inukeinelpi>
+    <rw7_inukepiprodpi>           0 </rw7_inukepiprodpi>
+    <rw7_inukeabsn>               0 </rw7_inukeabsn>
+    <rw7_inukecexn>               0 </rw7_inukecexn>
+    <rw7_inukeelasn>              0 </rw7_inukeelasn>
+    <rw7_inukeineln>              0 </rw7_inukeineln>
+    <rw7_inukepiprodn>            0 </rw7_inukepiprodn>
+    <!-- <rw7_formzone>                0 </rw7_formzone> -->
+
+  </param_set>
+
+
+  <param_set name="Test">
+
+    <using_param_set>       Default </using_param_set>
+
+    <Flux_Version>           v3r2p4 </Flux_Version>
+    <Flux_Date>            20140711 </Flux_Date>
+    <Flux_Type>             nominal </Flux_Type>
+    <Events_To_Gen>         1000000 </Events_To_Gen>
+    <Events_Per_File>         10000 </Events_Per_File>
+    <Skip_RW>                     1 </Skip_RW>
+    <Gen_Log>                     0 </Gen_Log>
+
+    <all_flux>                    1 </all_flux>
+    <all_qel>                     1 </all_qel>
+    <all_res>                     0 </all_res>
+    <all_coh>                     0 </all_coh>
+    <all_rijk>                    0 </all_rijk>
+    <all_dis>                     0 </all_dis>
+    <all_agky>                    0 </all_agky>
+    <all_inuke>                   0 </all_inuke>
+
+  </param_set>
+
+
+  <param_set name="NoSystematics">
+
+    <using_param_set>       Default </using_param_set>
+
+    <Genie_Files>        FMC_INPUTS </Genie_Files>
+    <Flux_Version>          v3r2p4b </Flux_Version>
+    <Flux_Date>            20140724 </Flux_Date>
+    <Flux_Type>             nominal </Flux_Type>
+    <Run_No>                   5000 </Run_No>
+    <Output_Dir>        FMC_OUTPUTS </Output_Dir>
+    <Det_Conf>                LAr_1 </Det_Conf>
+    <Events_To_Gen>         1000000 </Events_To_Gen>
+    <Events_Per_File>          1000 </Events_Per_File>
+    <Skip_RW>                     1 </Skip_RW>
+    <Gen_Log>                     1 </Gen_Log>
+    <Detector>                   FD </Detector>
+    <Channel>                   all </Channel>
+    <UseNominalFlux>              1 </UseNominalFlux>
+  </param_set>
+
+  <param_set name="GENIE_2100_Test">
+
+      <using_param_set> Default </using_param_set>
+
+      <Genie_Files>        FMC_INPUTS </Genie_Files>
+      <Flux_Date>            20151106 </Flux_Date>
+      <Flux_Version>          v3r2p4b </Flux_Version>
+      <Flux_Type>             nominal </Flux_Type>
+      <Run_No>                   5000 </Run_No>
+      <Output_Dir>        FMC_OUTPUTS </Output_Dir>
+      <Det_Conf>                LAr_1 </Det_Conf>
+      <Events_To_Gen>         10000 </Events_To_Gen>
+      <Events_Per_File> 10000 </Events_Per_File>
+      <Skip_RW> 0 </Skip_RW>
+      <Gen_Log> 1 </Gen_Log>
+      <Detector> FD </Detector>
+      <Channel> all </Channel>
+      <UseNominalFlux> 1 </UseNominalFlux>
+
+      <comment> NuFit 2014 http://www.nu-fit.org/?q=node/92 </comment>
+      <comment> angles are given and sin^2(q_xx) </comment>
+      <sin2q12> 0.3040 </sin2q12>
+      <sin2q13_NH> 0.0218 </sin2q13_NH>
+      <sin2q13_IH> 0.0219 </sin2q13_IH>
+      <sin2q23_NH> 0.4520 </sin2q23_NH>
+      <sin2q23_IH> 0.5790 </sin2q23_IH>
+      <dm2_21> 0.0000750 </dm2_21>
+      <dm2_31_NH> 0.002457 </dm2_31_NH>
+      <dm2_31_IH> -0.002449 </dm2_31_IH>
+      <dcp> 0.0 </dcp>
+
+  </param_set>
+
+</runparam_config>
