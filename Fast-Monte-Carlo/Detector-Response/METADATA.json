@@ -1,6 +1,6 @@
 {
-    "name": "Detector Configuration",
-    "parent": "Fast Monte Carlo",
+    "name": "Detector-Configuration",
+    "parent": "Fast-Monte-Carlo",
     "contacts": [
         {
             "name": "Dan Cherdack",
