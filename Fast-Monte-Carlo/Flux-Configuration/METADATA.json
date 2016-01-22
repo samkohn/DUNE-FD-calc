@@ -1,0 +1,12 @@
+{
+    "name": "Flux-Configuration",
+    "parent": "Fast-Monte-Carlo",
+    "contacts": [
+        {
+            "name": "Dan Cherdack",
+            "email": "daniel.cherdack@colostate.edu"
+        }
+    ],
+    "description source description": "DUNE Fast Monte Carlo FNAL Redmine wiki",
+    "description source location": "https://cdcvs.fnal.gov/redmine/projects/fast_mc/wiki/Physics_and_Detector_Inputs_and_Assumptions"
+}

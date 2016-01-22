@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<detparam_config>
+  
+  <param_set name="LAr_1">
+    
+    <mupm_Ep_lowwidth>      5.0   </mupm_Ep_lowwidth>
+    <mupm_Ep_lowbias>       1.0   </mupm_Ep_lowbias>
+    <mupm_Ep_highwidth>    30.0   </mupm_Ep_highwidth>
+    <mupm_Ep_highbias>      5.0   </mupm_Ep_highbias>
+    <mupm_Ep_highorlow>     5.0   </mupm_Ep_highorlow>
+    <mupm_q_width>          1.0   </mupm_q_width>
+    <mupm_q_bias>           0.0   </mupm_q_bias>
+    <mupm_E_thresh>         0.030 </mupm_E_thresh>
+    
+    <epm_Ep_lowwidth>       15.0   </epm_Ep_lowwidth>
+    <epm_Ep_lowbias>         2.0   </epm_Ep_lowbias>
+    <epm_Ep_highwidth>      15.0   </epm_Ep_highwidth>
+    <epm_Ep_highbias>        2.0   </epm_Ep_highbias>
+    <epm_Ep_highorlow>   99999.0   </epm_Ep_highorlow>
+    <epm_q_width>            1.0   </epm_q_width>
+    <epm_q_bias>             0.0   </epm_q_bias>
+    <epm_E_thresh>           0.030 </epm_E_thresh>
+
+    <pipm_Ep_lowwidth>       5.0   </pipm_Ep_lowwidth>
+    <pipm_Ep_lowbias>        1.0   </pipm_Ep_lowbias>
+    <pipm_Ep_highwidth>     30.0   </pipm_Ep_highwidth>
+    <pipm_Ep_highbias>       5.0   </pipm_Ep_highbias>
+    <pipm_Ep_highorlow>      0.5   </pipm_Ep_highorlow>
+    <pipm_q_width>           1.0   </pipm_q_width>
+    <pipm_q_bias>            0.0   </pipm_q_bias>
+    <pipm_E_thresh>          0.1   </pipm_E_thresh>
+
+    <pi0_Ep_lowwidth>       28.0   </pi0_Ep_lowwidth>
+    <pi0_Ep_lowbias>         2.8   </pi0_Ep_lowbias>
+    <pi0_Ep_highwidth>      28.0   </pi0_Ep_highwidth>
+    <pi0_Ep_highbias>        2.8   </pi0_Ep_highbias>
+    <pi0_Ep_highorlow>       0.0   </pi0_Ep_highorlow>
+    <pi0_q_width>            3.0   </pi0_q_width>
+    <pi0_q_bias>             0.0   </pi0_q_bias>
+    <pi0_E_thresh>           0.042 </pi0_E_thresh>
+
+    <p_Ep_lowwidth>        10.0   </p_Ep_lowwidth>
+    <p_Ep_lowbias>          1.0   </p_Ep_lowbias>
+    <p_Ep_highwidth>       30.0   </p_Ep_highwidth>
+    <p_Ep_highbias>         5.0   </p_Ep_highbias>
+    <p_Ep_highorlow>        0.4   </p_Ep_highorlow>     
+    <p_q_width>             5.0   </p_q_width>
+    <p_q_bias>              0.0   </p_q_bias>
+    <p_E_thresh>            0.050 </p_E_thresh>
+
+    <n_Ep_lowwidth>        50.0   </n_Ep_lowwidth>
+    <n_Ep_lowbias>          0.0   </n_Ep_lowbias>
+    <n_Ep_highwidth>       40.0   </n_Ep_highwidth>
+    <n_Ep_highbias>         0.0   </n_Ep_highbias>
+    <n_Ep_highorlow>        1.0   </n_Ep_highorlow>     
+    <n_q_width>             5.0   </n_q_width>
+    <n_q_bias>              0.0   </n_q_bias>
+    <n_E_thresh>            0.050 </n_E_thresh>
+    <n_escape_prob>         0.10  </n_escape_prob>
+    <n_KE_frac>             0.60  </n_KE_frac>
+
+    <gamma_Ep_lowwidth>     15.0   </gamma_Ep_lowwidth>
+    <gamma_Ep_lowbias>       2.0   </gamma_Ep_lowbias>
+    <gamma_Ep_highwidth>    15.0   </gamma_Ep_highwidth>
+    <gamma_Ep_highbias>      2.0   </gamma_Ep_highbias>
+    <gamma_Ep_highorlow>     0.0   </gamma_Ep_highorlow>
+    <gamma_q_width>          1.0   </gamma_q_width>
+    <gamma_q_bias>           0.0   </gamma_q_bias>
+    <gamma_E_thresh>         0.030 </gamma_E_thresh>
+
+    <other_Ep_lowwidth>     30.0   </other_Ep_lowwidth>
+    <other_Ep_lowbias>       5.0   </other_Ep_lowbias>
+    <other_Ep_highwidth>    30.0   </other_Ep_highwidth>
+    <other_Ep_highbias>      5.0   </other_Ep_highbias>
+    <other_Ep_highorlow>     1.5   </other_Ep_highorlow>
+    <other_q_width>          5.0   </other_q_width>
+    <other_q_bias>           0.0   </other_q_bias>
+    <other_E_thresh>         0.050 </other_E_thresh>
+
+
+    <comment> Det inside dim in [m] </comment>
+    <DetXmax>                6.95   </DetXmax>
+    <DetXmin>               -6.95   </DetXmin>
+    <DetYmax>                7.00   </DetYmax>
+    <DetYmin>               -7.00   </DetYmin>
+    <DetZmax>               25.30   </DetZmax>
+    <DetZmin>                0.00   </DetZmin>
+
+    <comment> The distance in [m] from the edge of the induction plane/collection plane/front wall/back wall defining the Fid Vol </comment>
+    <FidVol_XminD>           0.5   </FidVol_XminD>
+    <FidVol_XmaxD>           0.5   </FidVol_XmaxD>
+    <FidVol_YminD>           0.5   </FidVol_YminD>
+    <FidVol_YmaxD>           0.5   </FidVol_YmaxD>
+    <FidVol_ZminD>           1.0   </FidVol_ZminD>
+    <FidVol_ZmaxD>           2.5   </FidVol_ZmaxD>
+
+    <PionMassCut>            0.135 </PionMassCut>          <!-- GeV -->
+    <VtxRadius>              2.0   </VtxRadius>            <!-- cm -->
+    <nue_select_param>      -4.0   </nue_select_param>     
+    <numu_select_param>      0.8   </numu_select_param>    
+    <pi_range_frac>          0.90  </pi_range_frac>       
+    <pion_abs_frac>          0.15  </pion_abs_frac>       
+
+
+  </param_set>
+
+
+  <param_set name="STT_1">
+    
+    <mupm_Ep_lowwidth>      0.0   </mupm_Ep_lowwidth>
+    <mupm_Ep_lowbias>       0.0   </mupm_Ep_lowbias>
+    <mupm_Ep_highwidth>     0.0   </mupm_Ep_highwidth>
+    <mupm_Ep_highbias>      0.0   </mupm_Ep_highbias>
+    <mupm_Ep_highorlow> 99999.0   </mupm_Ep_highorlow>
+    <mupm_q_width>          0.0   </mupm_q_width>
+    <mupm_q_bias>           0.0   </mupm_q_bias>
+    <mupm_E_thresh>         0.2   </mupm_E_thresh>
+    
+    <epm_Ep_lowwidth>       0.0   </epm_Ep_lowwidth>
+    <epm_Ep_lowbias>        0.0   </epm_Ep_lowbias>
+    <epm_Ep_highwidth>      0.0   </epm_Ep_highwidth>
+    <epm_Ep_highbias>       0.0   </epm_Ep_highbias>
+    <epm_Ep_highorlow>  99999.0   </epm_Ep_highorlow>
+    <epm_q_width>           0.0   </epm_q_width>
+    <epm_q_bias>            0.0   </epm_q_bias>
+    <epm_E_thresh>          0.05  </epm_E_thresh>
+
+    <pipm_Ep_lowwidth>       0.0   </pipm_Ep_lowwidth>
+    <pipm_Ep_lowbias>        0.0   </pipm_Ep_lowbias>
+    <pipm_Ep_highwidth>      0.0   </pipm_Ep_highwidth>
+    <pipm_Ep_highbias>       0.0   </pipm_Ep_highbias>
+    <pipm_Ep_highorlow>  99999.0   </pipm_Ep_highorlow>
+    <pipm_q_width>           0.0   </pipm_q_width>
+    <pipm_q_bias>            0.0   </pipm_q_bias>
+    <pipm_E_thresh>         0.05   </pipm_E_thresh>
+
+    <pi0_Ep_lowwidth>        6.0   </pi0_Ep_lowwidth>
+    <pi0_Ep_lowbias>         0.0   </pi0_Ep_lowbias>
+    <pi0_Ep_highwidth>       0.0   </pi0_Ep_highwidth>
+    <pi0_Ep_highbias>        0.0   </pi0_Ep_highbias>
+    <pi0_Ep_highorlow>   99999.0   </pi0_Ep_highorlow>
+    <pi0_q_width>            0.0   </pi0_q_width>
+    <pi0_q_bias>             0.0   </pi0_q_bias>
+    <pi0_E_thresh>           0.1   </pi0_E_thresh>
+
+    <p_Ep_lowwidth>         0.0   </p_Ep_lowwidth>
+    <p_Ep_lowbias>          0.0   </p_Ep_lowbias>
+    <p_Ep_highwidth>        0.0   </p_Ep_highwidth>
+    <p_Ep_highbias>         0.0   </p_Ep_highbias>
+    <p_Ep_highorlow>    99999.0   </p_Ep_highorlow>     
+    <p_q_width>             0.0   </p_q_width>
+    <p_q_bias>              0.0   </p_q_bias>
+    <p_E_thresh>           0.08   </p_E_thresh>
+
+    <n_Ep_lowwidth>        50.0   </n_Ep_lowwidth>
+    <n_Ep_lowbias>          0.0   </n_Ep_lowbias>
+    <n_Ep_highwidth>        0.0   </n_Ep_highwidth>
+    <n_Ep_highbias>         0.0   </n_Ep_highbias>
+    <n_Ep_highorlow>    99999.0   </n_Ep_highorlow>     
+    <n_q_width>             0.0   </n_q_width>
+    <n_q_bias>              0.0   </n_q_bias>
+    <n_E_thresh>            0.25  </n_E_thresh>
+    <n_escape_prob>         0.90  </n_escape_prob>
+    <n_KE_frac>             0.50  </n_KE_frac>
+
+    <gamma_Ep_lowwidth>      6.0   </gamma_Ep_lowwidth>
+    <gamma_Ep_lowbias>       0.0   </gamma_Ep_lowbias>
+    <gamma_Ep_highwidth>     0.0   </gamma_Ep_highwidth>
+    <gamma_Ep_highbias>      0.0   </gamma_Ep_highbias>
+    <gamma_Ep_highorlow> 99999.0   </gamma_Ep_highorlow>
+    <gamma_q_width>          0.0   </gamma_q_width>
+    <gamma_q_bias>           0.0   </gamma_q_bias>
+    <gamma_E_thresh>         0.1   </gamma_E_thresh>
+
+    <other_Ep_lowwidth>     50.0   </other_Ep_lowwidth>
+    <other_Ep_lowbias>       0.0   </other_Ep_lowbias>
+    <other_Ep_highwidth>     0.0   </other_Ep_highwidth>
+    <other_Ep_highbias>      0.0   </other_Ep_highbias>
+    <other_Ep_highorlow> 99999.0   </other_Ep_highorlow>
+    <other_q_width>          0.0   </other_q_width>
+    <other_q_bias>           0.0   </other_q_bias>
+    <other_E_thresh>         0.25  </other_E_thresh>
+
+    <DetXmax>                1.75   </DetXmax>
+    <DetXmin>               -1.75   </DetXmin>
+    <DetYmax>                1.75   </DetYmax>
+    <DetYmin>               -1.75   </DetYmin>
+    <DetZmax>                7.04   </DetZmax>
+    <DetZmin>                0.00   </DetZmin>
+
+    <FidVol_XminD>           0.25   </FidVol_XminD>
+    <FidVol_XmaxD>           0.25   </FidVol_XmaxD>
+    <FidVol_YminD>           0.25   </FidVol_YminD>
+    <FidVol_YmaxD>           0.25   </FidVol_YmaxD>
+    <FidVol_ZminD>           0.25   </FidVol_ZminD>
+    <FidVol_ZmaxD>           1.54   </FidVol_ZmaxD>
+
+    <PionMassCut>            0.4   </PionMassCut>
+    <VtxRadius>              2.0   </VtxRadius>
+    <nue_select_param>      -4.0   </nue_select_param>
+    <numu_select_param>      0.8   </numu_select_param>
+    <pi_range_frac>          0.90  </pi_range_frac>
+    <pion_abs_frac>          0.15  </pion_abs_frac>
+
+  </param_set>
+
+
+</detparam_config>
