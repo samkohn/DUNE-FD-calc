@@ -1,0 +1,16 @@
+{
+    "name": "Detector Configuration",
+    "parent": "Fast Monte Carlo",
+    "contacts": [
+        {
+            "name": "Dan Cherdack",
+            "email": "daniel.cherdack@colostate.edu"
+        }
+    ],
+    "data file source description": "DUNE Fast Monte Carlo svn repository",
+    "data file source location": "https://cdcvs.fnal.gov/redmine/projects/fast_mc/repository/entry/trunk/config/FastMC_DetParams.xml",
+    "data file name": "FastMC_DetParams.xml",
+    "data file type": "xml",
+    "description source description": "FNAL Redmine Fast Monte Carlo wiki page",
+    "description source location": "https://cdcvs.fnal.gov/redmine/projects/fast_mc/wiki/Physics_and_Detector_Inputs_and_Assumptions"
+}
