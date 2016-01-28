@@ -4,7 +4,13 @@
     "contacts": [
         {
             "name": "Dan Cherdack",
-            "email": "daniel.cherdack@colostate.edu"
+            "email": "daniel.cherdack@colostate.edu",
+            "for": "XML configuration file"
+        },
+        {
+            "name": "Sam Kohn",
+            "email": "skohn@lbl.gov",
+            "for": ["Detector response matrices", "Histograms"]
         }
     ],
     "data file source description": "DUNE Fast Monte Carlo svn repository",
