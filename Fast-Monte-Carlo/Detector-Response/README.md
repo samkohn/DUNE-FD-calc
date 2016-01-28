@@ -40,6 +40,11 @@ information:
    vector by the matrix to get the reconstructed energy in those same 40
    bins of 250 MeV.
 
+Note: The matrix is normalized so that probability is conserved. This
+means each column is normalized to 1. One result of this is that the
+histograms will not match the matrices, since the columns are normalized
+independently.
+
 #### Algorithm Description
 The basic detector response [^1] is the energy/momentum/angle smearing, and
 detection thresholds for final-state particles. Particles that produce
