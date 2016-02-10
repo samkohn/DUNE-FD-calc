@@ -7,7 +7,16 @@ Flux Configuration
 
 #### Description
 
+#### Beam flux files
 
+The .csv files give the beam flux used in the Fast Monte Carlo
+calculations. The filename is split into three parts: (a)nuflux, which
+describes whether the beam is in neutrino or antineutrino mode; nu(e,
+mu, tau)(bar)flux, which describes the particular neutrino being
+produced; and a number describing the number of energy bins between 0
+and 10 GeV (e.g. 40). The normalization is arbitrary.
+
+#### Flux optimization procedure
 
 The flux [^1] we use starts with the flux histograms produced by the
 flux group. We have made a few modifications to these in order to solve
