@@ -1,0 +1,12 @@
+{
+    "name": "Efficiencies",
+    "parent": "Fast-Monte-Carlo",
+    "contact": [
+        {
+            "name": "Sam Kohn",
+            "email": "skohn@lbl.gov"
+        }
+    ],
+    "data file source description": "DUNE CDR Physics Volume (2) Figure 3.4 [arXiv: 1512.06148v1]",
+    "data file source location": "http://arxiv.org/abs/1512.06148v1",
+}

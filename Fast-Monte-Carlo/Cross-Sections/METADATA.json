@@ -1,0 +1,14 @@
+{
+    "name": "Cross-Sections",
+    "parent": "Fast-Monte-Carlo",
+    "contact": [
+        {
+            "name": "Sam Kohn",
+            "email": "skohn@lbl.gov"
+        }
+    ],
+    "data file source description": "DUNE cluster @ FNAL, GENIE spline file",
+    "data file source location": "/dune/app/users/lblpwg_tools/SOFTWARE/genie-2.10.0-20151103/splines/gxspl-big.xml",
+    "data file name": "gxspl-big.xml",
+    "data file type": "xml"
+}
