@@ -96,7 +96,6 @@ class BeamFlux(SimulationComponent):
         if self.bins is None:
             self.bins = Binning(np.arange(0, 10.25, 0.25))
 
-
     def extract(self, name, withEnergy=False):
         thing = None
         if withEnergy:
@@ -164,6 +163,7 @@ class OscillationProbability(SimulationComponent):
         if name == 'nue2nutau':
             return np.asarray(thing[2*self.bins.n:3*self.bins.n])
         raise ValueError("Bad name")
+
 
 if __name__ == "__main__":
     # Example run
