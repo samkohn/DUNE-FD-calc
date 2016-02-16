@@ -37,6 +37,11 @@ class SimulationComponent(np.matrix):
         self.bins = getattr(obj, 'bins', None)
         self.dataFileLocation = getattr(obj, 'dataFileLocation', None)
 
+    def evolve(self, other):
+        result = other * self
+        newDataFormat = other.nextFormat
+        return result.view(newDataFormat)
+
     @staticmethod
     def _getMatrixForm(data):
         """
@@ -98,6 +103,7 @@ class BeamFlux(SimulationComponent):
         raise ValueError("Bad name")
 
 class OscillationProbability(SimulationComponent):
+    nextFormat = BeamFlux
     def __new__(cls, location):
         obj = SimulationComponent.__new__(cls, location)
         obj.bins = Binning(np.arange(0, 10.25, 0.25))
@@ -149,13 +155,13 @@ if __name__ == "__main__":
     BeamFlux('../Fast-Monte-Carlo/Flux-Configuration/nuflux_nueflux_nue40.csv')
     oscprob = \
     OscillationProbability('../Fast-Monte-Carlo/Oscillation-Parameters/numu_nue40.csv')
-    oscflux = (oscprob * flux).view(BeamFlux)
+    oscflux = flux.evolve(oscprob)
     print "nue flux\n", oscflux.extract('nue flux')
     print "numu flux\n", oscflux.extract('numu flux')
 
     print "Fetch change in flux from one delta-CP to another,",
     print "as a function of energy"
     oscprob2 = np.diag(oscprob.diagonal() + 0.01)#OscillationProbability('prob2.csv')
-    oscflux2 = (oscprob2 * flux).view(BeamFlux)
+    oscflux2 = flux.evolve(oscprob2)
     diff = oscflux2 - oscflux
     print diff.extract('nue flux', withEnergy=True)
