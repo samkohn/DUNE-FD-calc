@@ -88,6 +88,15 @@ class BeamFlux(SimulationComponent):
     def zipWithEnergy(self):
         return zip(np.tile(self.bins.centers, 3), self)
 
+    def __array_finalize__(self, obj):
+        if obj is None: return
+        self.description = getattr(obj, 'description', None)
+        self.bins = getattr(obj, 'bins', None)
+        self.dataFileLocation = getattr(obj, 'dataFileLocation', None)
+        if self.bins is None:
+            self.bins = Binning(np.arange(0, 10.25, 0.25))
+
+
     def extract(self, name, withEnergy=False):
         thing = None
         if withEnergy:
@@ -133,6 +142,14 @@ class OscillationProbability(SimulationComponent):
 
     def zipWithEnergy(self):
         return zip(np.tile(self.bins.centers, 3), self.diagonal())
+
+    def __array_finalize__(self, obj):
+        if obj is None: return
+        self.description = getattr(obj, 'description', None)
+        self.bins = getattr(obj, 'bins', None)
+        self.dataFileLocation = getattr(obj, 'dataFileLocation', None)
+        if self.bins is None:
+            self.bins = Binning(np.arange(0, 10.25, 0.25))
 
     def extract(self, name, withEnergy=False):
         thing = None
