@@ -1,7 +1,11 @@
 import numpy as np
 import csv
 
+def setEnergyBins(bins):
+    SimulationComponent.defaultBinning = Binning(bins)
+
 class SimulationComponent(np.matrix):
+    defaultBinning = None
     def __new__(cls, arg): # TODO **kwargs
         """
         Read in data from either an array-like object or a file location
@@ -12,6 +16,9 @@ class SimulationComponent(np.matrix):
         _getMatrixForm method.
 
         """
+        if cls.defaultBinning is None:
+            raise Exception("Must define " +
+                "SimulationComponent.defaultBinning first")
         data = None
         try: # assume data is a numpy array or array-like
             data = np.asanyarray(arg, dtype=np.float64)
@@ -45,7 +52,7 @@ class SimulationComponent(np.matrix):
         self.bins = getattr(obj, 'bins', None)
         self.dataFileLocation = getattr(obj, 'dataFileLocation', None)
         if self.bins is None:
-            self.bins = Binning(np.arange(0, 10.25, 0.25))
+            self.bins = self.defaultBinning
 
     def evolve(self, other):
         result = other * self
@@ -77,7 +84,7 @@ class Binning(object):
 class BeamFlux(SimulationComponent):
     def __new__(cls, arg):
         obj = SimulationComponent.__new__(cls, arg)
-        obj.bins = Binning(np.arange(0, 10.25, 0.25))
+        obj.bins = cls.defaultBinning
         return obj
 
     @staticmethod
@@ -116,7 +123,7 @@ class OscillationProbability(SimulationComponent):
     nextFormat = BeamFlux
     def __new__(cls, arg):
         obj = SimulationComponent.__new__(cls, arg)
-        obj.bins = Binning(np.arange(0, 10.25, 0.25))
+        obj.bins = cls.defaultBinning
         return obj
 
     @staticmethod
@@ -161,6 +168,7 @@ class OscillationProbability(SimulationComponent):
 
 if __name__ == "__main__":
     # Example run
+    setEnergyBins(np.arange(0, 10.25, 0.25))
     print "Computing oscillated flux"
     flux = \
     BeamFlux('../Fast-Monte-Carlo/Flux-Configuration/nuflux_nueflux_nue40.csv')
