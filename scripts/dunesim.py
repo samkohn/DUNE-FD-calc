@@ -29,7 +29,6 @@ class SimulationComponent(np.matrix):
         obj.description = None
         obj.bins = None # Instance of Binning object
         obj.dataFileLocation = None
-        obj.views = {} # any views into the data, e.g. 'nue flux'
         return obj
 
     def __array_finalize__(self, obj):
@@ -37,7 +36,6 @@ class SimulationComponent(np.matrix):
         self.description = getattr(obj, 'description', None)
         self.bins = getattr(obj, 'bins', None)
         self.dataFileLocation = getattr(obj, 'dataFileLocation', None)
-        self.views = getattr(obj, 'views', None)
 
     @staticmethod
     def _getMatrixForm(data):
@@ -65,13 +63,7 @@ class BeamFlux(SimulationComponent):
     def __new__(cls, location):
         obj = SimulationComponent.__new__(cls, location)
         obj.bins = Binning(np.arange(0, 10.25, 0.25))
-        obj.views['nue flux'] = obj[:obj.bins.n]
-        obj.views['numu flux'] = obj[obj.bins.n:2*obj.bins.n]
-        obj.views['nutau flux'] = obj[2*obj.bins.n:3*obj.bins.n]
         return obj
-
-    def __array_finalize__(self, obj):
-        pass
 
     @staticmethod
     def _getMatrixForm(data):
@@ -91,13 +83,24 @@ class BeamFlux(SimulationComponent):
     def zipWithEnergy(self):
         return zip(np.tile(self.bins.centers, 3), self)
 
+    def extract(self, name, withEnergy=False):
+        thing = None
+        if withEnergy:
+            thing = self.zipWithEnergy()
+        else:
+            thing = self
+        if name == 'nue flux':
+            return np.asarray(thing[0:self.bins.n])
+        if name == 'numu flux':
+            return np.asarray(thing[self.bins.n:2*self.bins.n])
+        if name == 'nutau flux':
+            return np.asarray(thing[2*self.bins.n:3*self.bins.n])
+        raise ValueError("Bad name")
+
 class OscillationProbability(SimulationComponent):
     def __new__(cls, location):
         obj = SimulationComponent.__new__(cls, location)
         obj.bins = Binning(np.arange(0, 10.25, 0.25))
-        obj.views['nue2nue'] = obj.diagonal()[:obj.bins.n]
-        obj.views['nue2numu'] = obj.diagonal()[obj.bins.n:2*obj.bins.n]
-        obj.views['nue2nutau'] = obj.diagonal()[2*obj.bins.n:3*obj.bins.n]
         return obj
 
     @staticmethod
@@ -125,18 +128,34 @@ class OscillationProbability(SimulationComponent):
     def zipWithEnergy(self):
         return zip(np.tile(self.bins.centers, 3), self.diagonal())
 
+    def extract(self, name, withEnergy=False):
+        thing = None
+        if withEnergy:
+            thing = self.zipWithEnergy()
+        else:
+            thing = self.diagonal()
+        if name == 'nue2nue':
+            return np.asarray(thing[0:self.bins.n])
+        if name == 'nue2numu':
+            return np.asarray(thing[self.bins.n:2*self.bins.n])
+        if name == 'nue2nutau':
+            return np.asarray(thing[2*self.bins.n:3*self.bins.n])
+        raise ValueError("Bad name")
+
 if __name__ == "__main__":
     # Example run
     print "Computing oscillated flux"
-    flux = BeamFlux('flux.csv')
-    oscprob = OscillationProbability('prob.csv')
-    oscflux = oscprob * flux
-    print "nue flux\n", oscflux.views['nue flux']
-    print "numu flux\n", oscflux.views['numu flux']
+    flux = \
+    BeamFlux('../Fast-Monte-Carlo/Flux-Configuration/nuflux_nueflux_nue40.csv')
+    oscprob = \
+    OscillationProbability('../Fast-Monte-Carlo/Oscillation-Parameters/numu_nue40.csv')
+    oscflux = (oscprob * flux).view(BeamFlux)
+    print "nue flux\n", oscflux.extract('nue flux')
+    print "numu flux\n", oscflux.extract('numu flux')
 
     print "Fetch change in flux from one delta-CP to another,",
     print "as a function of energy"
-    oscprob_newdCP = OscillationProbability('prob2.csv')
-    oscflux2 = oscprob2 * flux
+    oscprob2 = np.diag(oscprob.diagonal() + 0.01)#OscillationProbability('prob2.csv')
+    oscflux2 = (oscprob2 * flux).view(BeamFlux)
     diff = oscflux2 - oscflux
-    print diff.views['nue flux'].zipWithEnergy()
+    print diff.extract('nue flux', withEnergy=True)
