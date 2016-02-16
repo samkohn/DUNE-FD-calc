@@ -125,14 +125,6 @@ class OscillationProbability(SimulationComponent):
     def zipWithEnergy(self):
         return zip(np.tile(self.bins.centers, 3), self.diagonal())
 
-
-class A(object):
-    def __init__(self):
-        print "Init A"
-
-class B(A):
-    def __init__(self):
-        print "Init B"
 if __name__ == "__main__":
     # Example run
     print "Computing oscillated flux"
