@@ -29,8 +29,7 @@ class SimulationComponent(np.matrix):
         obj.description = None
         obj.bins = None # Instance of Binning object
         obj.dataFileLocation = None
-        obj.views = [] # any views into the data, e.g. 'nue flux'
-        # Store the data in the underlying np.matrix structure
+        obj.views = {} # any views into the data, e.g. 'nue flux'
         return obj
 
     def __array_finalize__(self, obj):
@@ -51,21 +50,6 @@ class SimulationComponent(np.matrix):
         raise NotImplementedError("Must override this method in " +
         " a subclass.")
 
-    # Various views on the data: for example
-    # ['nue flux', 'numu flux', ...]
-    # or ['nueCC spectrum','nueNC spectrum', ...]
-    # This may require more variables to keep track of the state of the
-    # object.
-    def extract(self, viewName):
-        """
-        Extract a particular part of the data, for example the nue
-        spectrum.
-
-        If no special views exist, simply returns self in all cases.
-
-        """
-        return self
-
 class Binning(object):
     def __init__(self, edges):
         self.edges = np.array(edges)
@@ -74,13 +58,16 @@ class Binning(object):
         self.end = self.edges[-1]
         for ind, (i, j) in enumerate(zip(self.edges[:-1], self.edges[1:])):
             self.centers[ind] = ((i + j)/2.0)
+        self.n = len(self.centers)
 
 
 class BeamFlux(SimulationComponent):
     def __new__(cls, location):
         obj = SimulationComponent.__new__(cls, location)
-        obj.views.extend(['nue flux', 'numu flux', 'nutau flux'])
         obj.bins = Binning(np.arange(0, 10.25, 0.25))
+        obj.views['nue flux'] = obj[:obj.bins.n]
+        obj.views['numu flux'] = obj[obj.bins.n:2*obj.bins.n]
+        obj.views['nutau flux'] = obj[2*obj.bins.n:3*obj.bins.n]
         return obj
 
     def __array_finalize__(self, obj):
@@ -102,27 +89,19 @@ class BeamFlux(SimulationComponent):
             raise ValueError("Data not a column vector")
 
     def zipWithEnergy(self):
-        return zip(self.bins.centers, self)
-
-    def extract(self, viewName):
-        nbins = len(self.bins.centers)
-        start = 0
-        end = 0
-        if viewName == 'nue flux':
-            start = 0
-            end = nbins
-        elif viewName == 'numu flux':
-            start = nbins
-            end = 2 * nbins
-        elif viewName == 'nutau flux':
-            start = 2 * nbins
-            end = 3 * nbins
-        else:
-            raise ValueError("Bad viewName")
-        return self[start:end]
+        return zip(np.tile(self.bins.centers, 3), self)
 
 class OscillationProbability(SimulationComponent):
-    def _getMatrixForm(self, data):
+    def __new__(cls, location):
+        obj = SimulationComponent.__new__(cls, location)
+        obj.bins = Binning(np.arange(0, 10.25, 0.25))
+        obj.views['nue2nue'] = obj.diagonal()[:obj.bins.n]
+        obj.views['nue2numu'] = obj.diagonal()[obj.bins.n:2*obj.bins.n]
+        obj.views['nue2nutau'] = obj.diagonal()[2*obj.bins.n:3*obj.bins.n]
+        return obj
+
+    @staticmethod
+    def _getMatrixForm(data):
         """
         Ensure that the data is either a column vector or a diagonal
         matrix and return it.
@@ -144,7 +123,7 @@ class OscillationProbability(SimulationComponent):
             raise ValueError("Bad format for data")
 
     def zipWithEnergy(self):
-        return zip(self.bins.centers, self.diagonal())
+        return zip(np.tile(self.bins.centers, 3), self.diagonal())
 
 
 class A(object):
@@ -160,12 +139,12 @@ if __name__ == "__main__":
     flux = BeamFlux('flux.csv')
     oscprob = OscillationProbability('prob.csv')
     oscflux = oscprob * flux
-    print "nue flux\n", oscflux.view('nue flux')
-    print "numu flux\n", oscflux.view('numu flux')
+    print "nue flux\n", oscflux.views['nue flux']
+    print "numu flux\n", oscflux.views['numu flux']
 
     print "Fetch change in flux from one delta-CP to another,",
     print "as a function of energy"
     oscprob_newdCP = OscillationProbability('prob2.csv')
     oscflux2 = oscprob2 * flux
     diff = oscflux2 - oscflux
-    print diff.view('nue flux', withEnergy=True)
+    print diff.views['nue flux'].zipWithEnergy()
