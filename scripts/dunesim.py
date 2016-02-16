@@ -2,28 +2,36 @@ import numpy as np
 import csv
 
 class SimulationComponent(np.matrix):
-    def __new__(cls, location): # TODO **kwargs
+    def __new__(cls, arg): # TODO **kwargs
         """
-        Read in data from location and assign it to the np.matrix
-        (inherited) data structure.
+        Read in data from either an array-like object or a file location
+        and assign it to the np.matrix (inherited) data structure.
 
         This base class method reads in the data, and each subclass must
-        define how to convert that data into an np.matrix.
+        define how to convert that data into an np.matrix via the
+        _getMatrixForm method.
 
         """
-        # read in data
-        data = []
-        with open(location) as fin:
-            reader = csv.reader(fin)
-            for row in reader:
-                data.append(map(float, row))
-        # This conditional remedies various csv formatting styles (e.g.
-        # all one row or all one column)
-        if len(data) == 1: # all one row
-            data = data[0]
-        elif len(data[0]) == 1: # all one column
-            data = zip(*data)[0]
-        data = cls._getMatrixForm(data)
+        data = None
+        try: # assume data is a numpy array or array-like
+            data = np.asanyarray(arg, dtype=np.float64)
+        except ValueError: # maybe data is a location of a file
+            location = arg
+            # read in data
+            data = []
+            with open(location) as fin:
+                reader = csv.reader(fin)
+                for row in reader:
+                    data.append(map(float, row))
+            # This conditional remedies various csv formatting styles (e.g.
+            # all one row or all one column)
+            if len(data) == 1: # all one row
+                data = data[0]
+            elif len(data[0]) == 1: # all one column
+                data = zip(*data)[0]
+            data = cls._getMatrixForm(data)
+        except: # maybe it's unknown
+            raise
         # Store the data in the underlying np.matrix structure
         obj = np.matrix.__new__(cls, data)
         obj.description = None
@@ -65,8 +73,8 @@ class Binning(object):
 
 
 class BeamFlux(SimulationComponent):
-    def __new__(cls, location):
-        obj = SimulationComponent.__new__(cls, location)
+    def __new__(cls, arg):
+        obj = SimulationComponent.__new__(cls, arg)
         obj.bins = Binning(np.arange(0, 10.25, 0.25))
         return obj
 
@@ -112,8 +120,8 @@ class BeamFlux(SimulationComponent):
 
 class OscillationProbability(SimulationComponent):
     nextFormat = BeamFlux
-    def __new__(cls, location):
-        obj = SimulationComponent.__new__(cls, location)
+    def __new__(cls, arg):
+        obj = SimulationComponent.__new__(cls, arg)
         obj.bins = Binning(np.arange(0, 10.25, 0.25))
         return obj
 
@@ -178,7 +186,8 @@ if __name__ == "__main__":
 
     print "Fetch change in flux from one delta-CP to another,",
     print "as a function of energy"
-    oscprob2 = np.diag(oscprob.diagonal() + 0.01)#OscillationProbability('prob2.csv')
+    oscprob2 = OscillationProbability(np.diag(oscprob.diagonal() +
+            0.01))#OscillationProbability('prob2.csv')
     oscflux2 = flux.evolve(oscprob2)
     diff = oscflux2 - oscflux
     print diff.extract('nue flux', withEnergy=True)
