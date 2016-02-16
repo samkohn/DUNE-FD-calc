@@ -1,4 +1,5 @@
 import numpy as np
+import csv
 
 class SimulationComponent(np.matrix):
     def __new__(cls, location): # TODO **kwargs
@@ -10,9 +11,20 @@ class SimulationComponent(np.matrix):
         define how to convert that data into an np.matrix.
 
         """
-        #TODO read in data
-        data = location
+        # read in data
+        data = []
+        with open(location) as fin:
+            reader = csv.reader(fin)
+            for row in reader:
+                data.append(map(float, row))
+        # This conditional remedies various csv formatting styles (e.g.
+        # all one row or all one column)
+        if len(data) == 1: # all one row
+            data = data[0]
+        elif len(data[0]) == 1: # all one column
+            data = zip(*data)[0]
         data = cls._getMatrixForm(data)
+        # Store the data in the underlying np.matrix structure
         obj = np.matrix.__new__(cls, data)
         obj.description = None
         obj.bins = None # Instance of Binning object
