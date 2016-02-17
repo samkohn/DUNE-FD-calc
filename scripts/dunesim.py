@@ -5,6 +5,23 @@ def setEnergyBins(bins):
     SimulationComponent.defaultBinning = Binning(bins)
 
 class SimulationComponent(np.matrix):
+    """
+    This is the base class for all of the data structures used in the
+    simulation.
+
+    To create a new component, provide either a .csv file or a
+    python/numpy data structure such as a list or ndarray.
+
+    The format of the data is column vectors and matrices. For something
+    like a flux, a column vector should be supplied (a text file with
+    one entry on each line, or a 1D list or ndarray). For something like
+    the detector response matrix or efficiency matrix, a matrix should
+    be supplied (a comma-separated text file with rows corresponding to
+    matrix rows and columns corresponding to matrix columns). Each
+    subclass's method _getMatrixForm has a docstring specifying how the
+    input data is converted to the appropriate data structure.
+
+    """
     defaultBinning = None
     def __new__(cls, arg): # TODO **kwargs
         """
@@ -383,6 +400,10 @@ class Efficiency(SimulationComponent):
 
 
 if __name__ == "__main__":
+    print """WARNING: the files used do not contain full data on all three
+    neutrino flavors. As a consequence, some of the outputs are empty
+    arrays. As this is just an example anyways, do not trust the
+    numerical results of this output.\n\n\n"""
     # Example run
     setEnergyBins(np.arange(0, 10.25, 0.25))
     print "Computing oscillated flux"
@@ -399,6 +420,7 @@ if __name__ == "__main__":
     oscflux = flux.evolve(oscprob)
     print "nue flux\n", oscflux.extract('nue flux')
     print "numu flux\n", oscflux.extract('numu flux')
+    print "\n\n\n"
     signalspec = (flux.evolve(oscprob)
             .evolve(xsec)
             .evolve(detectorresponse)
@@ -406,6 +428,8 @@ if __name__ == "__main__":
     print "Python type of signal spectrum = ", type(signalspec)
     print "nue spectrum = "
     print signalspec.extract('nue spectrum')
+
+    print "\n\n\n"
 
     print "Fetch change in flux from one delta-CP to another,",
     print "as a function of energy"
