@@ -9,10 +9,18 @@ class SimulationComponent(np.matrix):
     This is the base class for all of the data structures used in the
     simulation.
 
-    To create a new component, provide either a .csv file or a
-    python/numpy data structure such as a list or ndarray.
+    To create a new component, provide one of the following:
+      - the location of a .csv file
+      - a python/numpy data structure such as a list or ndarray
+      - an array of file locations in "block matrix" format, where the
+        contents of the files will fill in the resulting matrix in the
+        positions they appear in the array. E.g.:
+           ['nue_flux.csv', 'numu_flux.csv', 'nutau_flux.csv']
+        will result in a single column vector with first the nue flux,
+        then the numu flux, and then the nutau flux. Check with the
+        documentation for each class for the appropriate format.
 
-    The format of the data is column vectors and matrices. For something
+    The internal of the data is column vectors and matrices. For something
     like a flux, a column vector should be supplied (a text file with
     one entry on each line, or a 1D list or ndarray). For something like
     the detector response matrix or efficiency matrix, a matrix should
@@ -36,26 +44,35 @@ class SimulationComponent(np.matrix):
         if cls.defaultBinning is None:
             raise Exception("Must define " +
                 "SimulationComponent.defaultBinning first")
-        data = None
-        try: # assume data is a numpy array or array-like
-            data = np.asanyarray(arg, dtype=np.float64)
-        except ValueError: # maybe data is a location of a file
-            location = arg
-            # read in data
-            data = []
-            with open(location) as fin:
-                reader = csv.reader(fin)
-                for row in reader:
-                    data.append(map(float, row))
-            # This conditional remedies various csv formatting styles (e.g.
-            # all one row or all one column)
-            if len(data) == 1: # all one row
-                data = data[0]
-            elif len(data[0]) == 1: # all one column
-                data = zip(*data)[0]
-            data = cls._getMatrixForm(data)
-        except: # maybe it's unknown
-            raise
+        data = np.asanyarray(arg)
+        dtype = data.dtype
+        # Different cases for different argument types
+        if (np.issubdtype(dtype, np.float) or
+                np.issubdtype(dtype, np.int)):
+            # then a matrix was supplied
+            data = np.asanyarray(data, dtype=np.float64)
+        elif ('S' in str(dtype) or 'a' in str(dtype) or 'U' in
+                str(dtype)):
+            # Then a string or array of strings was supplied
+            if data.shape == ():
+                # Then the supplied argument is a file location
+                data = cls._parseFile(arg)
+                data = cls._getMatrixForm(data)
+            else:
+                # Then the supplied argument is a set of file locations
+                # describing a block matrix. E.g. a file for each
+                # flavor combination's oscillation probabilities.
+                # First read in the files and store the results in a 2d
+                # list
+                dataarray = [[cls._parseFile(name) for name in row]
+                        for row in arg]
+                # Re-format each element of the list
+                blockmatrix = [[cls._getMatrixForm(chunk) for chunk
+                    in row] for row in dataarray]
+                # Convert from "block" matrix to real matrix
+                data = np.bmat(blockmatrix)
+        else:
+            raise ValueError('Bad argument to constructor.')
         # Store the data in the underlying np.matrix structure
         obj = np.matrix.__new__(cls, data)
         obj.description = None
@@ -70,6 +87,23 @@ class SimulationComponent(np.matrix):
         self.dataFileLocation = getattr(obj, 'dataFileLocation', None)
         if self.bins is None:
             self.bins = self.defaultBinning
+
+    @staticmethod
+    def _parseFile(location):
+        data = []
+        with open(location) as fin:
+            reader = csv.reader(fin)
+            for row in reader:
+                data.append(map(float, row))
+        # This conditional remedies various csv formatting styles (e.g.
+        # all one row or all one column)
+        if len(data) == 1: # all one row
+            data = data[0]
+        elif len(data[0]) == 1: # all one column
+            data = zip(*data)[0]
+        else: # No problem
+            pass
+        return data
 
     def evolve(self, other):
         result = other * self
@@ -184,8 +218,11 @@ class OscillationProbability(SimulationComponent):
     @staticmethod
     def _getMatrixForm(data):
         """
-        Ensure that the data is either a column vector or a diagonal
-        matrix and return it.
+        Ensure that the data is either a column vector or a matrix and
+        return it.
+
+        If the data is a column vector, convert it into a diagonal
+        matrix.
 
         No guarantee on whether the return value is distinct from the
         original data.
@@ -195,11 +232,7 @@ class OscillationProbability(SimulationComponent):
         if data.ndim == 1:
             return np.diag(data)
         elif data.ndim == 2:
-            data_diagonal = np.diag(self.diagonal())
-            if np.alltrue(data_diagonal == data):
-                return data
-            else:
-                raise ValueError("Bad format for data")
+            return data
         else:
             raise ValueError("Bad format for data")
 
@@ -438,3 +471,13 @@ if __name__ == "__main__":
     oscflux2 = flux.evolve(oscprob2)
     diff = oscflux2 - oscflux
     print diff.extract('nue flux', withEnergy=True)
+
+    print "\n\n\nCreate a block matrix out of all the oscillation ",
+    print "probabilities"
+    pre = '../Fast-Monte-Carlo/Oscillation-Parameters/nu'
+    files = [['e_nue40.csv', 'mu_nue40.csv', 'tau_nue40.csv'],
+             ['e_numu40.csv', 'mu_numu40.csv', 'tau_numu40.csv'],
+             ['e_nutau40.csv', 'mu_nutau40.csv', 'tau_nutau40.csv']]
+    files = [[pre + name for name in row] for row in files]
+    osc = OscillationProbability(files)
+    print osc[40:80,80:]
