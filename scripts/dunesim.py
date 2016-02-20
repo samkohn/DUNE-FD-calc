@@ -74,7 +74,7 @@ class SimulationComponent(np.matrix):
         else:
             raise ValueError('Bad argument to constructor.')
         # Store the data in the underlying np.matrix structure
-        obj = np.matrix.__new__(cls, data)
+        obj = np.matrix.__new__(cls, data.view(cls))
         obj.description = None
         obj.bins = None # Instance of Binning object
         obj.dataFileLocation = None
@@ -237,20 +237,46 @@ class OscillationProbability(SimulationComponent):
             raise ValueError("Bad format for data")
 
     def zipWithEnergy(self):
-        return zip(np.tile(self.bins.centers, 3), self.diagonal())
+        """
+        Pair up the energy values corresponding to the entries in the
+        matrix.
+
+        Return an n x n x 3 array with the following structure:
+
+        If x = obj.zipWithenergy(), then
+        x[i][j] = [ith energy bin, jth energy bin, value of obj[i][j]]
+
+        """
+        energylist = np.tile(self.bins.centers, 3)
+        energymatrix = np.array([[(e1, e2) for e2 in energylist]
+            for e1 in energylist])
+        return np.dstack((energymatrix, self))
 
     def extract(self, name, withEnergy=False):
         thing = None
+        n = self.bins.n
         if withEnergy:
             thing = self.zipWithEnergy()
         else:
-            thing = self.diagonal()
+            thing = self
         if name == 'nue2nue':
-            return np.asarray(thing[0:self.bins.n])
+            return np.asarray(thing[0:n, 0:n])
         if name == 'nue2numu':
-            return np.asarray(thing[self.bins.n:2*self.bins.n])
+            return np.asarray(thing[n:2*n, 0:n])
         if name == 'nue2nutau':
-            return np.asarray(thing[2*self.bins.n:3*self.bins.n])
+            return np.asarray(thing[2*n:3*n, 0:n])
+        if name == 'numu2nue':
+            return np.asarray(thing[0:n, n:2*n])
+        if name == 'numu2numu':
+            return np.asarray(thing[n:2*n, n:2*n])
+        if name == 'numu2nutau':
+            return np.asarray(thing[2*n:3*n, n:2*n])
+        if name == 'nutau2nue':
+            return np.asarray(thing[0:n, 2*n:3*n])
+        if name == 'nutau2numu':
+            return np.asarray(thing[n:2*n, 2*n:3*n])
+        if name == 'nutau2nutau':
+            return np.asarray(thing[2*n:3*n, 2*n:3*n])
         raise ValueError("Bad name")
 
 class CrossSection(SimulationComponent):
@@ -431,6 +457,33 @@ class Efficiency(SimulationComponent):
             return zip(energymatrix, drm)
         raise ValueError("Did not recognize form " + str(form))
 
+    def extract(self, name, withEnergy=False):
+        thing = None
+        n = self.bins.n
+        if withEnergy:
+            thing = self.zipWithEnergy('matrix')
+        else:
+            thing = self
+        if name == 'nue2nue':
+            return np.asarray(thing[0:n, 0:n])
+        if name == 'nue2numu':
+            return np.asarray(thing[n:2*n, 0:n])
+        if name == 'nue2nutau':
+            return np.asarray(thing[2*n:3*n, 0:n])
+        if name == 'numu2nue':
+            return np.asarray(thing[0:n, n:2*n])
+        if name == 'numu2numu':
+            return np.asarray(thing[n:2*n, n:2*n])
+        if name == 'numu2nutau':
+            return np.asarray(thing[2*n:3*n, n:2*n])
+        if name == 'nutau2nue':
+            return np.asarray(thing[0:n, 2*n:3*n])
+        if name == 'nutau2numu':
+            return np.asarray(thing[n:2*n, 2*n:3*n])
+        if name == 'nutau2nutau':
+            return np.asarray(thing[2*n:3*n, 2*n:3*n])
+        raise ValueError("Bad name")
+
 
 if __name__ == "__main__":
     print """WARNING: the files used do not contain full data on all three
@@ -480,4 +533,4 @@ if __name__ == "__main__":
              ['e_nutau40.csv', 'mu_nutau40.csv', 'tau_nutau40.csv']]
     files = [[pre + name for name in row] for row in files]
     osc = OscillationProbability(files)
-    print osc[40:80,80:]
+    print osc.extract('numu2nue', withEnergy=True)
