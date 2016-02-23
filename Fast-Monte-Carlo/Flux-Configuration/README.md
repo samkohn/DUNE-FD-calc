@@ -14,7 +14,7 @@ calculations. The filename is split into three parts: (a)nuflux, which
 describes whether the beam is in neutrino or antineutrino mode; nu(e,
 mu, tau)(bar)flux, which describes the particular neutrino being
 produced; and a number describing the number of energy bins between 0
-and 10 GeV (e.g. 40). The normalization is arbitrary.
+and 10 GeV (e.g. 40). The units for the flux are: neutrinos/GeV/m^2/POT.
 
 #### Flux optimization procedure
 
