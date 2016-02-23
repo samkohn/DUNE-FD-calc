@@ -281,9 +281,10 @@ class OscillationProbability(SimulationComponent):
 
 class CrossSection(SimulationComponent):
     nextFormat = Spectrum
-    def __new__(cls, arg):
+    def __new__(cls, arg, units=1e-38):
         obj = SimulationComponent.__new__(cls, arg)
         obj.bins = cls.defaultBinning
+        obj *= units
         return obj
 
     @staticmethod
