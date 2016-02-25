@@ -72,6 +72,7 @@ class SimulationComponent(np.matrix):
                         in row] for row in dataarray]
                     # Convert from "block" matrix to real matrix
                     data = np.bmat(blockmatrix)
+                    data = cls._getMatrixForm(data)
                 except IOError: # Happens if supplied list is 1-D
                     print "Input is 1D array"
                     dataarray = [cls._parseFile(name) for name in arg]
@@ -307,12 +308,41 @@ class CrossSection(SimulationComponent):
         data = np.asarray(data)
         if data.ndim == 1:
             return np.diag(data)
-        elif data.ndim == 2:
+        elif data.ndim == 2 and data.shape[0] == data.shape[1]:
             data_diagonal = np.diag(self.diagonal())
             if np.alltrue(data_diagonal == data):
                 return data
             else:
                 raise ValueError("Bad format for data")
+        elif data.ndim == 2:
+            rows = data.shape[0]
+            cols = data.shape[1]
+            if rows > cols:
+                stride = cols
+                result = np.zeros((rows, rows), dtype=data.dtype)
+                empty = np.zeros_like(data[:stride,:stride]) # empty square
+                ratio = rows/cols
+            else:
+                stride = rows
+                result = np.zeros((cols, cols), dtype=data.dtype)
+                empty = np.zeros_like(data[:stride, :stride])
+                ratio = cols/rows
+            for row in range(ratio):
+                startrow = row * stride
+                endrow = startrow + stride
+                for col in range(ratio):
+                    startcol = col * stride
+                    endcol = startcol + stride
+                    if row == col:
+                        if rows > cols:
+                            assignment = data[startrow:endrow, :]
+                        else:
+                            assignment = data[:, startcol:endcol]
+                    else:
+                        assignment = empty
+                    result[startrow:endrow, startcol:endcol] = assignment
+            return result
+
         else:
             raise ValueError("Bad format for data")
 
