@@ -43,7 +43,7 @@ class SimulationComponent(np.matrix):
         """
         if cls.defaultBinning is None:
             raise Exception("Must define " +
-                "SimulationComponent.defaultBinning first")
+                "binning with setEnergyBins() first")
         data = np.asanyarray(arg)
         dtype = data.dtype
         # Different cases for different argument types
@@ -64,13 +64,20 @@ class SimulationComponent(np.matrix):
                 # flavor combination's oscillation probabilities.
                 # First read in the files and store the results in a 2d
                 # list
-                dataarray = [[cls._parseFile(name) for name in row]
-                        for row in arg]
-                # Re-format each element of the list
-                blockmatrix = [[cls._getMatrixForm(chunk) for chunk
-                    in row] for row in dataarray]
-                # Convert from "block" matrix to real matrix
-                data = np.bmat(blockmatrix)
+                try:
+                    dataarray = [[cls._parseFile(name) for name in row]
+                            for row in arg]
+                    # Re-format each element of the list
+                    blockmatrix = [[cls._getMatrixForm(chunk) for chunk
+                        in row] for row in dataarray]
+                    # Convert from "block" matrix to real matrix
+                    data = np.bmat(blockmatrix)
+                except IOError: # Happens if supplied list is 1-D
+                    print "Input is 1D array"
+                    dataarray = [cls._parseFile(name) for name in arg]
+                    blockmatrix = [cls._getMatrixForm(chunk) for chunk
+                            in dataarray]
+                    data = np.array(blockmatrix).flatten()
         else:
             raise ValueError('Bad argument to constructor.')
         # Store the data in the underlying np.matrix structure
@@ -281,9 +288,10 @@ class OscillationProbability(SimulationComponent):
 
 class CrossSection(SimulationComponent):
     nextFormat = Spectrum
-    def __new__(cls, arg):
+    def __new__(cls, arg, units=1e-38):
         obj = SimulationComponent.__new__(cls, arg)
         obj.bins = cls.defaultBinning
+        obj *= units
         return obj
 
     @staticmethod
@@ -492,28 +500,50 @@ if __name__ == "__main__":
     numerical results of this output.\n\n\n"""
     # Example run
     setEnergyBins(np.arange(0, 10.25, 0.25))
-    print "Computing oscillated flux"
-    flux = \
-    BeamFlux('../Fast-Monte-Carlo/Flux-Configuration/nuflux_numuflux_numu40.csv')
-    oscprob = \
-    OscillationProbability('../Fast-Monte-Carlo/Oscillation-Parameters/numu_nue40.csv')
-    xsec = \
-    CrossSection('../Fast-Monte-Carlo/Cross-Sections/nu_e_Ar40__tot_cc40.csv')
+
+    # Set up block matrices for the flux, oscillation probabilities, and
+    # cross sections. Note that the flux is vectorlike and so comes as a
+    # 1-D array, but the oscillation probabilities and cross sections
+    # are matrix-like, so they come in 2D arrays.
+    pre = '../Fast-Monte-Carlo/Flux-Configuration/numode_'
+    fluxfiles = map(lambda x: pre + x, ['nue_flux40.csv', 'numu_flux40.csv',
+        'nutau_flux40.csv'])
+    pre = '../Fast-Monte-Carlo/Oscillation-Parameters/nu'
+    oscfiles = [['e_nue40.csv', 'mu_nue40.csv', 'tau_nue40.csv'],
+             ['e_numu40.csv', 'mu_numu40.csv', 'tau_numu40.csv'],
+             ['e_nutau40.csv', 'mu_nutau40.csv', 'tau_nutau40.csv']]
+    oscfiles = [[pre + name for name in row] for row in oscfiles]
+    pre = '../Fast-Monte-Carlo/Cross-Sections/nu_'
+    xsecfiles = [map(lambda x: pre + x, ['e_Ar40__tot_cc40.csv',
+        'mu_Ar40__tot_cc40.csv', 'tau_Ar40__tot_cc40.csv'])]
+    flux = BeamFlux(fluxfiles)
+    oscprob = OscillationProbability(oscfiles)
+    xsec = CrossSection(xsecfiles)
     detectorresponse = \
     DetectorResponse('../Fast-Monte-Carlo/Detector-Response/DetRespMat-nuflux_numuflux_nue.csv')
     efficiency = \
     Efficiency('../Fast-Monte-Carlo/Efficiencies/nueCCsig_efficiency.csv')
     oscflux = flux.evolve(oscprob)
-    print "nue flux\n", oscflux.extract('nue flux')
+    print "oscillated flux\nnue flux\n", oscflux.extract('nue flux')
     print "numu flux\n", oscflux.extract('numu flux')
+    print "nutau flux\n", oscflux.extract('nutau flux')
     print "\n\n\n"
-    signalspec = (flux.evolve(oscprob)
-            .evolve(xsec)
-            .evolve(detectorresponse)
-            .evolve(efficiency))
-    print "Python type of signal spectrum = ", type(signalspec)
-    print "nue spectrum = "
-    print signalspec.extract('nue spectrum')
+    # Get the total beam flux for 10^20 POT
+    NUM_POT = 1e20
+    NUM_AR_ATOMS = 6e30
+    flux *= NUM_POT
+    detectorspec = (flux
+            .evolve(oscprob)
+            .evolve(xsec))
+    detectorspec *= NUM_AR_ATOMS
+    print "True spectrum of CC nue events at detector"
+    print detectorspec.extract('nue spectrum')
+    # (signalspec = detectorspec
+            # .evolve(detectorresponse)
+            # .evolve(efficiency))
+    # print "Python type of signal spectrum = ", type(signalspec)
+    # print "nue spectrum = "
+    # print signalspec.extract('nue spectrum')
 
     print "\n\n\n"
 
@@ -524,13 +554,3 @@ if __name__ == "__main__":
     oscflux2 = flux.evolve(oscprob2)
     diff = oscflux2 - oscflux
     print diff.extract('nue flux', withEnergy=True)
-
-    print "\n\n\nCreate a block matrix out of all the oscillation ",
-    print "probabilities"
-    pre = '../Fast-Monte-Carlo/Oscillation-Parameters/nu'
-    files = [['e_nue40.csv', 'mu_nue40.csv', 'tau_nue40.csv'],
-             ['e_numu40.csv', 'mu_numu40.csv', 'tau_numu40.csv'],
-             ['e_nutau40.csv', 'mu_nutau40.csv', 'tau_nutau40.csv']]
-    files = [[pre + name for name in row] for row in files]
-    osc = OscillationProbability(files)
-    print osc.extract('numu2nue', withEnergy=True)
