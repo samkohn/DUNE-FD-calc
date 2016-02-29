@@ -219,7 +219,8 @@ class Spectrum(SimulationComponent):
             raise ValueError("Data not a column vector")
 
     def zipWithEnergy(self):
-        return zip(np.tile(self.bins.centers, 3), self)
+        numBlocks = len(self)/self.bins.n
+        return zip(np.tile(self.bins.centers, numBlocks), self)
 
     def extract(self, name, withEnergy=False):
         thing = None
@@ -227,13 +228,35 @@ class Spectrum(SimulationComponent):
             thing = self.zipWithEnergy()
         else:
             thing = self
-        if name == 'nue spectrum':
-            return np.asarray(thing[0:self.bins.n])
-        if name == 'numu spectrum':
-            return np.asarray(thing[self.bins.n:2*self.bins.n])
-        if name == 'nutau spectrum':
-            return np.asarray(thing[2*self.bins.n:3*self.bins.n])
-        raise ValueError("Bad name")
+        # Determine whether this is a true or reconstructed spectrum
+        # based on whether len(self) is 3 (reco) or 6 (true) times the
+        # number of bins in the spectrum.
+        recoRepeats = 3
+        trueRepeats = 6
+        if len(self) == recoRepeats * self.bins.n:
+            if name == 'nueCC-like':
+                return np.asarray(thing[0:self.bins.n])
+            if name == 'numuCC-like':
+                return np.asarray(thing[self.bins.n:2*self.bins.n])
+            if name == 'NC-like':
+                return np.asarray(thing[2*self.bins.n:3*self.bins.n])
+            raise ValueError("Bad name")
+        elif len(self) == trueRepeats * self.bins.n:
+            if name == 'nueCC':
+                return np.asarray(thing[0:self.bins.n])
+            if name == 'nueNC':
+                return np.asarray(thing[self.bins.n:2*self.bins.n])
+            if name == 'numuCC':
+                return np.asarray(thing[2*self.bins.n:3*self.bins.n])
+            if name == 'numuNC':
+                return np.asarray(thing[3*self.bins.n:4*self.bins.n])
+            if name == 'nutauCC':
+                return np.asarray(thing[4*self.bins.n:5*self.bins.n])
+            if name == 'nutauNC':
+                return np.asarray(thing[5*self.bins.n:6*self.bins.n])
+            raise ValueError("Bad name")
+        else:
+            raise ValueError("Object has been corrupted: bad len(self)")
 
 class OscillationProbability(SimulationComponent):
     """
