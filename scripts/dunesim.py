@@ -141,6 +141,14 @@ class Binning(object):
 
 
 class BeamFlux(SimulationComponent):
+    """
+    A representation of the neutrino beam flux.
+
+    This class keeps track of three flavors of neutrinos. The data
+    should be supplied in the order [e flux, mu flux, tau flux] in a
+    column vector.
+
+    """
     def __new__(cls, arg):
         obj = SimulationComponent.__new__(cls, arg)
         obj.bins = cls.defaultBinning
@@ -179,6 +187,17 @@ class BeamFlux(SimulationComponent):
         raise ValueError("Bad name")
 
 class Spectrum(SimulationComponent):
+    """
+    A representation of the spectrum of neutrinos which interact with a
+    detector.
+
+    This class keeps track of three flavors of neutrinos and the way
+    they interacted (via charged current or neutral current). The data
+    should be supplied in the order [eCC, eNC, muCC, muNC, tauCC,
+    tauNC] for true spectra and [eCC-like, muCC-like, NC-like] for
+    reconstructed spectra.
+
+    """
     def __new__(cls, arg):
         obj = SimulationComponent.__new__(cls, arg)
         obj.bins = cls.defaultBinning
@@ -217,6 +236,20 @@ class Spectrum(SimulationComponent):
         raise ValueError("Bad name")
 
 class OscillationProbability(SimulationComponent):
+    """
+    A representation of the oscillation probability.
+
+    This class keeps track of the oscillation probabilities for a
+    particular set of oscillation parameters, baseline, etc. It is used
+    to transform one BeamFlux into another BeamFlux that represents the
+    oscillated flux.
+
+    The data should be supplied in the following matrix form:
+    [[nue->nue, numu->nue, nutau->nue],
+     [nue->numu, numu->numu, nutau->numu],
+     [nue->nutau, numu->nutau, nutau->nutau]]
+
+    """
     nextFormat = BeamFlux
     def __new__(cls, arg):
         obj = SimulationComponent.__new__(cls, arg)
@@ -288,6 +321,27 @@ class OscillationProbability(SimulationComponent):
         raise ValueError("Bad name")
 
 class CrossSection(SimulationComponent):
+    """
+    A representation of the interaction cross section.
+
+    This class keeps track of the interaction cross sections for three
+    flavors of neutrinos and two interaction channels (CC and NC). It
+    converts a BeamFlux into a Spectrum (in particular, a true
+    spectrum).
+
+    The data should be supplied in one of the two following ways:
+
+     - A column vector of the form [nueCC, nueNC, numuCC, numuNC,
+       nutauCC, nutauNC]
+     - A matrix of the form
+         [[nueCC, 0, 0],
+          [nueNC, 0, 0],
+          [0, numuCC, 0],
+          [0, numuNC, 0],
+          [0, 0, nutauCC],
+          [0, 0, nutauNC]]
+
+    """
     nextFormat = Spectrum
     def __new__(cls, arg, units=1e-38):
         obj = SimulationComponent.__new__(cls, arg)
@@ -367,12 +421,42 @@ class DetectorResponse(SimulationComponent):
     """
     Detector Response matrix.
 
-    The true energy increases along a row (i.e. the second index gives
-    the true energy). The reconstructed energy increases down a column
-    (i.e. the first index gives the reconstructed energy). The
+    The true energy increases along a row (i.e. the second index
+    gives the true energy). The reconstructed energy increases down a
+    column (i.e. the first index gives the reconstructed energy). The
     normalization should be that a true particle ends up somewhere
-    (unitarity), so that the sum down a column is 1.
-    I.e., sum(obj[:,i]) == 1 for all i.
+    (unitarity), so that the sum down a column is 1. I.e., sum(obj[:,i])
+    == 1 for all i. The exception is if some events are rejected as not
+    a neutrino event at all.
+
+    The detector response matrix converts a true spectrum into a
+    reconstructed spectrum. Its input should be broken down into
+    interactions by flavor and channel (e.g. nueCC, nutauNC). Its output
+    will be broken down either in the same way, or by reconstructed
+    channel (namely nueCC-like, numuCC-like, NC-like), depending on the
+    form of the matrix (see next paragraph).
+
+    The matrix should be supplied in one of the following forms:
+     - More precise: if the detector response, including event channel
+       ID, is to be used all together, use a matrix:
+
+       [[eCC->eCC-like, eNC->eCC-like, ..., tauNC->eCC-like],
+        [eCC->muCC-like, ..., tauNC->muCC-like],
+        [eCC->NC-like, ..., tauNC->NC-like]]
+
+       Output is a reconstructed spectrum (eCC-like, muCC-like,
+       NC-like).
+
+     - Less precise: if the energy response and the event
+       classification are to be used separately (approximately true),
+       use a column vector, which will preserve the event channel
+       information.
+
+       [eCC, eNC, muCC, muNC, tauCC, tauNC]
+
+       Output is still a "true" spectrum format (eCC, eNC, ..., tauNC).
+       The event classification must be performed later using the
+       Efficiency object.
 
     """
     nextFormat = Spectrum
@@ -437,12 +521,25 @@ class Efficiency(SimulationComponent):
     Allows for cross-contamination/background, e.g. a nu-mu being
     mistaken as a nu-e, through the use of off-diagonal entries.
 
-    The true particle increases along the rows, and the recognized
-    particle increases down the columns. This way, obj[j, k] is the
-    fraction of particle k's which are labeled as a particle j.
+    This should only be used if the detector response matrix is the
+    "less precise" kind, where the energy reconstruction and event
+    channel ID are separate. If a full DRM is used, this class is not
+    necessary as the DRM handles both together. The output is a
+    reconstructed spectrum of the form (nueCC-like, numuCC-like,
+    NC-like).
 
-    Note: unitarity is not required here, as it is possible (likely)
-    that some particles are simply lost.
+    The supplied data should be of the form:
+
+     [[eCC->eCC-like, eNC->eCC-like, ..., tauNC->eCC-like],
+      [eCC->muCC-like, ..., tauNC->muCC-like],
+      [eCC->NC-like, ..., tauNC->NC-like]]
+
+    To ensure the separation between energy reconstruction and
+    interaction channel ID, each sub-block of the matrix (corresponding
+    to one of the blocks in the description above (e.g. eCC->eCC-like)
+    should be diagonal, so that no particles of a particular energy end
+    up in a bin of a different energy. Ultimately, though, it's on you
+    to decide how you want to use this functionality.
 
     """
     nextFormat = Spectrum
