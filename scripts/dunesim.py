@@ -524,10 +524,9 @@ class Efficiency(SimulationComponent):
 
 
 if __name__ == "__main__":
-    print """WARNING: the files used do not contain full data on all three
-    neutrino flavors. As a consequence, some of the outputs are empty
-    arrays. As this is just an example anyways, do not trust the
-    numerical results of this output.\n\n\n"""
+    print """WARNING: This is just an example. Do not trust the
+    numerical results of this output. [enter to continue]\n\n\n"""
+    raw_input()
     # Example run
     setEnergyBins(np.arange(0, 10.25, 0.25))
 
@@ -546,11 +545,18 @@ if __name__ == "__main__":
     pre = '../Fast-Monte-Carlo/Cross-Sections/nu_'
     xsecfiles = [map(lambda x: pre + x, ['e_Ar40__tot_cc40.csv',
         'mu_Ar40__tot_cc40.csv', 'tau_Ar40__tot_cc40.csv'])]
+    pre = '../Fast-Monte-Carlo/Detector-Response/nuflux_numuflux_nu'
+    drmfiles = [
+            ['e_nueCC-like40.csv', 'mu_nueCC-like40.csv', 'tau_nueCC-like40.csv'],
+            ['e_numuCC-like40.csv', 'mu_numuCC-like40.csv', 'tau_numuCC-like40.csv'],
+            ['e_NC-like40.csv', 'mu_NC-like40.csv', 'tau_NC-like40.csv']
+    ]
+    drmfiles = [[pre + name for name in row] for row in drmfiles]
     flux = BeamFlux(fluxfiles)
     oscprob = OscillationProbability(oscfiles)
     xsec = CrossSection(xsecfiles)
     detectorresponse = \
-    DetectorResponse('../Fast-Monte-Carlo/Detector-Response/DetRespMat-nuflux_numuflux_nue.csv')
+    DetectorResponse(drmfiles)
     efficiency = \
     Efficiency('../Fast-Monte-Carlo/Efficiencies/nueCCsig_efficiency.csv')
     oscflux = flux.evolve(oscprob)
@@ -568,19 +574,9 @@ if __name__ == "__main__":
     detectorspec *= NUM_AR_ATOMS
     print "True spectrum of CC nue events at detector"
     print detectorspec.extract('nue spectrum')
-    # (signalspec = detectorspec
-            # .evolve(detectorresponse)
-            # .evolve(efficiency))
-    # print "Python type of signal spectrum = ", type(signalspec)
-    # print "nue spectrum = "
-    # print signalspec.extract('nue spectrum')
+    signalspec = detectorspec.evolve(detectorresponse)
+    print "Python type of signal spectrum = ", type(signalspec)
+    print "nue spectrum = "
+    print signalspec.extract('nue spectrum')
 
     print "\n\n\n"
-
-    print "Fetch change in flux from one delta-CP to another,",
-    print "as a function of energy"
-    oscprob2 = OscillationProbability(np.diag(oscprob.diagonal() +
-            0.01))#OscillationProbability('prob2.csv')
-    oscflux2 = flux.evolve(oscprob2)
-    diff = oscflux2 - oscflux
-    print diff.extract('nue flux', withEnergy=True)
