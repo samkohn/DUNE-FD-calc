@@ -18,15 +18,15 @@ oscfiles = [['e_nue40.csv', 'mu_nue40.csv', 'tau_nue40.csv'],
          ['e_nutau40.csv', 'mu_nutau40.csv', 'tau_nutau40.csv']]
 oscfiles = [[pre + name for name in row] for row in oscfiles]
 pre = '../Fast-Monte-Carlo/Cross-Sections/nu_'
-xsecfiles = [map(lambda x: pre + x, ['e_Ar40__tot_cc40.csv',
-    'mu_Ar40__tot_cc40.csv', 'tau_Ar40__tot_cc40.csv'])]
+xsecfiles = map(lambda x: pre + x,
+    ['e_Ar40__tot_cc40.csv', 'e_Ar40__tot_nc40.csv',
+     'mu_Ar40__tot_cc40.csv', 'mu_Ar40__tot_nc40.csv',
+     'tau_Ar40__tot_cc40.csv', 'tau_Ar40__tot_nc40.csv'])
 pre = '../Fast-Monte-Carlo/Detector-Response/nuflux_numuflux_nu'
-drmfiles = [
-        ['e_nueCC-like40.csv', 'mu_nueCC-like40.csv', 'tau_nueCC-like40.csv'],
-        ['e_numuCC-like40.csv', 'mu_numuCC-like40.csv', 'tau_numuCC-like40.csv'],
-        ['e_NC-like40.csv', 'mu_NC-like40.csv', 'tau_NC-like40.csv']
-]
-drmfiles = [[pre + name for name in row] for row in drmfiles]
+drmfiles = ['e_trueCC40.csv', 'e_trueNC40.csv',
+            'mu_trueCC40.csv', 'mu_trueNC40.csv',
+            'tau_trueCC40.csv', 'tau_trueNC40.csv']
+drmfiles = [pre + name for name in drmfiles]
 flux = BeamFlux(fluxfiles)
 oscprob = OscillationProbability(oscfiles)
 xsec = CrossSection(xsecfiles)
@@ -48,10 +48,14 @@ detectorspec = (flux
         .evolve(xsec))
 detectorspec *= NUM_AR_ATOMS
 print "True spectrum of CC nue events at detector"
-print detectorspec.extract('nue spectrum')
+print detectorspec.extract('nueCC')
 signalspec = detectorspec.evolve(detectorresponse)
 print "Python type of signal spectrum = ", type(signalspec)
-print "nue spectrum = "
-print signalspec.extract('nue spectrum')
+print "nue CC spectrum = "
+print signalspec.extract('nueCC')
+
+print "integrated true spectrum =", sum(detectorspec.extract('nueCC'))
+print "integrated reco spectrum =", sum(signalspec.extract('nueCC'))
+
 
 print "\n\n\n"

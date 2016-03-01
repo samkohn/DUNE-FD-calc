@@ -62,23 +62,23 @@ class SimulationComponent(np.matrix):
                 # Then the supplied argument is a set of file locations
                 # describing a block matrix. E.g. a file for each
                 # flavor combination's oscillation probabilities.
-                # First read in the files and store the results in a 2d
-                # list
-                try:
-                    dataarray = [[cls._parseFile(name) for name in row]
-                            for row in arg]
-                    # Re-format each element of the list
-                    blockmatrix = [[cls._getMatrixForm(chunk) for chunk
-                        in row] for row in dataarray]
-                    # Convert from "block" matrix to real matrix
-                    data = np.bmat(blockmatrix)
-                    data = cls._getMatrixForm(data)
-                except IOError: # Happens if supplied list is 1-D
-                    print "Input is 1D array"
-                    dataarray = [cls._parseFile(name) for name in arg]
-                    blockmatrix = [cls._getMatrixForm(chunk) for chunk
-                            in dataarray]
-                    data = np.array(blockmatrix).flatten()
+                blocknames = cls._getBlockMatrixForm(arg)
+                data = cls._translateBlockMatrixToMatrix(blocknames)
+                # try:
+                    # dataarray = [[cls._parseFile(name) for name in row]
+                            # for row in arg]
+                    # # Re-format each element of the list
+                    # blockmatrix = [[cls._getMatrixForm(chunk) for chunk
+                        # in row] for row in dataarray]
+                    # # Convert from "block" matrix to real matrix
+                    # data = np.bmat(blockmatrix)
+                    # data = cls._getMatrixForm(data)
+                # except IOError: # Happens if supplied list is 1-D
+                    # print "Input is 1D array"
+                    # dataarray = [cls._parseFile(name) for name in arg]
+                    # blockmatrix = [cls._getMatrixForm(chunk) for chunk
+                            # in dataarray]
+                    # data = np.array(blockmatrix).flatten()
         else:
             raise ValueError('Bad argument to constructor.')
         # Store the data in the underlying np.matrix structure
@@ -95,6 +95,46 @@ class SimulationComponent(np.matrix):
         self.dataFileLocation = getattr(obj, 'dataFileLocation', None)
         if self.bins is None:
             self.bins = self.defaultBinning
+
+    @classmethod
+    def _translateBlockMatrixToMatrix(cls, blocknames):
+        """
+        Convert a block matrix of file names into a normal matrix of
+        data from the specified files.
+
+        """
+        blocksize = cls.defaultBinning.n
+        blockshape = blocknames.shape
+        fullshape = np.array(blockshape) * blocksize
+        result = np.zeros(fullshape, dtype=np.float64)
+        if len(blockshape) == 1:
+            # Column vector
+            for blockrow in range(blockshape[0]):
+                fullrow = blockrow * blocksize
+                nextrow = fullrow + blocksize
+                filename = blocknames[blockrow]
+                if len(filename) > 0:
+                    rawdata = cls._parseFile(filename)
+                    data = cls._getMatrixForm(rawdata)
+                    result[fullrow:nextrow] = data
+                else:
+                    pass  # leave as zeros
+        elif len(blockshape) == 2:
+            # Block matrix
+            for blockrow in range(blockshape[0]):
+                fullrow = blockrow * blocksize
+                nextrow = fullrow + blocksize
+                for blockcol in range(blockshape[1]):
+                    fullcol = blockcol * blocksize
+                    nextcol = fullcol + blocksize
+                    filename = blocknames[blockrow, blockcol]
+                    if len(filename) > 0:
+                        rawdata = cls._parseFile(filename)
+                        data = cls._getMatrixForm(rawdata)
+                        result[fullrow:nextrow, fullcol:nextcol] = data
+                    else:
+                        pass  # leave as zeros
+        return result
 
     @staticmethod
     def _parseFile(location):
@@ -169,6 +209,19 @@ class BeamFlux(SimulationComponent):
         else:
             raise ValueError("Data not a column vector")
 
+    @staticmethod
+    def _getBlockMatrixForm(data):
+        """
+        Ensure the file names are in a column vector.
+
+        """
+        data = np.asarray(data)
+        shape = data.shape
+        if shape == (3,):
+            return data
+        else:
+            raise ValueError("Incorrect shape (3,) != " + str(shape))
+
     def zipWithEnergy(self):
         return zip(np.tile(self.bins.centers, 3), self)
 
@@ -218,6 +271,19 @@ class Spectrum(SimulationComponent):
         else:
             raise ValueError("Data not a column vector")
 
+    @staticmethod
+    def _getBlockMatrixForm(data):
+        """
+        Ensure the data is a column vector of the appropriate size.
+
+        """
+        data = np.asarray(data)
+        shape = data.shape
+        if shape == (3,) or shape == (6,):
+            return data
+        else:
+            raise ValueError("Incorrect shape " + str(shape))
+
     def zipWithEnergy(self):
         numBlocks = len(self)/self.bins.n
         return zip(np.tile(self.bins.centers, numBlocks), self)
@@ -240,7 +306,7 @@ class Spectrum(SimulationComponent):
                 return np.asarray(thing[self.bins.n:2*self.bins.n])
             if name == 'NC-like':
                 return np.asarray(thing[2*self.bins.n:3*self.bins.n])
-            raise ValueError("Bad name")
+            raise ValueError("Bad name: ", name)
         elif len(self) == trueRepeats * self.bins.n:
             if name == 'nueCC':
                 return np.asarray(thing[0:self.bins.n])
@@ -254,7 +320,7 @@ class Spectrum(SimulationComponent):
                 return np.asarray(thing[4*self.bins.n:5*self.bins.n])
             if name == 'nutauNC':
                 return np.asarray(thing[5*self.bins.n:6*self.bins.n])
-            raise ValueError("Bad name")
+            raise ValueError("Bad name: ", name)
         else:
             raise ValueError("Object has been corrupted: bad len(self)")
 
@@ -299,6 +365,19 @@ class OscillationProbability(SimulationComponent):
             return data
         else:
             raise ValueError("Bad format for data")
+
+    @staticmethod
+    def _getBlockMatrixForm(data):
+        """
+        Ensure the filenames are in a 3x3 matrix.
+
+        """
+        data = np.asarray(data)
+        shape = data.shape
+        if shape == (3, 3):
+            return data
+        else:
+            raise ValueError("Incorrect shape " + str(shape))
 
     def zipWithEnergy(self):
         """
@@ -391,37 +470,25 @@ class CrossSection(SimulationComponent):
                 return data
             else:
                 raise ValueError("Bad format for data")
-        elif data.ndim == 2:
-            rows = data.shape[0]
-            cols = data.shape[1]
-            if rows > cols:
-                stride = cols
-                result = np.zeros((rows, rows), dtype=data.dtype)
-                empty = np.zeros_like(data[:stride,:stride]) # empty square
-                ratio = rows/cols
-            else:
-                stride = rows
-                result = np.zeros((cols, cols), dtype=data.dtype)
-                empty = np.zeros_like(data[:stride, :stride])
-                ratio = cols/rows
-            for row in range(ratio):
-                startrow = row * stride
-                endrow = startrow + stride
-                for col in range(ratio):
-                    startcol = col * stride
-                    endcol = startcol + stride
-                    if row == col:
-                        if rows > cols:
-                            assignment = data[startrow:endrow, :]
-                        else:
-                            assignment = data[:, startcol:endcol]
-                    else:
-                        assignment = empty
-                    result[startrow:endrow, startcol:endcol] = assignment
-            return result
-
         else:
             raise ValueError("Bad format for data")
+
+    @staticmethod
+    def _getBlockMatrixForm(data):
+        data = np.asarray(data)
+        shape = data.shape
+        if shape == (6,):
+            result = np.zeros((6, 3), dtype=data.dtype)
+            result[0, 0] = data[0]
+            result[1, 0] = data[1]
+            result[2, 1] = data[2]
+            result[3, 1] = data[3]
+            result[4, 2] = data[4]
+            result[5, 2] = data[5]
+            return result
+        else:
+            raise ValueError("Incorrect shape " + str(shape))
+
 
     def zipWithEnergy(self):
         return zip(np.tile(self.bins.centers, 3), self.diagonal())
@@ -499,11 +566,22 @@ class DetectorResponse(SimulationComponent):
 
         """
         data = np.asarray(data)
-        n = SimulationComponent.defaultBinning.n
         if data.ndim != 2:
             raise ValueError("Input is not a 2-D matrix")
         else:
             return data
+
+    @staticmethod
+    def _getBlockMatrixForm(data):
+        data = np.asarray(data)
+        shape = data.shape
+        if shape == (3, 6):  # full DRM
+            return data
+        elif shape == (6,):  # factored DRM + channel ID
+            # Create a block-diagonal matrix
+            return np.diag(data)
+        else:
+            raise ValueError("Incorrect shape " + str(shape))
 
     def zipWithEnergy(self, form='list'):
         """
@@ -583,6 +661,15 @@ class Efficiency(SimulationComponent):
             return np.diag(data)
         elif data.ndim == 2:
             return data
+
+    @staticmethod
+    def _getBlockMatrixForm(data):
+        data = np.asarray(data)
+        shape = data.shape
+        if shape == (3, 6):
+            return data
+        else:
+            raise ValueError("Incorrect shape " + str(shape))
 
     def zipWithEnergy(self, form='list'):
         """
