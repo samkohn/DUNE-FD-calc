@@ -6,9 +6,8 @@ raw_input()
 setEnergyBins(np.arange(0, 10.25, 0.25))
 
 # Set up block matrices for the flux, oscillation probabilities, and
-# cross sections. Note that the flux is vectorlike and so comes as a
-# 1-D array, but the oscillation probabilities and cross sections
-# are matrix-like, so they come in 2D arrays.
+# cross sections. Specifications for the formats are given in the class
+# docstrings.
 pre = '../Fast-Monte-Carlo/Flux-Configuration/numode_'
 fluxfiles = map(lambda x: pre + x, ['nue_flux40.csv', 'numu_flux40.csv',
     'nutau_flux40.csv'])
@@ -40,9 +39,14 @@ print "numu flux\n", oscflux.extract('numu flux')
 print "nutau flux\n", oscflux.extract('nutau flux')
 print "\n\n\n"
 # Get the total beam flux for 10^20 POT
+# The units of the flux are #/GeV/POT/m^2. Our binning is 0.25 GeV so
+# must also multiply by 0.25. The cross-sectional area of the 4 far
+# detectors combined is approximately 4 * 10m * 10m = 400m^2.
 NUM_POT = 1e20
+BIN_WIDTH = 0.25
+AREA = 400
 NUM_AR_ATOMS = 6e30
-flux *= NUM_POT
+flux *= NUM_POT * BIN_WIDTH * AREA
 detectorspec = (flux
         .evolve(oscprob)
         .evolve(xsec))
@@ -58,4 +62,4 @@ print "integrated true spectrum =", sum(detectorspec.extract('nueCC'))
 print "integrated reco spectrum =", sum(signalspec.extract('nueCC'))
 
 
-print "\n\n\n"
+print "\n\n"
