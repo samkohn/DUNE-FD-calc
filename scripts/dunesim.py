@@ -64,21 +64,6 @@ class SimulationComponent(np.matrix):
                 # flavor combination's oscillation probabilities.
                 blocknames = cls._getBlockMatrixForm(arg)
                 data = cls._translateBlockMatrixToMatrix(blocknames)
-                # try:
-                    # dataarray = [[cls._parseFile(name) for name in row]
-                            # for row in arg]
-                    # # Re-format each element of the list
-                    # blockmatrix = [[cls._getMatrixForm(chunk) for chunk
-                        # in row] for row in dataarray]
-                    # # Convert from "block" matrix to real matrix
-                    # data = np.bmat(blockmatrix)
-                    # data = cls._getMatrixForm(data)
-                # except IOError: # Happens if supplied list is 1-D
-                    # print "Input is 1D array"
-                    # dataarray = [cls._parseFile(name) for name in arg]
-                    # blockmatrix = [cls._getMatrixForm(chunk) for chunk
-                            # in dataarray]
-                    # data = np.array(blockmatrix).flatten()
         else:
             raise ValueError('Bad argument to constructor.')
         # Store the data in the underlying np.matrix structure
@@ -442,6 +427,8 @@ class CrossSection(SimulationComponent):
           [0, numuNC, 0],
           [0, 0, nutauCC],
           [0, 0, nutauNC]]
+       NOTE: the software will NOT verify that the matrix is in this
+       form.
 
     """
     nextFormat = Spectrum
