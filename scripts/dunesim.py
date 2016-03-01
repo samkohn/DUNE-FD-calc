@@ -125,7 +125,9 @@ class SimulationComponent(np.matrix):
     def _parseFile(location):
         data = []
         with open(location) as fin:
-            reader = csv.reader(fin)
+            # Filter out comments in the CSV file (row starts with #)
+            goodrows = (row for row in fin if not row.startswith('#'))
+            reader = csv.reader(goodrows)
             for row in reader:
                 data.append(map(float, row))
         # This conditional remedies various csv formatting styles (e.g.
