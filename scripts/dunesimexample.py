@@ -27,8 +27,18 @@ drmfiles = ['e_trueCC40.csv', 'e_trueNC40.csv',
             'tau_trueCC40.csv', 'tau_trueNC40.csv']
 drmfiles = [pre + name for name in drmfiles]
 flux = BeamFlux(fluxfiles)
+# Get the total beam flux for 2*10^21 POT/year * 10 years (POT rate
+# taken from the CDR [arXiv: 1601.05823] table 6-2)
+# The units of the flux are #/GeV/POT/m^2. Our binning is 0.25 GeV so
+# must also multiply by 0.25.
+NUM_POT = 2e21 * 10
+BIN_WIDTH = 0.25
+# The new units are #/m^2
+flux *= NUM_POT * BIN_WIDTH
 oscprob = OscillationProbability(oscfiles)
-xsec = CrossSection(xsecfiles)
+# The cross section takes a units argument. The files use 1e-38 cm^2
+# which is 1e-42 m^2
+xsec = CrossSection(xsecfiles, units=1e-42)
 detectorresponse = \
 DetectorResponse(drmfiles)
 efficiency = \
@@ -38,25 +48,17 @@ print "oscillated flux\nnue flux\n", oscflux.extract('nue flux')
 print "numu flux\n", oscflux.extract('numu flux')
 print "nutau flux\n", oscflux.extract('nutau flux')
 print "\n\n\n"
-# Get the total beam flux for 10^20 POT
-# The units of the flux are #/GeV/POT/m^2. Our binning is 0.25 GeV so
-# must also multiply by 0.25. The cross-sectional area of the 4 far
-# detectors combined is approximately 4 * 10m * 10m = 400m^2.
-NUM_POT = 1e20
-BIN_WIDTH = 0.25
-AREA = 400
-NUM_AR_ATOMS = 6e30
-flux *= NUM_POT * BIN_WIDTH * AREA
 detectorspec = (flux
         .evolve(oscprob)
         .evolve(xsec))
+NUM_AR_ATOMS = 6e32 # 40kt * 6e23/40g * 1000g/kg * 1000kg/t * 1000t/kt
 detectorspec *= NUM_AR_ATOMS
 print "True spectrum of CC nue events at detector"
 print detectorspec.extract('nueCC')
 signalspec = detectorspec.evolve(detectorresponse)
 print "Python type of signal spectrum = ", type(signalspec)
 print "nue CC spectrum = "
-print signalspec.extract('nueCC')
+print signalspec.extract('nueCC', withEnergy=True)
 
 print "integrated true spectrum =", sum(detectorspec.extract('nueCC'))
 print "integrated reco spectrum =", sum(signalspec.extract('nueCC'))
