@@ -4,6 +4,40 @@ import csv
 def setEnergyBins(bins):
     SimulationComponent.defaultBinning = Binning(bins)
 
+def defaultBeamFlux():
+    pre = '../Fast-Monte-Carlo/Flux-Configuration/numode_'
+    fluxfiles = map(lambda x: pre + x, ['nue_flux40.csv', 'numu_flux40.csv',
+        'nutau_flux40.csv'])
+    flux = BeamFlux(fluxfiles)
+    return flux
+
+def defaultOscillationProbability():
+    pre = '../Fast-Monte-Carlo/Oscillation-Parameters/nu'
+    oscfiles = [['e_nue40.csv', 'mu_nue40.csv', 'tau_nue40.csv'],
+             ['e_numu40.csv', 'mu_numu40.csv', 'tau_numu40.csv'],
+             ['e_nutau40.csv', 'mu_nutau40.csv', 'tau_nutau40.csv']]
+    oscfiles = [[pre + name for name in row] for row in oscfiles]
+    oscprob = OscillationProbability(oscfiles)
+    return oscprob
+
+def defaultCrossSection():
+    pre = '../Fast-Monte-Carlo/Cross-Sections/nu_'
+    xsecfiles = map(lambda x: pre + x,
+        ['e_Ar40__tot_cc40.csv', 'e_Ar40__tot_nc40.csv',
+         'mu_Ar40__tot_cc40.csv', 'mu_Ar40__tot_nc40.csv',
+         'tau_Ar40__tot_cc40.csv', 'tau_Ar40__tot_nc40.csv'])
+    xsec = CrossSection(xsecfiles)
+    return xsec
+
+def defaultDetectorResponse():
+    pre = '../Fast-Monte-Carlo/Detector-Response/nuflux_numuflux_nu'
+    drmfiles = ['e_trueCC40.csv', 'e_trueNC40.csv',
+                'mu_trueCC40.csv', 'mu_trueNC40.csv',
+                'tau_trueCC40.csv', 'tau_trueNC40.csv']
+    drmfiles = [pre + name for name in drmfiles]
+    drm = DetectorResponse(drmfiles)
+    return drm
+
 class SimulationComponent(np.matrix):
     """
     This is the base class for all of the data structures used in the
