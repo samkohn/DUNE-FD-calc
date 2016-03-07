@@ -32,12 +32,26 @@ def defaultCrossSection():
     xsec = CrossSection(xsecfiles)
     return xsec
 
-def defaultDetectorResponse():
+def defaultDetectorResponse(factored=True):
     pre = repositorydir + '/Fast-Monte-Carlo/Detector-Response/nuflux_numuflux_nu'
-    drmfiles = ['e_trueCC40.csv', 'e_trueNC40.csv',
-                'mu_trueCC40.csv', 'mu_trueNC40.csv',
-                'tau_trueCC40.csv', 'tau_trueNC40.csv']
-    drmfiles = [pre + name for name in drmfiles]
+    if factored:
+        drmfiles = ['e_trueCC40.csv', 'e_trueNC40.csv',
+                    'mu_trueCC40.csv', 'mu_trueNC40.csv',
+                    'tau_trueCC40.csv', 'tau_trueNC40.csv']
+        drmfiles = [pre + name for name in drmfiles]
+    else:
+        drmfiles = [
+                ['e_nueCC-like_trueCC', 'e_nueCC-like_trueNC',
+                'mu_nueCC-like_trueCC', 'mu_nueCC-like_trueNC',
+                'tau_nueCC-like_trueCC', 'tau_nueCC-like_trueNC'],
+                ['e_numuCC-like_trueCC', 'e_numuCC-like_trueNC',
+                 'mu_numuCC-like_trueCC', 'mu_numuCC-like_trueNC',
+                 'tau_numuCC-like_trueCC', 'tau_numuCC-like_trueNC'],
+                ['e_NC-like_trueCC', 'e_NC-like_trueNC',
+                 'mu_NC-like_trueCC', 'mu_NC-like_trueNC',
+                 'tau_NC-like_trueCC', 'tau_NC-like_trueNC']
+            ]
+        drmfiles = [[pre + name + '40.csv' for name in row] for row in drmfiles]
     drm = DetectorResponse(drmfiles)
     return drm
 
