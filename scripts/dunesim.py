@@ -8,7 +8,8 @@ def setEnergyBins(bins):
 repositorydir = os.path.join(os.path.dirname(__file__), '..')
 
 def defaultBeamFlux():
-    pre = repositorydir + '/Fast-Monte-Carlo/Flux-Configuration/numode_'
+    pre = (repositorydir +
+            '/Fast-Monte-Carlo/Flux-Configuration/CD1-CDR-FHC/')
     fluxfiles = map(lambda x: pre + x, ['nue_flux40.csv', 'numu_flux40.csv',
         'nutau_flux40.csv'])
     flux = BeamFlux(fluxfiles)
