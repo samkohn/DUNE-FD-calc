@@ -13,8 +13,13 @@ The .csv files give the beam flux used in the Fast Monte Carlo
 calculations. The filename is split into three parts: (a)nuflux, which
 describes whether the beam is in neutrino or antineutrino mode; nu(e,
 mu, tau)(bar)flux, which describes the particular neutrino being
-produced; and a number describing the number of energy bins between 0
-and 10 GeV (e.g. 40). The units for the flux are: neutrinos/GeV/m^2/POT.
+produced; and a number describing the number of energy bins between
+0 and 10 GeV (e.g. 40). The units for the flux are: neutrinos/0.125
+GeV/m^2/POT, where the 0.125 GeV is the bin width. The files in the
+CD1-CDR-FHC folder are derived from the exact flux used for the DUNE
+CDR [arXiv: 1512.06148] neutrino mode/forward horn current at 120 GeV,
+which, according to the CDR volume 3 [arXiv 1601.05823], corresponds to
+1.1e21 POT/year and 1.2 MW.
 
 #### Flux optimization procedure
 
