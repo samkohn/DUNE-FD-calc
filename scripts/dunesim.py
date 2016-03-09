@@ -29,7 +29,10 @@ def defaultCrossSection():
     xsecfiles = map(lambda x: pre + x,
         ['e_Ar40__tot_cc40.csv', 'e_Ar40__tot_nc40.csv',
          'mu_Ar40__tot_cc40.csv', 'mu_Ar40__tot_nc40.csv',
-         'tau_Ar40__tot_cc40.csv', 'tau_Ar40__tot_nc40.csv'])
+         'tau_Ar40__tot_cc40.csv', 'tau_Ar40__tot_nc40.csv',
+         'e_bar_Ar40__tot_cc40.csv', 'e_bar_Ar40__tot_nc40.csv',
+         'mu_bar_Ar40__tot_cc40.csv', 'mu_bar_Ar40__tot_nc40.csv',
+         'tau_bar_Ar40__tot_cc40.csv', 'tau_bar_Ar40__tot_nc40.csv'])
     xsec = CrossSection(xsecfiles)
     return xsec
 
@@ -223,9 +226,10 @@ class BeamFlux(SimulationComponent):
     """
     A representation of the neutrino beam flux.
 
-    This class keeps track of three flavors of neutrinos. The data
-    should be supplied in the order [e flux, mu flux, tau flux] in a
-    column vector.
+    This class keeps track of three flavors of neutrinos and
+    antineutrinos. The data should be supplied in the order [e flux,
+    mu flux, tau flux, ebar flux, mubar flux, taubar flux] in a column
+    vector.
 
     """
     def __new__(cls, arg):
@@ -256,13 +260,13 @@ class BeamFlux(SimulationComponent):
         """
         data = np.asarray(data)
         shape = data.shape
-        if shape == (3,):
+        if shape == (6,):
             return data
         else:
-            raise ValueError("Incorrect shape (3,) != " + str(shape))
+            raise ValueError("Incorrect shape (6,) != " + str(shape))
 
     def zipWithEnergy(self):
-        return zip(np.tile(self.bins.centers, 3), self)
+        return zip(np.tile(self.bins.centers, 6), self)
 
     def extract(self, name, withEnergy=False):
         thing = None
@@ -276,6 +280,12 @@ class BeamFlux(SimulationComponent):
             return np.asarray(thing[self.bins.n:2*self.bins.n])
         if name == 'nutau flux':
             return np.asarray(thing[2*self.bins.n:3*self.bins.n])
+        if name == 'nuebar flux':
+            return np.asarray(thing[3*self.bins.n:4*self.bins.n])
+        if name == 'numubar flux':
+            return np.asarray(thing[4*self.bins.n:5*self.bins.n])
+        if name == 'nutaubar flux':
+            return np.asarray(thing[5*self.bins.n:6*self.bins.n])
         raise ValueError("Bad name")
 
 class Spectrum(SimulationComponent):
@@ -283,11 +293,14 @@ class Spectrum(SimulationComponent):
     A representation of the spectrum of neutrinos which interact with a
     detector.
 
-    This class keeps track of three flavors of neutrinos and the way
-    they interacted (via charged current or neutral current). The data
-    should be supplied in the order [eCC, eNC, muCC, muNC, tauCC,
-    tauNC] for true spectra and [eCC-like, muCC-like, NC-like] for
-    reconstructed spectra.
+    This class keeps track of three flavors of neutrinos and
+    antineutrinos and the way they interacted (via charged current
+    or neutral current). The data should be supplied in the order
+    [eCC, eNC, muCC, muNC, tauCC, tauNC, ebarCC, ebarNC, ...] for
+    true spectra and [eCC-like, muCC-like, NC-like] for reconstructed
+    spectra. Reconstructed spectra combine eCC- and ebarCC-like events
+    (and similar for muCC and NC) because there is no charge sign
+    discrimination.
 
     """
     def __new__(cls, arg):
@@ -318,7 +331,7 @@ class Spectrum(SimulationComponent):
         """
         data = np.asarray(data)
         shape = data.shape
-        if shape == (3,) or shape == (6,):
+        if shape == (3,) or shape == (12,):
             return data
         else:
             raise ValueError("Incorrect shape " + str(shape))
@@ -359,6 +372,18 @@ class Spectrum(SimulationComponent):
                 return np.asarray(thing[4*self.bins.n:5*self.bins.n])
             if name == 'nutauNC':
                 return np.asarray(thing[5*self.bins.n:6*self.bins.n])
+            if name == 'nuebarCC':
+                return np.asarray(thing[6*self.bins.n:7*self.bins.n])
+            if name == 'nuebarNC':
+                return np.asarray(thing[7*self.bins.n:8*self.bins.n])
+            if name == 'numubarCC':
+                return np.asarray(thing[8*self.bins.n:9*self.bins.n])
+            if name == 'numubarNC':
+                return np.asarray(thing[9*self.bins.n:10*self.bins.n])
+            if name == 'nutaubarCC':
+                return np.asarray(thing[10*self.bins.n:11*self.bins.n])
+            if name == 'nutaubarNC':
+                return np.asarray(thing[11*self.bins.n:12*self.bins.n])
             raise ValueError("Bad name: ", name)
         else:
             raise ValueError("Object has been corrupted: bad len(self)")
@@ -372,10 +397,21 @@ class OscillationProbability(SimulationComponent):
     to transform one BeamFlux into another BeamFlux that represents the
     oscillated flux.
 
-    The data should be supplied in the following matrix form:
+    The data should be supplied in the following block matrix form:
     [[nue->nue, numu->nue, nutau->nue],
      [nue->numu, numu->numu, nutau->numu],
-     [nue->nutau, numu->nutau, nutau->nutau]]
+     [nue->nutau, numu->nutau, nutau->nutau],
+     [nuebar->nuebar, numubar->nuebar, nutaubar->nuebar],
+     [nuebar->numubar, numubar->numubar, nutaubar->numubar],
+     [nuebar->nutaubar, numubar->nutaubar, nutaubar->nutaubar]]
+
+    Or in the following matrix form:
+    [[nue->nue, numu->nue, nutau->nue, 0, 0, 0],
+     [nue->numu, numu->numu, nutau->numu, 0, 0, 0],
+     [nue->nutau, numu->nutau, nutau->nutau, 0, 0, 0],
+     [0, 0, 0, nuebar->nuebar, numubar->nuebar, nutaubar->nuebar],
+     [0, 0, 0, nuebar->numubar, numubar->numubar, nutaubar->numubar],
+     [0, 0, 0, nuebar->nutaubar, numubar->nutaubar, nutaubar->nutaubar]]
 
     """
     nextFormat = BeamFlux
@@ -408,12 +444,16 @@ class OscillationProbability(SimulationComponent):
     @staticmethod
     def _getBlockMatrixForm(data):
         """
-        Ensure the filenames are in a 3x3 matrix.
+        Ensure the filenames are in a 6x3 matrix and convert it into a
+        6x6 block-diagonal matrix (blocks of 3x3).
 
         """
         data = np.asarray(data)
         shape = data.shape
-        if shape == (3, 3):
+        if shape == (6, 3):
+            result = np.zeros((6, 6), dtype=data.dtype)
+            result[0:3, 0:3] = data[0:3, 0:3]
+            result[3:6, 3:6] = data[3:6, 0:3]
             return data
         else:
             raise ValueError("Incorrect shape " + str(shape))
@@ -423,13 +463,13 @@ class OscillationProbability(SimulationComponent):
         Pair up the energy values corresponding to the entries in the
         matrix.
 
-        Return an n x n x 3 array with the following structure:
+        Return a 6n x 6n x 3 array with the following structure:
 
         If x = obj.zipWithenergy(), then
         x[i][j] = [ith energy bin, jth energy bin, value of obj[i][j]]
 
         """
-        energylist = np.tile(self.bins.centers, 3)
+        energylist = np.tile(self.bins.centers, 6)
         energymatrix = np.array([[(e1, e2) for e2 in energylist]
             for e1 in energylist])
         return np.dstack((energymatrix, self))
@@ -459,6 +499,24 @@ class OscillationProbability(SimulationComponent):
             return np.asarray(thing[n:2*n, 2*n:3*n])
         if name == 'nutau2nutau':
             return np.asarray(thing[2*n:3*n, 2*n:3*n])
+        if name == 'nuebar2nuebar':
+            return np.asarray(thing[3*n:4*n, 3*n:4*n])
+        if name == 'nuebar2numubar':
+            return np.asarray(thing[4*n:5*n, 3*n:4*n])
+        if name == 'nuebar2nutaubar':
+            return np.asarray(thing[5*n:6*n, 3*n:4*n])
+        if name == 'numubar2nuebar':
+            return np.asarray(thing[3*n:4*n, 4*n:5*n])
+        if name == 'numubar2numubar':
+            return np.asarray(thing[4*n:5*n, 4*n:5*n])
+        if name == 'numubar2nunutaubar':
+            return np.asarray(thing[5*n:6*n, 4*n:5*n])
+        if name == 'nutaubar2nuebar':
+            return np.asarray(thing[3*n:4*n, 5*n:6*n])
+        if name == 'nutaubar2numubar':
+            return np.asarray(thing[4*n:5*n, 5*n:6*n])
+        if name == 'nutaubar2nutaubar':
+            return np.asarray(thing[5*n:6*n, 5*n:6*n])
         raise ValueError("Bad name")
 
 class CrossSection(SimulationComponent):
@@ -466,21 +524,28 @@ class CrossSection(SimulationComponent):
     A representation of the interaction cross section.
 
     This class keeps track of the interaction cross sections for three
-    flavors of neutrinos and two interaction channels (CC and NC). It
-    converts a BeamFlux into a Spectrum (in particular, a true
-    spectrum).
+    flavors of neutrinos and three of antineutrinos, and two interaction
+    channels (CC and NC). It converts a BeamFlux into a Spectrum (in
+    particular, a true spectrum).
 
     The data should be supplied in one of the two following ways:
 
-     - A column vector of the form [nueCC, nueNC, numuCC, numuNC,
-       nutauCC, nutauNC]
+     - A block column vector of the form [nueCC, nueNC, numuCC, numuNC,
+       nutauCC, nutauNC, nuebarCC, nuebarNC, numubarCC, numubarNC,
+       nutaubarCC, nutaubarNC]
      - A matrix of the form
-         [[nueCC, 0, 0],
-          [nueNC, 0, 0],
-          [0, numuCC, 0],
-          [0, numuNC, 0],
-          [0, 0, nutauCC],
-          [0, 0, nutauNC]]
+         [[nueCC, 0, 0, 0, 0, 0],
+          [nueNC, 0, 0, 0, 0, 0],
+          [0, numuCC, 0, 0, 0, 0],
+          [0, numuNC, 0, 0, 0, 0],
+          [0, 0, nutauCC, 0, 0, 0],
+          [0, 0, nutauNC, 0, 0, 0]
+          [0, 0, 0, nuebarCC, 0, 0],
+          [0, 0, 0, nuebarNC, 0, 0],
+          [0, 0, 0, 0, numubarCC, 0],
+          [0, 0, 0, 0, numubarNC, 0],
+          [0, 0, 0, 0, 0, nutaubarCC],
+          [0, 0, 0, 0, 0, nutaubarNC]]
        NOTE: the software will NOT verify that the matrix is in this
        form.
 
@@ -518,34 +583,75 @@ class CrossSection(SimulationComponent):
     def _getBlockMatrixForm(data):
         data = np.asarray(data)
         shape = data.shape
-        if shape == (6,):
-            result = np.zeros((6, 3), dtype=data.dtype)
+        if shape == (12,):
+            result = np.zeros((12, 6), dtype=data.dtype)
             result[0, 0] = data[0]
             result[1, 0] = data[1]
             result[2, 1] = data[2]
             result[3, 1] = data[3]
             result[4, 2] = data[4]
             result[5, 2] = data[5]
+            result[6, 3] = data[6]
+            result[7, 3] = data[7]
+            result[8, 4] = data[8]
+            result[9, 4] = data[9]
+            result[10, 5] = data[10]
+            result[11, 5] = data[11]
             return result
         else:
             raise ValueError("Incorrect shape " + str(shape))
 
 
+    def linearize(self):
+        """
+        Convert the matrix into a column vector.
+
+        Reasonable and meaningful since the matrix is composed of block
+        matrices, each of which is diagonal. The order is the same as
+        the block column vector order specified in the constructor.
+
+        """
+        n = self.bins.n
+        slices = zip(range(0,12*n, n), np.repeat(range(0,6*n, n), 2))
+        blocks = [self[i:i+n, j:j+n] for i, j in slices]
+        xsecs = np.concatenate(map(lambda x:x.diagonal(), blocks))
+        return xsecs
+
     def zipWithEnergy(self):
-        return zip(np.tile(self.bins.centers, 3), self.diagonal())
+        """
+        Pair up each cross section bin with the mean energy of the bin.
+
+        The return value is a 12*nbins-length array of (E, xsec) tuples,
+        where the 12 n-bin groups correspond to the block column vector
+        order of cross sections specified in the constructor.
+
+        """
+        return zip(np.tile(self.bins.centers, 12), self.linearize())
 
     def extract(self, name, withEnergy=False):
         thing = None
         if withEnergy:
             thing = self.zipWithEnergy()
         else:
-            thing = self.diagonal()
+            thing = self.linearize()
+        index = 0
         if name == 'nue':
-            return np.asarray(thing[0:self.bins.n])
+            return np.asarray(thing[index:(index + self.bins.n)])
+        index += self.bins.n
         if name == 'numu':
-            return np.asarray(thing[self.bins.n:2*self.bins.n])
+            return np.asarray(thing[index:(index + self.bins.n)])
+        index += self.bins.n
         if name == 'nutau':
-            return np.asarray(thing[2*self.bins.n:3*self.bins.n])
+            return np.asarray(thing[index:(index + self.bins.n)])
+        index += self.bins.n
+        if name == 'nuebar':
+            return np.asarray(thing[index:(index + self.bins.n)])
+        index += self.bins.n
+        if name == 'numubar':
+            return np.asarray(thing[index:(index + self.bins.n)])
+        index += self.bins.n
+        if name == 'nutaubar':
+            return np.asarray(thing[index:(index + self.bins.n)])
         raise ValueError("Bad name")
 
 class DetectorResponse(SimulationComponent):
