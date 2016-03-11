@@ -7,12 +7,18 @@ def setEnergyBins(bins):
 
 repositorydir = os.path.join(os.path.dirname(__file__), '..')
 
-def defaultBeamFlux():
+def defaultBeamFlux(neutrinomode=True):
+    if neutrinomode:
+        directory = 'CD1-CDR-FHC/'
+        suffix = '_flux40.csv'
+    else:
+        directory = 'CDR-RHC/'
+        suffix = '_flux40_anumode.csv'
     pre = (repositorydir +
-            '/Fast-Monte-Carlo/Flux-Configuration/CD1-CDR-FHC/')
-    fluxfiles = map(lambda x: pre + x, ['nue_flux40.csv', 'numu_flux40.csv',
-        'nutau_flux40.csv', 'nuebar_flux40.csv', 'numubar_flux40.csv',
-        'nutaubar_flux40.csv'])
+            '/Fast-Monte-Carlo/Flux-Configuration/' + directory)
+    fluxfiles = map(lambda x: pre + x + suffix, ['nue', 'numu',
+        'nutau', 'nuebar', 'numubar',
+        'nutaubar'])
     flux = BeamFlux(fluxfiles)
     return flux
 
