@@ -11,7 +11,8 @@ def defaultBeamFlux():
     pre = (repositorydir +
             '/Fast-Monte-Carlo/Flux-Configuration/CD1-CDR-FHC/')
     fluxfiles = map(lambda x: pre + x, ['nue_flux40.csv', 'numu_flux40.csv',
-        'nutau_flux40.csv'])
+        'nutau_flux40.csv', 'nuebar_flux40.csv', 'numubar_flux40.csv',
+        'nutaubar_flux40.csv'])
     flux = BeamFlux(fluxfiles)
     return flux
 
@@ -19,7 +20,10 @@ def defaultOscillationProbability():
     pre = repositorydir + '/Fast-Monte-Carlo/Oscillation-Parameters/nu'
     oscfiles = [['e_nue40.csv', 'mu_nue40.csv', 'tau_nue40.csv'],
              ['e_numu40.csv', 'mu_numu40.csv', 'tau_numu40.csv'],
-             ['e_nutau40.csv', 'mu_nutau40.csv', 'tau_nutau40.csv']]
+             ['e_nutau40.csv', 'mu_nutau40.csv', 'tau_nutau40.csv'],
+             ['ebar_nuebar40.csv', 'mubar_nuebar40.csv', 'taubar_nuebar40.csv'],
+             ['ebar_numubar40.csv', 'mubar_numubar40.csv', 'taubar_numubar40.csv'],
+             ['ebar_nutaubar40.csv', 'mubar_nutaubar40.csv', 'taubar_nutaubar40.csv']]
     oscfiles = [[pre + name for name in row] for row in oscfiles]
     oscprob = OscillationProbability(oscfiles)
     return oscprob
@@ -37,23 +41,35 @@ def defaultCrossSection():
     return xsec
 
 def defaultDetectorResponse(factored=True):
-    pre = repositorydir + '/Fast-Monte-Carlo/Detector-Response/nuflux_numuflux_nu'
+    pre = repositorydir + '/Fast-Monte-Carlo/Detector-Response/nuflux_numu'
     if factored:
-        drmfiles = ['e_trueCC40.csv', 'e_trueNC40.csv',
-                    'mu_trueCC40.csv', 'mu_trueNC40.csv',
-                    'tau_trueCC40.csv', 'tau_trueNC40.csv']
-        drmfiles = [pre + name for name in drmfiles]
+        drmfiles = ['flux_nue_trueCC', 'flux_nue_trueNC',
+                'flux_numu_trueCC', 'flux_numu_trueNC',
+                'flux_nutau_trueCC', 'flux_nutau_trueNC',
+                'barflux_nuebar_trueCC', 'barflux_nuebar_trueNC',
+                'barflux_numubar_trueCC', 'barflux_numubar_trueNC',
+                'barflux_nutaubar_trueCC', 'barflux_nutaubar_trueNC']
+        drmfiles = [pre + name + '40.csv' for name in drmfiles]
     else:
         drmfiles = [
-                ['e_nueCC-like_trueCC', 'e_nueCC-like_trueNC',
-                'mu_nueCC-like_trueCC', 'mu_nueCC-like_trueNC',
-                'tau_nueCC-like_trueCC', 'tau_nueCC-like_trueNC'],
-                ['e_numuCC-like_trueCC', 'e_numuCC-like_trueNC',
-                 'mu_numuCC-like_trueCC', 'mu_numuCC-like_trueNC',
-                 'tau_numuCC-like_trueCC', 'tau_numuCC-like_trueNC'],
-                ['e_NC-like_trueCC', 'e_NC-like_trueNC',
-                 'mu_NC-like_trueCC', 'mu_NC-like_trueNC',
-                 'tau_NC-like_trueCC', 'tau_NC-like_trueNC']
+                ['flux_nue_nueCC-like_trueCC', 'flux_nue_nueCC-like_trueNC',
+                'flux_numu_nueCC-like_trueCC', 'flux_numu_nueCC-like_trueNC',
+                'flux_nutau_nueCC-like_trueCC', 'flux_nutau_nueCC-like_trueNC',
+                'barflux_nuebar_nueCC-like_trueCC', 'barflux_nuebar_nueCC-like_trueNC',
+                'barflux_numubar_nueCC-like_trueCC', 'barflux_numubar_nueCC-like_trueNC',
+                'barflux_nutaubar_nueCC-like_trueCC', 'barflux_nutaubar_nueCC-like_trueNC'],
+                ['flux_nue_numuCC-like_trueCC', 'flux_nue_numuCC-like_trueNC',
+                 'flux_numu_numuCC-like_trueCC', 'flux_numu_numuCC-like_trueNC',
+                 'flux_nutau_numuCC-like_trueCC', 'flux_nutau_numuCC-like_trueNC',
+                 'barflux_nuebar_numuCC-like_trueCC', 'barflux_nuebar_numuCC-like_trueNC',
+                 'barflux_numubar_numuCC-like_trueCC', 'barflux_numubar_numuCC-like_trueNC',
+                 'barflux_nutaubar_numuCC-like_trueCC', 'barflux_nutaubar_numuCC-like_trueNC'],
+                ['flux_nue_NC-like_trueCC', 'flux_nue_NC-like_trueNC',
+                 'flux_numu_NC-like_trueCC', 'flux_numu_NC-like_trueNC',
+                 'flux_nutau_NC-like_trueCC', 'flux_nutau_NC-like_trueNC',
+                 'barflux_nuebar_NC-like_trueCC', 'barflux_nuebar_NC-like_trueNC',
+                 'barflux_numubar_NC-like_trueCC', 'barflux_numubar_NC-like_trueNC',
+                 'barflux_nutaubar_NC-like_trueCC', 'barflux_nutaubar_NC-like_trueNC']
             ]
         drmfiles = [[pre + name + '40.csv' for name in row] for row in drmfiles]
     drm = DetectorResponse(drmfiles)
@@ -350,7 +366,7 @@ class Spectrum(SimulationComponent):
         # based on whether len(self) is 3 (reco) or 6 (true) times the
         # number of bins in the spectrum.
         recoRepeats = 3
-        trueRepeats = 6
+        trueRepeats = 12
         if len(self) == recoRepeats * self.bins.n:
             if name == 'nueCC-like':
                 return np.asarray(thing[0:self.bins.n])
@@ -454,7 +470,7 @@ class OscillationProbability(SimulationComponent):
             result = np.zeros((6, 6), dtype=data.dtype)
             result[0:3, 0:3] = data[0:3, 0:3]
             result[3:6, 3:6] = data[3:6, 0:3]
-            return data
+            return result
         else:
             raise ValueError("Incorrect shape " + str(shape))
 
@@ -677,9 +693,10 @@ class DetectorResponse(SimulationComponent):
      - More precise: if the detector response, including event channel
        ID, is to be used all together, use a matrix:
 
-       [[eCC->eCC-like, eNC->eCC-like, ..., tauNC->eCC-like],
-        [eCC->muCC-like, ..., tauNC->muCC-like],
-        [eCC->NC-like, ..., tauNC->NC-like]]
+       [[eCC->eCC-like, eNC->eCC-like, ..., tauNC->eCC-like,
+       ebarCC->eCC-like, ebarNC->eCC-like, ..., taubarNC->eCC-like],
+        [eCC->muCC-like, ..., taubarNC->muCC-like],
+        [eCC->NC-like, ..., taubarNC->NC-like]]
 
        Output is a reconstructed spectrum (eCC-like, muCC-like,
        NC-like).
@@ -689,9 +706,9 @@ class DetectorResponse(SimulationComponent):
        use a column vector, which will preserve the event channel
        information.
 
-       [eCC, eNC, muCC, muNC, tauCC, tauNC]
+       [eCC, eNC, muCC, muNC, tauCC, tauNC, ebarCC, ..., taubarNC]
 
-       Output is still a "true" spectrum format (eCC, eNC, ..., tauNC).
+       Output is still a "true" spectrum format (eCC, eNC, ..., taubarNC).
        The event classification must be performed later using the
        Efficiency object.
 
@@ -722,9 +739,9 @@ class DetectorResponse(SimulationComponent):
     def _getBlockMatrixForm(data):
         data = np.asarray(data)
         shape = data.shape
-        if shape == (3, 6):  # full DRM
+        if shape == (3, 12):  # full DRM
             return data
-        elif shape == (6,):  # factored DRM + channel ID
+        elif shape == (12,):  # factored DRM + channel ID
             # Create a block-diagonal matrix
             return np.diag(data)
         else:
@@ -749,6 +766,7 @@ class DetectorResponse(SimulationComponent):
         x[i][j] = [ith energy bin, jth energy bin, value of obj[i][j]]
 
         """
+        raise NotImplementedError("This method is not yet implemented. Sorry.")
         energylist = np.tile(self.bins.centers, 3)
         if form == 'matrix':
             energymatrix = np.array([[(e1, e2) for e2 in energylist]
