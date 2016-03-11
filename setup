@@ -1,0 +1,17 @@
+#! /bin/bash
+
+if [ -z "$DUNECONFIGSROOT" ]
+then
+    # environment variable for the repository's root directory
+    export DUNECONFIGSROOT=`git rev-parse --show-toplevel`
+    echo "INFO: export DUNECONFIGSROOT=$DUNECONFIGSROOT"
+
+    # Add scripts to pythonpath
+    export PYTHONPATH=$DUNECONFIGSROOT/scripts:$PYTHONPATH
+    echo "INFO: export PYTHONPATH=$PYTHONPATH"
+else
+    echo $DUNECONFIGSROOT
+    echo $PYTHONPATH
+    echo "INFO: Already set up. Exiting..."
+    exit 0
+fi
