@@ -108,7 +108,7 @@ class SimulationComponent(np.matrix):
 
     """
     defaultBinning = None
-    def __new__(cls, arg): # TODO **kwargs
+    def __new__(cls, arg):
         """
         Read in data from either an array-like object or a file location
         and assign it to the np.matrix (inherited) data structure.
