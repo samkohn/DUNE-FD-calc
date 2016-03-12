@@ -4,7 +4,7 @@ from dunesim import *
 import matplotlib.pyplot as plt
 import argparse
 
-def plot(nuespecs, ratio, plotChiSquare):
+def plot(nuespecs, ratio, plotChiSquare, hardcodeaxes):
     nominalspec = nuespecs[10]
 
     plotspeckey = {
@@ -44,6 +44,14 @@ def plot(nuespecs, ratio, plotChiSquare):
     plt.errorbar(bins, nominalspec, fmt='k--', yerr=np.sqrt(nominalspec),
             **plotkwargs)
     plt.ylabel('Neutrinos per $0.25$ GeV', **labelkwargs)
+    if hardcodeaxes == 'neutrinomode':
+        plt.ylim([0, 120])
+    elif hardcodeaxes == 'antineutrinomode':
+        plt.ylim([0,35])
+    elif not hardcodeaxes:
+        pass # hardcodeaxes is just False
+    else:
+        raise ValueError("Bad hardocdeaxes", hardcodeaxes)
     plt.title(r'Spectrum for 150 kt-MW-yr', **labelkwargs)
     if plotChiSquare:
         # Calculate the chi square for each non-nominal curve as an
@@ -76,6 +84,8 @@ if __name__ == "__main__":
             help="antineutrino mode")
     parser.add_argument("-f", "--flavor", default=None,
             help="neutrino flavor whose spectrum will be plotted")
+    parser.add_argument("--standard-axes", action="store_true",
+            help="use hard-coded axis range")
     parser.add_argument("-o", "--output", type=str, help="output location",
             default='', metavar="FILE")
     args = parser.parse_args()
@@ -83,18 +93,34 @@ if __name__ == "__main__":
     factored = args.factored_drm
     chiSquare = args.x2
     neutrinomode = not args.bar
+    hardcodeaxes = args.standard_axes
     outfilename = args.output
     # Some nontrivial rules for which flavor to plot:
     # Default to electron neutrino in neutrino mode, electron
     # antineutrino in antineutrino mode. Otherwise use the flavor
     # provided.
     if args.flavor is None:
-        if neutrinomode:
-            flavor = "e"
+        if factored:
+            if neutrinomode:
+                flavor = "e"
+            else:
+                flavor = "ebar"
         else:
-            flavor = "ebar"
+            flavor = "eCC"
     else:
         flavor = args.flavor
+
+    # Some nontrivial rules for hardcodeaxes value:
+    # If it's specified, then let it encode the neutrino mode. If it's
+    # unspecified, leave it as False.
+    if hardcodeaxes:
+        if neutrinomode:
+            hardcodeaxes = 'neutrinomode'
+        else:
+            hardcodeaxes = 'antineutrinomode'
+    else:
+        hardcodeaxes = False
+
 
 
     # Compute the variation in the spectrum based on neutrino oscillation
@@ -131,7 +157,7 @@ if __name__ == "__main__":
     if factored:
             spectoextract = 'nu%sCC' % flavor
     else:
-        spectoextract = '%s-like' % flavor
+        spectoextract = 'nu%s-like' % flavor
     for i, folder in enumerate(folders):
         oscfiles = [[folder + name for name in row] for row in filenames]
         oscprob = OscillationProbability(oscfiles)
@@ -142,4 +168,4 @@ if __name__ == "__main__":
         )
         nuespecs[i, :] = spectrum.extract(spectoextract)
 
-    plot(nuespecs, ratio, chiSquare)
+    plot(nuespecs, ratio, chiSquare, hardcodeaxes)
