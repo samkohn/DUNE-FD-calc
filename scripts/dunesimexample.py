@@ -23,9 +23,9 @@ detectorresponse = defaultDetectorResponse()
 # efficiency = \
 # Efficiency('../Fast-Monte-Carlo/Efficiencies/nueCCsig_efficiency.csv')
 oscflux = flux.evolve(oscprob)
-print "oscillated flux\nnue flux\n", oscflux.extract('nue flux')
-print "numu flux\n", oscflux.extract('numu flux')
-print "nutau flux\n", oscflux.extract('nutau flux')
+print "oscillated flux\nnue flux\n", oscflux.extract('nue')
+print "numu flux\n", oscflux.extract('numu')
+print "nutau flux\n", oscflux.extract('nutau')
 print "\n\n\n"
 detectorspec = (flux
         .evolve(oscprob)

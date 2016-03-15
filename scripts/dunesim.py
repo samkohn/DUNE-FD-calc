@@ -1,6 +1,7 @@
 import numpy as np
 import csv
 import os
+import pdb
 
 def setEnergyBins(bins):
     SimulationComponent.defaultBinning = Binning(bins)
@@ -239,6 +240,38 @@ class Binning(object):
             self.centers[ind] = ((i + j)/2.0)
         self.n = len(self.centers)
 
+    _namedict = {key: np.asarray(val) for key, val in {
+            'nue': (0, 1),
+            'numu': (1, 2),
+            'nutau': (2, 3),
+            'nuebar': (3, 4),
+            'numubar': (4, 5),
+            'nutaubar': (5, 6),
+            'nueCC': (0, 1),
+            'nueNC': (1, 2),
+            'numuCC': (2, 3),
+            'numuNC': (3, 4),
+            'nutauCC': (4, 5),
+            'nutauNC': (5, 6),
+            'nuebarCC': (6, 7),
+            'nuebarNC': (7, 8),
+            'numubarCC': (8, 9),
+            'numubarNC': (9, 10),
+            'nutaubarCC': (10, 11),
+            'nutaubarNC': (11, 12),
+            'nueCC-like': (0, 1),
+            'numuCC-like': (1, 2),
+            'NC-like': (2, 3)
+        }.iteritems()}
+    def index(self, name):
+        """
+        Retrieve a slice object over the indexes of the region of the
+        matrix represented by the given name.
+
+        """
+        return slice(*(self._namedict[name] * self.n))
+
+
 
 class BeamFlux(SimulationComponent):
     """
@@ -288,23 +321,13 @@ class BeamFlux(SimulationComponent):
 
     def extract(self, name, withEnergy=False):
         thing = None
+        smallslice = self.bins.index(name)
         if withEnergy:
             thing = self.zipWithEnergy()
+            return np.asarray(thing[smallslice])
         else:
             thing = self
-        if name == 'nue flux':
-            return np.asarray(thing[0:self.bins.n])
-        if name == 'numu flux':
-            return np.asarray(thing[self.bins.n:2*self.bins.n])
-        if name == 'nutau flux':
-            return np.asarray(thing[2*self.bins.n:3*self.bins.n])
-        if name == 'nuebar flux':
-            return np.asarray(thing[3*self.bins.n:4*self.bins.n])
-        if name == 'numubar flux':
-            return np.asarray(thing[4*self.bins.n:5*self.bins.n])
-        if name == 'nutaubar flux':
-            return np.asarray(thing[5*self.bins.n:6*self.bins.n])
-        raise ValueError("Bad name")
+            return np.asarray(thing[smallslice]).reshape(self.bins.n)
 
 class Spectrum(SimulationComponent):
     """
@@ -360,51 +383,13 @@ class Spectrum(SimulationComponent):
 
     def extract(self, name, withEnergy=False):
         thing = None
+        smallslice = self.bins.index(name)
         if withEnergy:
             thing = self.zipWithEnergy()
+            return np.asarray(thing[smallslice])
         else:
             thing = self
-        # Determine whether this is a true or reconstructed spectrum
-        # based on whether len(self) is 3 (reco) or 6 (true) times the
-        # number of bins in the spectrum.
-        recoRepeats = 3
-        trueRepeats = 12
-        if len(self) == recoRepeats * self.bins.n:
-            if name == 'nueCC-like':
-                return np.asarray(thing[0:self.bins.n])
-            if name == 'numuCC-like':
-                return np.asarray(thing[self.bins.n:2*self.bins.n])
-            if name == 'NC-like':
-                return np.asarray(thing[2*self.bins.n:3*self.bins.n])
-            raise ValueError("Bad name: ", name)
-        elif len(self) == trueRepeats * self.bins.n:
-            if name == 'nueCC':
-                return np.asarray(thing[0:self.bins.n])
-            if name == 'nueNC':
-                return np.asarray(thing[self.bins.n:2*self.bins.n])
-            if name == 'numuCC':
-                return np.asarray(thing[2*self.bins.n:3*self.bins.n])
-            if name == 'numuNC':
-                return np.asarray(thing[3*self.bins.n:4*self.bins.n])
-            if name == 'nutauCC':
-                return np.asarray(thing[4*self.bins.n:5*self.bins.n])
-            if name == 'nutauNC':
-                return np.asarray(thing[5*self.bins.n:6*self.bins.n])
-            if name == 'nuebarCC':
-                return np.asarray(thing[6*self.bins.n:7*self.bins.n])
-            if name == 'nuebarNC':
-                return np.asarray(thing[7*self.bins.n:8*self.bins.n])
-            if name == 'numubarCC':
-                return np.asarray(thing[8*self.bins.n:9*self.bins.n])
-            if name == 'numubarNC':
-                return np.asarray(thing[9*self.bins.n:10*self.bins.n])
-            if name == 'nutaubarCC':
-                return np.asarray(thing[10*self.bins.n:11*self.bins.n])
-            if name == 'nutaubarNC':
-                return np.asarray(thing[11*self.bins.n:12*self.bins.n])
-            raise ValueError("Bad name: ", name)
-        else:
-            raise ValueError("Object has been corrupted: bad len(self)")
+            return np.array(thing[smallslice]).reshape(self.bins.n)
 
 class OscillationProbability(SimulationComponent):
     """
@@ -499,43 +484,11 @@ class OscillationProbability(SimulationComponent):
             thing = self.zipWithEnergy()
         else:
             thing = self
-        if name == 'nue2nue':
-            return np.asarray(thing[0:n, 0:n])
-        if name == 'nue2numu':
-            return np.asarray(thing[n:2*n, 0:n])
-        if name == 'nue2nutau':
-            return np.asarray(thing[2*n:3*n, 0:n])
-        if name == 'numu2nue':
-            return np.asarray(thing[0:n, n:2*n])
-        if name == 'numu2numu':
-            return np.asarray(thing[n:2*n, n:2*n])
-        if name == 'numu2nutau':
-            return np.asarray(thing[2*n:3*n, n:2*n])
-        if name == 'nutau2nue':
-            return np.asarray(thing[0:n, 2*n:3*n])
-        if name == 'nutau2numu':
-            return np.asarray(thing[n:2*n, 2*n:3*n])
-        if name == 'nutau2nutau':
-            return np.asarray(thing[2*n:3*n, 2*n:3*n])
-        if name == 'nuebar2nuebar':
-            return np.asarray(thing[3*n:4*n, 3*n:4*n])
-        if name == 'nuebar2numubar':
-            return np.asarray(thing[4*n:5*n, 3*n:4*n])
-        if name == 'nuebar2nutaubar':
-            return np.asarray(thing[5*n:6*n, 3*n:4*n])
-        if name == 'numubar2nuebar':
-            return np.asarray(thing[3*n:4*n, 4*n:5*n])
-        if name == 'numubar2numubar':
-            return np.asarray(thing[4*n:5*n, 4*n:5*n])
-        if name == 'numubar2nunutaubar':
-            return np.asarray(thing[5*n:6*n, 4*n:5*n])
-        if name == 'nutaubar2nuebar':
-            return np.asarray(thing[3*n:4*n, 5*n:6*n])
-        if name == 'nutaubar2numubar':
-            return np.asarray(thing[4*n:5*n, 5*n:6*n])
-        if name == 'nutaubar2nutaubar':
-            return np.asarray(thing[5*n:6*n, 5*n:6*n])
-        raise ValueError("Bad name")
+        # Split the given name into two parts, the "from" and the "to."
+        colname, rowname = name.split('2')
+        colslice = self.bins.index(colname)
+        rowslice = self.bins.index(rowname)
+        return np.asarray(thing[rowslice, colslice])
 
 class CrossSection(SimulationComponent):
     """
@@ -619,7 +572,6 @@ class CrossSection(SimulationComponent):
         else:
             raise ValueError("Incorrect shape " + str(shape))
 
-
     def linearize(self):
         """
         Convert the matrix into a column vector.
@@ -648,29 +600,13 @@ class CrossSection(SimulationComponent):
 
     def extract(self, name, withEnergy=False):
         thing = None
+        smallslice = self.bins.index(name)
         if withEnergy:
             thing = self.zipWithEnergy()
+            return np.asarray(thing[smallslice])
         else:
             thing = self.linearize()
-        index = 0
-        if name == 'nue':
-            return np.asarray(thing[index:(index + self.bins.n)])
-        index += self.bins.n
-        if name == 'numu':
-            return np.asarray(thing[index:(index + self.bins.n)])
-        index += self.bins.n
-        if name == 'nutau':
-            return np.asarray(thing[index:(index + self.bins.n)])
-        index += self.bins.n
-        if name == 'nuebar':
-            return np.asarray(thing[index:(index + self.bins.n)])
-        index += self.bins.n
-        if name == 'numubar':
-            return np.asarray(thing[index:(index + self.bins.n)])
-        index += self.bins.n
-        if name == 'nutaubar':
-            return np.asarray(thing[index:(index + self.bins.n)])
-        raise ValueError("Bad name")
+            return np.asarray(thing[smallslice]).reshape(self.bins.n)
 
 class DetectorResponse(SimulationComponent):
     """
@@ -780,6 +716,19 @@ class DetectorResponse(SimulationComponent):
             drm = self.flatten()
             return zip(energymatrix, drm)
         raise ValueError("Did not recognize form " + str(form))
+
+    def extract(self, name, withEnergy=False):
+        thing = None
+        n = self.bins.n
+        if withEnergy:
+            thing = self.zipWithEnergy()
+        else:
+            thing = self
+        # Split the given name into two parts, the "from" and the "to."
+        colname, rowname = name.split('2')
+        colslice = self.bins.index(colname)
+        rowslice = self.bins.index(rowname)
+        return np.asarray(thing[rowslice, colslice])
 
 class Efficiency(SimulationComponent):
     """
