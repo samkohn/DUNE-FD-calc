@@ -145,16 +145,12 @@ class SimulationComponent(np.matrix):
             raise ValueError('Bad argument to constructor.')
         # Store the data in the underlying np.matrix structure
         obj = np.matrix.__new__(cls, data.view(cls))
-        obj.description = None
         obj.bins = None # Instance of Binning object
-        obj.dataFileLocation = None
         return obj
 
     def __array_finalize__(self, obj):
         if obj is None: return
-        self.description = getattr(obj, 'description', None)
         self.bins = getattr(obj, 'bins', None)
-        self.dataFileLocation = getattr(obj, 'dataFileLocation', None)
         if self.bins is None:
             self.bins = self.defaultBinning
 
