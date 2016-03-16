@@ -4,8 +4,8 @@ from dunesim import *
 import matplotlib.pyplot as plt
 import argparse
 
-def plot(nuespecs, ratio, plotChiSquare, hardcodeaxes):
-    nominalspec = nuespecs[10]
+def plot(nuespecs, ratio, specrange, plotChiSquare, plotN, hardcodeaxes, outfilename):
+    nominalspec = nuespecs[10, specrange]
 
     plotspeckey = {
             0: r"$\theta_{23}=40^{\circ}$",
@@ -17,9 +17,9 @@ def plot(nuespecs, ratio, plotChiSquare, hardcodeaxes):
             20: r"$\theta_{23}=50^{\circ}$",
         }
 
-    specstoplot = nuespecs[np.asarray(plotspeckey.keys()),:]
+    specstoplot = nuespecs[np.asarray(plotspeckey.keys()),specrange]
 
-    bins = Spectrum.defaultBinning.centers
+    bins = Spectrum.defaultBinning.centers[specrange]
     plotkwargs = {
             'linewidth': 2.0,
         }
@@ -53,6 +53,11 @@ def plot(nuespecs, ratio, plotChiSquare, hardcodeaxes):
     else:
         raise ValueError("Bad hardocdeaxes", hardcodeaxes)
     plt.title(r'Spectrum for 150 kt-MW-yr', **labelkwargs)
+    legendextras = [''] * (len(specstoplot) + 1)
+    if plotN:
+        sums = [sum(spec) for spec in specstoplot]
+        legendextras = [r", $N=%.0f$" % N for N in sums +
+                [sum(nominalspec)]]
     if plotChiSquare:
         # Calculate the chi square for each non-nominal curve as an
         # attempted fit to the nominal curve.
@@ -61,10 +66,12 @@ def plot(nuespecs, ratio, plotChiSquare, hardcodeaxes):
         # uncertainty = root(N) of non-nominal curve (data)
         chisquares = np.square(specstoplot-nominalspec) / specstoplot
         chisquares = np.sum(chisquares, axis=1)
-        legendextras = [r", $\chi^{2}/NDF = " + str(cs)  + "/39$" for
-                cs in chisquares] + ['']
+        lastentry = legendextras[-1]
+        legendextras = [le + r", $\chi^{2}/NDF = %.1f/39$" % cs
+                for (le, cs) in zip(legendextras[:-1], chisquares)]
+        legendextras += [lastentry]
     else:
-        legendextras = [''] * (len(plotspeckey) + 1)
+        pass
     legendnames = plotspeckey.values() + ['nominal']
     plt.legend([legendnames[i] + legendextras[i] for i in
         range(len(legendnames))])
@@ -80,10 +87,17 @@ if __name__ == "__main__":
             help="use factored DRM/efficiency")
     parser.add_argument("--x2", action="store_true", help="include" +
             "chi square")
+    parser.add_argument("-N", "--total", action="store_true",
+            help="include the integral total of each spectrum")
     parser.add_argument("--bar", action="store_true",
             help="antineutrino mode")
     parser.add_argument("-f", "--flavor", default=None,
             help="neutrino flavor whose spectrum will be plotted")
+    parser.add_argument("--suppress", default=[], type=str, nargs='+',
+            help="flavor(s) to ignore at the detector (e.g. to " +
+            "investigate background)")
+    parser.add_argument("-r", "--range", nargs=2, type=int,
+            help="min and max bin numbers to plot")
     parser.add_argument("--standard-axes", action="store_true",
             help="use hard-coded axis range")
     parser.add_argument("-o", "--output", type=str, help="output location",
@@ -92,7 +106,10 @@ if __name__ == "__main__":
     ratio = args.ratio
     factored = args.factored_drm
     chiSquare = args.x2
+    plotN = args.total
     neutrinomode = not args.bar
+    suppress = args.suppress
+    binstoplot = args.range
     hardcodeaxes = args.standard_axes
     outfilename = args.output
     # Some nontrivial rules for which flavor to plot:
@@ -136,6 +153,11 @@ if __name__ == "__main__":
     XSEC_UNITS_CMSQ2MSQ = 1e-4
 
     setEnergyBins(np.linspace(0, 10, num=41, endpoint=True))
+    if binstoplot is None:
+        binstoplot = slice(0,
+                SimulationComponent.defaultBinning.n)
+    else:
+        binstoplot = slice(binstoplot[0], binstoplot[1])
 
     folderbase = ('/Users/skohn/Documents/DUNE/configs/Fast-Monte-Carlo/' +
         'Oscillation-Parameters/local/set2/oscvectors_')
@@ -161,6 +183,9 @@ if __name__ == "__main__":
     for i, folder in enumerate(folders):
         oscfiles = [[folder + name for name in row] for row in filenames]
         oscprob = OscillationProbability(oscfiles)
+        for badflavor in suppress:
+            col, row = badflavor.split('2')
+            oscprob[oscprob.bins.index(row), oscprob.bins.index(col)] = 0
         spectrum = (flux
                 .evolve(oscprob)
                 .evolve(xsec)
@@ -168,4 +193,4 @@ if __name__ == "__main__":
         )
         nuespecs[i, :] = spectrum.extract(spectoextract)
 
-    plot(nuespecs, ratio, chiSquare, hardcodeaxes)
+    plot(nuespecs, ratio, binstoplot, chiSquare, plotN, hardcodeaxes, outfilename)
