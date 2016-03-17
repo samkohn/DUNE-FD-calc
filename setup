@@ -13,5 +13,4 @@ else
     echo $DUNECONFIGSROOT
     echo $PYTHONPATH
     echo "INFO: Already set up. Exiting..."
-    exit 0
 fi
