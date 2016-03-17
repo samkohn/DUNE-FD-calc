@@ -1,9 +1,47 @@
+"""
+Module dunesim
+Author: Samuel Kohn, skohn@lbl.gov
+License: MIT License (c) 2016 Samuel Kohn
+
+This module provides an interface into the calculation of the
+neutrino spectrum detected at the DUNE Far Detector. The module is
+composed of two parts: one is a set of classes that represent
+parametrizations of the components of the calculation (spectrum, flux,
+detector response, etc.). The other part is a small set of convenience
+functions for setting the bin spacing and loading default data sets into
+classes.
+
+An example of how to use this module is in the python file
+`dunesimexample.py`.
+
+"""
+
 import numpy as np
 import csv
 import os, sys
 import pdb
 
 def setEnergyBins(bins):
+    """
+    Configure the energy bins used in the files loaded into the dunesim
+    classes.
+
+    `bins` should be an array of the N+1 bin edges, e.g. for bins of 1
+    GeV covering 0-10GeV, `bins` should be `[0, 1, 2, 3, 4, 5, 6, 7, 8,
+    9, 10]`. An easy way to do this is to use `numpy.linspace`:
+
+    ```
+    setEnergyBins(numpy.linspace(0, 10, 11, endpoint=True))
+    ```
+
+    passes in the exact array specified above. 0 and 10 are the
+    endpoints, 11 is the desired length of the array (= N+1), and
+    endpoint=True tells numpy to include 10 (the endpoint) as one of the
+    entries. `numpy.arange` also works but the documentation notes that
+    using it with floating-point arguments can be finnicky, and that
+    linspace works better.
+
+    """
     SimulationComponent.defaultBinning = Binning(bins)
 
 def _setUpRepositoryDir():
