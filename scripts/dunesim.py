@@ -1,14 +1,33 @@
 import numpy as np
 import csv
-import os
+import os, sys
 import pdb
 
 def setEnergyBins(bins):
     SimulationComponent.defaultBinning = Binning(bins)
 
-repositorydir = os.path.join(os.path.dirname(__file__), '..')
+def _setUpRepositoryDir():
+    """
+    Fetch the file path of the repository this module is located in.
+
+    This function is used to provide absolute paths to the locations of
+    data files. It is only called in the `default...()` methods.
+
+    """
+    if not 'repositorydir' in globals().keys():
+        try:
+            global repositorydir
+            repositorydir = os.environ['DUNECONFIGSROOT']
+        except KeyError:
+            print "ERROR: Cannot find environment variable `$DUNECONFIGSROOT`"
+            print "ERROR: Source the setup script:"
+            print "       $ source setup"
+            print "ERROR: and try again."
+            print "INFO: Aborting..."
+            sys.exit()
 
 def defaultBeamFlux(neutrinomode=True):
+    _setUpRepositoryDir()
     if neutrinomode:
         directory = 'CD1-CDR-FHC/'
         suffix = '_flux40.csv'
@@ -24,6 +43,7 @@ def defaultBeamFlux(neutrinomode=True):
     return flux
 
 def defaultOscillationProbability():
+    _setUpRepositoryDir()
     pre = repositorydir + '/Fast-Monte-Carlo/Oscillation-Parameters/nu'
     oscfiles = [['e_nue40.csv', 'mu_nue40.csv', 'tau_nue40.csv'],
              ['e_numu40.csv', 'mu_numu40.csv', 'tau_numu40.csv'],
@@ -36,6 +56,7 @@ def defaultOscillationProbability():
     return oscprob
 
 def defaultCrossSection():
+    _setUpRepositoryDir()
     pre = repositorydir + '/Fast-Monte-Carlo/Cross-Sections/nu_'
     xsecfiles = map(lambda x: pre + x,
         ['e_Ar40__tot_cc40.csv', 'e_Ar40__tot_nc40.csv',
@@ -48,6 +69,7 @@ def defaultCrossSection():
     return xsec
 
 def defaultDetectorResponse(factored=True):
+    _setUpRepositoryDir()
     pre = repositorydir + '/Fast-Monte-Carlo/Detector-Response/nuflux_numu'
     if factored:
         drmfiles = ['flux_nue_trueCC', 'flux_nue_trueNC',
