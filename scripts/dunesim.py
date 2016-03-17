@@ -65,6 +65,14 @@ def _setUpRepositoryDir():
             sys.exit()
 
 def defaultBeamFlux(neutrinomode=True):
+    """
+    Create a BeamFlux object from the flux data stored in this git
+    repository.
+
+    If `neutrinomode` is False, return the flux used by the antineutrino
+    mode.
+
+    """
     _setUpRepositoryDir()
     if neutrinomode:
         directory = 'CD1-CDR-FHC/'
@@ -81,6 +89,14 @@ def defaultBeamFlux(neutrinomode=True):
     return flux
 
 def defaultOscillationProbability():
+    """
+    Create an OscillationProbability object from the files stored in
+    this git repository.
+
+    These parameters are the Nu-Fit 2014 best fit values, normal
+    ordering, with delta CP = 0.
+
+    """
     _setUpRepositoryDir()
     pre = repositorydir + '/Fast-Monte-Carlo/Oscillation-Parameters/nu'
     oscfiles = [['e_nue40.csv', 'mu_nue40.csv', 'tau_nue40.csv'],
@@ -94,6 +110,14 @@ def defaultOscillationProbability():
     return oscprob
 
 def defaultCrossSection():
+    """
+    Create a CrossSection object from the files stored in this git
+    repository.
+
+    Includes the total cross section broken down by NC and CC for
+    neutrinos and antineutrinos on Argon 40.
+
+    """
     _setUpRepositoryDir()
     pre = repositorydir + '/Fast-Monte-Carlo/Cross-Sections/nu_'
     xsecfiles = map(lambda x: pre + x,
@@ -107,6 +131,22 @@ def defaultCrossSection():
     return xsec
 
 def defaultDetectorResponse(factored=True):
+    """
+    Create a DetectorResponse object from the files stored in this
+    repository.
+
+    The values are extracted from the Fast Monte Carlo.
+
+    If `factored` is True, the returned object will only perform an
+    energy reconstruction without assigning reconstructed interaction
+    channel labels to the events. I.e. the energy distribution may
+    change, but the number of events in each interaction type will be
+    conserved. If `factored` is False, the returned object will assign
+    both a new energy and a reconstructed interaction label to events.
+    I.e. a true nue CC event at 1.5 GeV may end up as a reconstructed
+    NC-like event at 0.5 GeV.
+
+    """
     _setUpRepositoryDir()
     pre = repositorydir + '/Fast-Monte-Carlo/Detector-Response/nuflux_numu'
     if factored:
@@ -158,25 +198,27 @@ class SimulationComponent(np.matrix):
         then the numu flux, and then the nutau flux. Check with the
         documentation for each class for the appropriate format.
 
-    The internal of the data is column vectors and matrices. For something
-    like a flux, a column vector should be supplied (a text file with
-    one entry on each line, or a 1D list or ndarray). For something like
-    the detector response matrix or efficiency matrix, a matrix should
-    be supplied (a comma-separated text file with rows corresponding to
-    matrix rows and columns corresponding to matrix columns). Each
-    subclass's method _getMatrixForm has a docstring specifying how the
-    input data is converted to the appropriate data structure.
+    The internal structure of the data is column vectors and matrices.
+    For something like a flux, a column vector should be supplied (a
+    text file with one entry on each line, or a 1D list or ndarray). For
+    something like the detector response matrix or efficiency matrix,
+    a matrix should be supplied (a comma-separated text file with rows
+    corresponding to matrix rows and columns corresponding to matrix
+    columns). Each subclass's method _getMatrixForm has a docstring
+    specifying how the input data is converted to the appropriate data
+    structure.
 
     """
     defaultBinning = None
     def __new__(cls, arg):
         """
-        Read in data from either an array-like object or a file location
-        and assign it to the np.matrix (inherited) data structure.
+        Read in data from an array-like object of data, a file location,
+        or an array-like object of file locations and assign it to the
+        np.matrix (inherited) data structure.
 
         This base class method reads in the data, and each subclass must
         define how to convert that data into an np.matrix via the
-        _getMatrixForm method.
+        _getMatrixForm and _getBlockMatrixForm methods.
 
         """
         if cls.defaultBinning is None:
@@ -210,6 +252,16 @@ class SimulationComponent(np.matrix):
         return obj
 
     def __array_finalize__(self, obj):
+        """
+        Finish configuring new objects by following numpy instructions.
+
+        This method is important when creating a SimulationComponent
+        object as a "view" of an existing object (i.e. without
+        explicitly constructing a new one). Documentation for this
+        procedure is online [here]
+        (https://docs.scipy.org/doc/numpy/user/basics.subclassing.html)
+
+        """
         if obj is None: return
         self.bins = getattr(obj, 'bins', None)
         if self.bins is None:
@@ -257,6 +309,11 @@ class SimulationComponent(np.matrix):
 
     @staticmethod
     def _parseFile(location):
+        """
+        Read in the given CSV file and convert it to a (possibly nested)
+        python list.
+
+        """
         data = []
         with open(location) as fin:
             # Filter out comments in the CSV file (row starts with #)
@@ -275,6 +332,15 @@ class SimulationComponent(np.matrix):
         return data
 
     def evolve(self, other):
+        """
+        Apply the effect of `other`.
+
+        This method multiplies the two matrices in the correct
+        orientation and formats the output according to the correct
+        class. (e.g. myFlux.evolve(myXsec) -> mySpectrum of type
+        Spectrum)
+
+        """
         result = other * self
         newDataFormat = other.nextFormat
         return result.view(newDataFormat)
@@ -291,7 +357,20 @@ class SimulationComponent(np.matrix):
         " a subclass.")
 
 class Binning(object):
+    """
+    This class keeps track of the energy bins represented by rows and
+    columns in the SimulationComponent matrices.
+
+    """
     def __init__(self, edges):
+        """
+        Create a new Binning object by specifying the bin edges.
+
+        N + 1 edges are required to create an N-bin configuration. The
+        easiest way to do this is with the numpy command
+        `numpy.linspace(lowedge, highedge, n+1)`.
+
+        """
         self.edges = np.array(edges)
         self.centers = np.empty(self.edges.shape[0]-1)
         self.start = self.edges[0]
@@ -323,6 +402,12 @@ class Binning(object):
             'numuCC-like': (1, 2),
             'NC-like': (2, 3)
         }.iteritems()}
+    """
+    This dict translates between the name of a section of the matrix
+    and the index of that section, up to a factor of Nbins.
+
+    """
+
     def index(self, name):
         """
         Retrieve a slice object over the indexes of the region of the
