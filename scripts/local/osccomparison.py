@@ -85,7 +85,7 @@ if __name__ == "__main__":
     parser.add_argument("--ratio", action="store_true", help="plot dS/S")
     parser.add_argument("--factored-drm", action="store_true",
             help="use factored DRM/efficiency")
-    parser.add_argument("--x2", action="store_true", help="include" +
+    parser.add_argument("--x2", action="store_true", help="include " +
             "chi square")
     parser.add_argument("-N", "--total", action="store_true",
             help="include the integral total of each spectrum")
@@ -94,10 +94,11 @@ if __name__ == "__main__":
     parser.add_argument("-f", "--flavor", default=None,
             help="neutrino flavor whose spectrum will be plotted")
     parser.add_argument("--suppress", default=[], type=str, nargs='+',
-            help="flavor(s) to ignore at the detector (e.g. to " +
-            "investigate background)")
+            help="oscillations to ignore at the detector (e.g. to " +
+            "investigate background)", metavar="nu_x2nu_y")
     parser.add_argument("-r", "--range", nargs=2, type=int,
-            help="min and max bin numbers to plot")
+            help="min and max bin numbers to plot", metavar=("MIN",
+            "MAX"))
     parser.add_argument("--standard-axes", action="store_true",
             help="use hard-coded axis range")
     parser.add_argument("-o", "--output", type=str, help="output location",
@@ -137,8 +138,6 @@ if __name__ == "__main__":
             hardcodeaxes = 'antineutrinomode'
     else:
         hardcodeaxes = False
-
-
 
     # Compute the variation in the spectrum based on neutrino oscillation
     # parameters
