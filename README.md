@@ -13,9 +13,9 @@ ROOT macros that performs some primitive calculations.
 To run the scripts, first clone or download this repository. Then,
 ensure that your system is configured correctly by executing the
 `bootstrap` file with `./bootstrap`. This only needs to be done once.
-To set up the correct python path information, execute the `setup` file
-with `./setup`. This needs to be done every time a new shell session is
-started.
+To set up the correct python path information, source the `setup` file
+with `. setup` or `source setup`. This needs to be done every time a new
+shell session is started.
 
 ### Physics and Detector Configurations
 Each root-level directory contains all of the settings related to a
