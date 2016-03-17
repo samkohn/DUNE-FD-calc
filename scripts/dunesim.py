@@ -18,8 +18,10 @@ An example of how to use this module is in the python file
 
 import numpy as np
 import csv
-import os, sys
+import os
+import sys
 import pdb
+
 
 def setEnergyBins(bins):
     """
@@ -44,6 +46,7 @@ def setEnergyBins(bins):
     """
     SimulationComponent.defaultBinning = Binning(bins)
 
+
 def _setUpRepositoryDir():
     """
     Fetch the file path of the repository this module is located in.
@@ -52,7 +55,7 @@ def _setUpRepositoryDir():
     data files. It is only called in the `default...()` methods.
 
     """
-    if not 'repositorydir' in globals().keys():
+    if 'repositorydir' not in globals().keys():
         try:
             global repositorydir
             repositorydir = os.environ['DUNECONFIGSROOT']
@@ -63,6 +66,7 @@ def _setUpRepositoryDir():
             print "ERROR: and try again."
             print "INFO: Aborting..."
             sys.exit()
+
 
 def defaultBeamFlux(neutrinomode=True):
     """
@@ -81,12 +85,13 @@ def defaultBeamFlux(neutrinomode=True):
         directory = 'CDR-RHC/'
         suffix = '_flux40_anumode.csv'
     pre = (repositorydir +
-            '/Fast-Monte-Carlo/Flux-Configuration/' + directory)
-    fluxfiles = map(lambda x: pre + x + suffix, ['nue', 'numu',
-        'nutau', 'nuebar', 'numubar',
-        'nutaubar'])
+           '/Fast-Monte-Carlo/Flux-Configuration/' + directory)
+    fluxfiles = map(
+            lambda x: pre + x + suffix,
+            ['nue', 'numu', 'nutau', 'nuebar', 'numubar', 'nutaubar'])
     flux = BeamFlux(fluxfiles)
     return flux
+
 
 def defaultOscillationProbability():
     """
@@ -100,14 +105,15 @@ def defaultOscillationProbability():
     _setUpRepositoryDir()
     pre = repositorydir + '/Fast-Monte-Carlo/Oscillation-Parameters/nu'
     oscfiles = [['e_nue40.csv', 'mu_nue40.csv', 'tau_nue40.csv'],
-             ['e_numu40.csv', 'mu_numu40.csv', 'tau_numu40.csv'],
-             ['e_nutau40.csv', 'mu_nutau40.csv', 'tau_nutau40.csv'],
-             ['ebar_nuebar40.csv', 'mubar_nuebar40.csv', 'taubar_nuebar40.csv'],
-             ['ebar_numubar40.csv', 'mubar_numubar40.csv', 'taubar_numubar40.csv'],
-             ['ebar_nutaubar40.csv', 'mubar_nutaubar40.csv', 'taubar_nutaubar40.csv']]
+                ['e_numu40.csv', 'mu_numu40.csv', 'tau_numu40.csv'],
+                ['e_nutau40.csv', 'mu_nutau40.csv', 'tau_nutau40.csv'],
+                ['ebar_nuebar40.csv', 'mubar_nuebar40.csv', 'taubar_nuebar40.csv'],
+                ['ebar_numubar40.csv', 'mubar_numubar40.csv', 'taubar_numubar40.csv'],
+                ['ebar_nutaubar40.csv', 'mubar_nutaubar40.csv', 'taubar_nutaubar40.csv']]
     oscfiles = [[pre + name for name in row] for row in oscfiles]
     oscprob = OscillationProbability(oscfiles)
     return oscprob
+
 
 def defaultCrossSection():
     """
@@ -120,7 +126,8 @@ def defaultCrossSection():
     """
     _setUpRepositoryDir()
     pre = repositorydir + '/Fast-Monte-Carlo/Cross-Sections/nu_'
-    xsecfiles = map(lambda x: pre + x,
+    xsecfiles = map(
+        lambda x: pre + x,
         ['e_Ar40__tot_cc40.csv', 'e_Ar40__tot_nc40.csv',
          'mu_Ar40__tot_cc40.csv', 'mu_Ar40__tot_nc40.csv',
          'tau_Ar40__tot_cc40.csv', 'tau_Ar40__tot_nc40.csv',
@@ -129,6 +136,7 @@ def defaultCrossSection():
          'tau_bar_Ar40__tot_cc40.csv', 'tau_bar_Ar40__tot_nc40.csv'])
     xsec = CrossSection(xsecfiles)
     return xsec
+
 
 def defaultDetectorResponse(factored=True):
     """
@@ -151,20 +159,20 @@ def defaultDetectorResponse(factored=True):
     pre = repositorydir + '/Fast-Monte-Carlo/Detector-Response/nuflux_numu'
     if factored:
         drmfiles = ['flux_nue_trueCC', 'flux_nue_trueNC',
-                'flux_numu_trueCC', 'flux_numu_trueNC',
-                'flux_nutau_trueCC', 'flux_nutau_trueNC',
-                'barflux_nuebar_trueCC', 'barflux_nuebar_trueNC',
-                'barflux_numubar_trueCC', 'barflux_numubar_trueNC',
-                'barflux_nutaubar_trueCC', 'barflux_nutaubar_trueNC']
+                    'flux_numu_trueCC', 'flux_numu_trueNC',
+                    'flux_nutau_trueCC', 'flux_nutau_trueNC',
+                    'barflux_nuebar_trueCC', 'barflux_nuebar_trueNC',
+                    'barflux_numubar_trueCC', 'barflux_numubar_trueNC',
+                    'barflux_nutaubar_trueCC', 'barflux_nutaubar_trueNC']
         drmfiles = [pre + name + '40.csv' for name in drmfiles]
     else:
         drmfiles = [
                 ['flux_nue_nueCC-like_trueCC', 'flux_nue_nueCC-like_trueNC',
-                'flux_numu_nueCC-like_trueCC', 'flux_numu_nueCC-like_trueNC',
-                'flux_nutau_nueCC-like_trueCC', 'flux_nutau_nueCC-like_trueNC',
-                'barflux_nuebar_nueCC-like_trueCC', 'barflux_nuebar_nueCC-like_trueNC',
-                'barflux_numubar_nueCC-like_trueCC', 'barflux_numubar_nueCC-like_trueNC',
-                'barflux_nutaubar_nueCC-like_trueCC', 'barflux_nutaubar_nueCC-like_trueNC'],
+                 'flux_numu_nueCC-like_trueCC', 'flux_numu_nueCC-like_trueNC',
+                 'flux_nutau_nueCC-like_trueCC', 'flux_nutau_nueCC-like_trueNC',
+                 'barflux_nuebar_nueCC-like_trueCC', 'barflux_nuebar_nueCC-like_trueNC',
+                 'barflux_numubar_nueCC-like_trueCC', 'barflux_numubar_nueCC-like_trueNC',
+                 'barflux_nutaubar_nueCC-like_trueCC', 'barflux_nutaubar_nueCC-like_trueNC'],
                 ['flux_nue_numuCC-like_trueCC', 'flux_nue_numuCC-like_trueNC',
                  'flux_numu_numuCC-like_trueCC', 'flux_numu_numuCC-like_trueNC',
                  'flux_nutau_numuCC-like_trueCC', 'flux_nutau_numuCC-like_trueNC',
@@ -178,9 +186,11 @@ def defaultDetectorResponse(factored=True):
                  'barflux_numubar_NC-like_trueCC', 'barflux_numubar_NC-like_trueNC',
                  'barflux_nutaubar_NC-like_trueCC', 'barflux_nutaubar_NC-like_trueNC']
             ]
-        drmfiles = [[pre + name + '40.csv' for name in row] for row in drmfiles]
+        drmfiles = [[pre + name + '40.csv' for name in row]
+                    for row in drmfiles]
     drm = DetectorResponse(drmfiles)
     return drm
+
 
 class SimulationComponent(np.matrix):
     """
@@ -210,6 +220,7 @@ class SimulationComponent(np.matrix):
 
     """
     defaultBinning = None
+
     def __new__(cls, arg):
         """
         Read in data from an array-like object of data, a file location,
@@ -222,8 +233,8 @@ class SimulationComponent(np.matrix):
 
         """
         if cls.defaultBinning is None:
-            raise Exception("Must define " +
-                "binning with setEnergyBins() first")
+            raise Exception("Must define binning with setEnergyBins " +
+                            "first")
         data = np.asanyarray(arg)
         dtype = data.dtype
         # Different cases for different argument types
@@ -248,7 +259,7 @@ class SimulationComponent(np.matrix):
             raise ValueError('Bad argument to constructor.')
         # Store the data in the underlying np.matrix structure
         obj = np.matrix.__new__(cls, data.view(cls))
-        obj.bins = None # Instance of Binning object
+        obj.bins = None  # Instance of Binning object
         return obj
 
     def __array_finalize__(self, obj):
@@ -323,11 +334,11 @@ class SimulationComponent(np.matrix):
                 data.append(map(float, row))
         # This conditional remedies various csv formatting styles (e.g.
         # all one row or all one column)
-        if len(data) == 1: # all one row
+        if len(data) == 1:  # all one row
             data = data[0]
-        elif len(data[0]) == 1: # all one column
+        elif len(data[0]) == 1:  # all one column
             data = zip(*data)[0]
-        else: # No problem
+        else:  # No problem
             pass
         return data
 
@@ -354,7 +365,8 @@ class SimulationComponent(np.matrix):
 
         """
         raise NotImplementedError("Must override this method in " +
-        " a subclass.")
+                                  "a subclass.")
+
 
 class Binning(object):
     """
@@ -417,7 +429,6 @@ class Binning(object):
         return slice(*(self._namedict[name] * self.n))
 
 
-
 class BeamFlux(SimulationComponent):
     """
     A representation of the neutrino beam flux.
@@ -473,6 +484,7 @@ class BeamFlux(SimulationComponent):
         else:
             thing = self
             return np.asarray(thing[smallslice]).reshape(self.bins.n)
+
 
 class Spectrum(SimulationComponent):
     """
@@ -536,6 +548,7 @@ class Spectrum(SimulationComponent):
             thing = self
             return np.array(thing[smallslice]).reshape(self.bins.n)
 
+
 class OscillationProbability(SimulationComponent):
     """
     A representation of the oscillation probability.
@@ -563,6 +576,7 @@ class OscillationProbability(SimulationComponent):
 
     """
     nextFormat = BeamFlux
+
     def __new__(cls, arg):
         obj = SimulationComponent.__new__(cls, arg)
         obj.bins = cls.defaultBinning
@@ -619,7 +633,7 @@ class OscillationProbability(SimulationComponent):
         """
         energylist = np.tile(self.bins.centers, 6)
         energymatrix = np.array([[(e1, e2) for e2 in energylist]
-            for e1 in energylist])
+                                 for e1 in energylist])
         return np.dstack((energymatrix, self))
 
     def extract(self, name, withEnergy=False):
@@ -634,6 +648,7 @@ class OscillationProbability(SimulationComponent):
         colslice = self.bins.index(colname)
         rowslice = self.bins.index(rowname)
         return np.asarray(thing[rowslice, colslice])
+
 
 class CrossSection(SimulationComponent):
     """
@@ -667,6 +682,7 @@ class CrossSection(SimulationComponent):
 
     """
     nextFormat = Spectrum
+
     def __new__(cls, arg, units=1e-38):
         obj = SimulationComponent.__new__(cls, arg)
         obj.bins = cls.defaultBinning
@@ -727,9 +743,9 @@ class CrossSection(SimulationComponent):
 
         """
         n = self.bins.n
-        slices = zip(range(0,12*n, n), np.repeat(range(0,6*n, n), 2))
+        slices = zip(range(0, 12*n, n), np.repeat(range(0, 6*n, n), 2))
         blocks = [self[i:i+n, j:j+n] for i, j in slices]
-        xsecs = np.concatenate(map(lambda x:x.diagonal(), blocks))
+        xsecs = np.concatenate(map(lambda x: x.diagonal(), blocks))
         return xsecs
 
     def zipWithEnergy(self):
@@ -752,6 +768,7 @@ class CrossSection(SimulationComponent):
         else:
             thing = self.linearize()
             return np.asarray(thing[smallslice]).reshape(self.bins.n)
+
 
 class DetectorResponse(SimulationComponent):
     """
@@ -797,6 +814,7 @@ class DetectorResponse(SimulationComponent):
 
     """
     nextFormat = Spectrum
+
     def __new__(cls, arg):
         obj = SimulationComponent.__new__(cls, arg)
         obj.bins = cls.defaultBinning
@@ -853,11 +871,11 @@ class DetectorResponse(SimulationComponent):
         energylist = np.tile(self.bins.centers, 3)
         if form == 'matrix':
             energymatrix = np.array([[(e1, e2) for e2 in energylist]
-                for e1 in energylist])
+                                     for e1 in energylist])
             return np.dstack((energymatrix, self))
         if form == 'list':
-            energymatrix = np.array([(e1, e2) for e2 in energylist for
-                e1 in energylist])
+            energymatrix = np.array([(e1, e2) for e2 in energylist
+                                     for e1 in energylist])
             drm = self.flatten()
             return zip(energymatrix, drm)
         raise ValueError("Did not recognize form " + str(form))
@@ -874,6 +892,7 @@ class DetectorResponse(SimulationComponent):
         colslice = self.bins.index(colname)
         rowslice = self.bins.index(rowname)
         return np.asarray(thing[rowslice, colslice])
+
 
 class Efficiency(SimulationComponent):
     """
@@ -905,6 +924,7 @@ class Efficiency(SimulationComponent):
 
     """
     nextFormat = Spectrum
+
     def __new__(cls, arg):
         obj = SimulationComponent.__new__(cls, arg)
         obj.bins = cls.defaultBinning
@@ -954,11 +974,11 @@ class Efficiency(SimulationComponent):
         energylist = np.tile(self.bins.centers, 3)
         if form == 'matrix':
             energymatrix = np.array([[(e1, e2) for e2 in energylist]
-                for e1 in energylist])
+                                     for e1 in energylist])
             return np.dstack((energymatrix, self))
         if form == 'list':
-            energymatrix = np.array([(e1, e2) for e2 in energylist for
-                e1 in energylist])
+            energymatrix = np.array([(e1, e2) for e2 in energylist
+                                     for e1 in energylist])
             efficiencies = self.flatten()
             return zip(energymatrix, drm)
         raise ValueError("Did not recognize form " + str(form))
