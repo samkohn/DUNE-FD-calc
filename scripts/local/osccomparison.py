@@ -67,6 +67,54 @@ def plot(nuespecs, plotspeckey, nominalspec, ratio, specrange, plotChiSquare, pl
     else:
         plt.savefig(outfilename, bbox_inches='tight')
 
+def varyOscillationParameters(CLargs, physicsparams):
+    folderbase = ('/Users/skohn/Documents/DUNE/configs/Fast-Monte-Carlo/' +
+        'Oscillation-Parameters/local/set2/oscvectors_')
+    foldersuffixes = [str(i) for i in range(1, 31)]
+    folders = [folderbase + suffix + '/' for suffix in foldersuffixes]
+
+    filenames = [['nue_nue40.csv', 'numu_nue40.csv', 'nutau_nue40.csv'],
+            ['nue_numu40.csv', 'numu_numu40.csv', 'nutau_numu40.csv'],
+            ['nue_nutau40.csv', 'numu_nutau40.csv', 'nutau_nutau40.csv'],
+            ['nuebar_nuebar40.csv', 'numubar_nuebar40.csv', 'nutaubar_nuebar40.csv'],
+            ['nuebar_numubar40.csv', 'numubar_numubar40.csv', 'nutaubar_numubar40.csv'],
+            ['nuebar_nutaubar40.csv', 'numubar_nutaubar40.csv', 'nutaubar_nutaubar40.csv']]
+
+    flux = defaultBeamFlux(not CLargs.bar) * physicsparams['fluxweight']
+    xsec = defaultCrossSection() * physicsparams['xsecweight']
+    drm = defaultDetectorResponse(CLargs.factored_drm)
+
+    nuespecs = np.empty((len(folders), flux.bins.n), flux.dtype)
+    if CLargs.factored_drm:
+            spectoextract = 'nu%sCC' % CLargs.flavor
+    else:
+        spectoextract = 'nu%s-like' % CLargs.flavor
+    for i, folder in enumerate(folders):
+        oscfiles = [[folder + name for name in row] for row in filenames]
+        oscprob = OscillationProbability(oscfiles)
+        for badflavor in CLargs.suppress:
+            col, row = badflavor.split('2')
+            oscprob[oscprob.bins.index(row), oscprob.bins.index(col)] = 0
+        spectrum = (flux
+                .evolve(oscprob)
+                .evolve(xsec)
+                .evolve(drm)
+        )
+        nuespecs[i, :] = spectrum.extract(spectoextract)
+
+    nominalspec = nuespecs[10, binstoplot]
+
+    plotspeckey = {
+            0: r"$\theta_{23}=40^{\circ}$",
+            11: r"$\delta_{CP}=0.15\pi$",
+            12: r"$\delta_{CP}=\pi/2$",
+            13: r"$\delta_{CP}=-\pi/2$",
+            14: r"$\delta_{CP}=\pi$",
+            15: r"IO",
+            20: r"$\theta_{23}=50^{\circ}$",
+        }
+    return (nuespecs, nominalspec, plotspeckey)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--ratio", action="store_true", help="plot dS/S")
@@ -137,6 +185,11 @@ if __name__ == "__main__":
     MY_BIN_WIDTH = 0.25  # GeV
     NUM_TARGET_ATOMS = 6e32 # 40kt argon
     XSEC_UNITS_CMSQ2MSQ = 1e-4
+    physicsparams = {
+            'fluxweight': NUM_POT * MY_BIN_WIDTH/FLUX_FILE_BIN_WIDTH,
+            'xsecweight': NUM_TARGET_ATOMS * XSEC_UNITS_CMSQ2MSQ,
+    }
+
 
     setEnergyBins(np.linspace(0, 10, num=41, endpoint=True))
     if binstoplot is None:
@@ -145,50 +198,7 @@ if __name__ == "__main__":
     else:
         binstoplot = slice(binstoplot[0], binstoplot[1])
 
-    folderbase = ('/Users/skohn/Documents/DUNE/configs/Fast-Monte-Carlo/' +
-        'Oscillation-Parameters/local/set2/oscvectors_')
-    foldersuffixes = [str(i) for i in range(1, 31)]
-    folders = [folderbase + suffix + '/' for suffix in foldersuffixes]
-
-    filenames = [['nue_nue40.csv', 'numu_nue40.csv', 'nutau_nue40.csv'],
-            ['nue_numu40.csv', 'numu_numu40.csv', 'nutau_numu40.csv'],
-            ['nue_nutau40.csv', 'numu_nutau40.csv', 'nutau_nutau40.csv'],
-            ['nuebar_nuebar40.csv', 'numubar_nuebar40.csv', 'nutaubar_nuebar40.csv'],
-            ['nuebar_numubar40.csv', 'numubar_numubar40.csv', 'nutaubar_numubar40.csv'],
-            ['nuebar_nutaubar40.csv', 'numubar_nutaubar40.csv', 'nutaubar_nutaubar40.csv']]
-
-    flux = defaultBeamFlux(neutrinomode) * NUM_POT * MY_BIN_WIDTH / FLUX_FILE_BIN_WIDTH
-    xsec = defaultCrossSection() * NUM_TARGET_ATOMS * XSEC_UNITS_CMSQ2MSQ
-    drm = defaultDetectorResponse(factored)
-
-    nuespecs = np.empty((len(folders), flux.bins.n), flux.dtype)
-    if factored:
-            spectoextract = 'nu%sCC' % flavor
-    else:
-        spectoextract = 'nu%s-like' % flavor
-    for i, folder in enumerate(folders):
-        oscfiles = [[folder + name for name in row] for row in filenames]
-        oscprob = OscillationProbability(oscfiles)
-        for badflavor in suppress:
-            col, row = badflavor.split('2')
-            oscprob[oscprob.bins.index(row), oscprob.bins.index(col)] = 0
-        spectrum = (flux
-                .evolve(oscprob)
-                .evolve(xsec)
-                .evolve(drm)
-        )
-        nuespecs[i, :] = spectrum.extract(spectoextract)
-
-    nominalspec = nuespecs[10, binstoplot]
-
-    plotspeckey = {
-            0: r"$\theta_{23}=40^{\circ}$",
-            11: r"$\delta_{CP}=0.15\pi$",
-            12: r"$\delta_{CP}=\pi/2$",
-            13: r"$\delta_{CP}=-\pi/2$",
-            14: r"$\delta_{CP}=\pi$",
-            15: r"IO",
-            20: r"$\theta_{23}=50^{\circ}$",
-        }
-
+    nuespecs, nominalspec, plotspeckey = varyOscillationParameters(args,
+            physicsparams)
     plot(nuespecs, plotspeckey, nominalspec, ratio, binstoplot, chiSquare, plotN, hardcodeaxes, outfilename)
+
