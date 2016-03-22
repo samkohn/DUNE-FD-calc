@@ -933,15 +933,15 @@ class Efficiency(SimulationComponent):
     @staticmethod
     def _getMatrixForm(data):
         """
-        Interpret a 1-D array as a diagonal matrix, and any other matrix
-        as itself.
+        Ensure the data is a matrix of appropriate dimensions and return
+        it.
 
         """
         data = np.asarray(data)
-        if data.ndim == 1:
-            return np.diag(data)
-        elif data.ndim == 2:
+        if data.ndim == 2:
             return data
+        else:
+            raise ValueError("Incorrect ndim ", data.ndim, "!= 2")
 
     @staticmethod
     def _getBlockMatrixForm(data):
