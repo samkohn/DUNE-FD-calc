@@ -2,18 +2,7 @@ from dunesim import *
 import matplotlib.pyplot as plt
 import argparse
 
-def plot(nuespecs, ratio, specrange, plotChiSquare, plotN, hardcodeaxes, outfilename):
-    nominalspec = nuespecs[10, specrange]
-
-    plotspeckey = {
-            0: r"$\theta_{23}=40^{\circ}$",
-            11: r"$\delta_{CP}=0.15\pi$",
-            12: r"$\delta_{CP}=\pi/2$",
-            13: r"$\delta_{CP}=-\pi/2$",
-            14: r"$\delta_{CP}=\pi$",
-            15: r"IO",
-            20: r"$\theta_{23}=50^{\circ}$",
-        }
+def plot(nuespecs, plotspeckey, nominalspec, ratio, specrange, plotChiSquare, plotN, hardcodeaxes, outfilename):
 
     specstoplot = nuespecs[np.asarray(plotspeckey.keys()),specrange]
 
@@ -190,4 +179,16 @@ if __name__ == "__main__":
         )
         nuespecs[i, :] = spectrum.extract(spectoextract)
 
-    plot(nuespecs, ratio, binstoplot, chiSquare, plotN, hardcodeaxes, outfilename)
+    nominalspec = nuespecs[10, binstoplot]
+
+    plotspeckey = {
+            0: r"$\theta_{23}=40^{\circ}$",
+            11: r"$\delta_{CP}=0.15\pi$",
+            12: r"$\delta_{CP}=\pi/2$",
+            13: r"$\delta_{CP}=-\pi/2$",
+            14: r"$\delta_{CP}=\pi$",
+            15: r"IO",
+            20: r"$\theta_{23}=50^{\circ}$",
+        }
+
+    plot(nuespecs, plotspeckey, nominalspec, ratio, binstoplot, chiSquare, plotN, hardcodeaxes, outfilename)
