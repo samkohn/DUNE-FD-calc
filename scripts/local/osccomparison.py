@@ -1,5 +1,3 @@
-import sys
-sys.path.append('/Users/skohn/Documents/DUNE/configs/scripts')
 from dunesim import *
 import matplotlib.pyplot as plt
 import argparse
