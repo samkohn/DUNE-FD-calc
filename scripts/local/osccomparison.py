@@ -67,6 +67,96 @@ def plot(nuespecs, plotspeckey, nominalspec, ratio, specrange, plotChiSquare, pl
     else:
         plt.savefig(outfilename, bbox_inches='tight')
 
+def varyBackgroundType(CLargs, physicsparams):
+    flux = defaultBeamFlux(not CLargs.bar) * physicsparams['fluxweight']
+    originalflux = flux.copy()
+    osc = defaultOscillationProbability()
+    originalosc = osc.copy()
+    xsec = defaultCrossSection() * physicsparams['xsecweight']
+    originalxsec = xsec.copy()
+    drm = defaultDetectorResponse(CLargs.factored_drm)
+    originaldrm = drm.copy()
+
+    if CLargs.factored_drm:
+        spectoextract = 'nu%sCC' % CLargs.flavor
+    else:
+        spectoextract = 'nu%s-like' % CLargs.flavor
+
+    # Different types of background:
+    # - Beam nue and nuebar CC: set all other fluxes to 0 and only preserve
+    #   the nue->nue and nuebar->nuebar oscillations
+    # - NC: set all of the CC cross sections to 0
+    # - nutau and nutaubar CC: zero all cross sections except for those
+    # - numu and numubar CC: zero all cross sections except for those
+    sub = flux.bins.index
+    def zero(obj, *flavors):
+        slices = map(sub, flavors)
+        obj[slices] = 0
+    def bg_beamnue():
+        zero(flux, 'numu')
+        zero(flux, 'nutau')
+        zero(flux, 'numubar')
+        zero(flux, 'nutaubar')
+        # Order reversed from oscillation (nue->numu => [numu, nue])
+        zero(osc, 'numu', 'nue')
+        zero(osc, 'nutau', 'nue')
+        zero(osc, 'numubar', 'nuebar')
+        zero(osc, 'nutaubar', 'nuebar')
+    def bg_nc():
+        zero(xsec, 'nueCC')
+        zero(xsec, 'numuCC')
+        zero(xsec, 'nutauCC')
+        zero(xsec, 'nuebarCC')
+        zero(xsec, 'numubarCC')
+        zero(xsec, 'nutaubarCC')
+    def bg_tauCC():
+        zero(xsec, 'nueCC')
+        zero(xsec, 'nueNC')
+        zero(xsec, 'numuCC')
+        zero(xsec, 'numuNC')
+        zero(xsec, 'nutauNC')
+        zero(xsec, 'nuebarCC')
+        zero(xsec, 'nuebarNC')
+        zero(xsec, 'numubarCC')
+        zero(xsec, 'numubarNC')
+        zero(xsec, 'nutaubarNC')
+    def bg_muCC():
+        zero(xsec, 'nueCC')
+        zero(xsec, 'nueNC')
+        zero(xsec, 'numuNC')
+        zero(xsec, 'nutauCC')
+        zero(xsec, 'nutauNC')
+        zero(xsec, 'nuebarCC')
+        zero(xsec, 'nuebarNC')
+        zero(xsec, 'numubarNC')
+        zero(xsec, 'nutaubarCC')
+        zero(xsec, 'nutaubarNC')
+    variations = [lambda:None, bg_beamnue, bg_nc, bg_tauCC, bg_muCC]
+    nuespecs = np.empty((len(variations), flux.bins.n), flux.dtype)
+    for i, variation in enumerate(variations):
+        flux = originalflux.copy()
+        osc = originalosc.copy()
+        xsec = originalxsec.copy()
+        drm = originaldrm.copy()
+        variation()
+        for badflavor in CLargs.suppress:
+            col, row = badflavor.split('2')
+            zero(osc, row, col)
+        spectrum = (flux
+                .evolve(osc)
+                .evolve(xsec)
+                .evolve(drm)
+        )
+        nuespecs[i, :] = spectrum.extract(spectoextract)
+    nominalspec = nuespecs[0, CLargs.binstoplot]
+    plotspeckey = {
+            1: r"beam $\nu_{e}$ and $\bar{\nu}_{e}$",
+            2: r"NC",
+            3: r"$\nu_{\tau}$ and $\bar{\nu}_{\tau}$ CC",
+            4: r"$\nu_{\mu}$ and $\bar{\nu}_{\mu}$ CC",
+    }
+    return (nuespecs, nominalspec, plotspeckey)
+
 def varyFluxNormalizations(CLargs, physicsparams):
     flux = defaultBeamFlux(not CLargs.bar) * physicsparams['fluxweight']
     originalflux = flux.copy()
@@ -165,9 +255,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--ratio", action="store_true", help="plot dS/S")
     parser.add_argument("dataset", type=str,
-            choices=["oscparam", "norm"],
+            choices=["oscparam", "norm", "bg"],
             help="the data set to plot: varying oscillation " +
-            "parameters or normalization")
+            "parameters, normalization, or background source")
     parser.add_argument("--factored-drm", action="store_true",
             help="use factored DRM/efficiency")
     parser.add_argument("--x2", action="store_true", help="include " +
@@ -253,6 +343,8 @@ if __name__ == "__main__":
         fntoplot = varyOscillationParameters
     elif dataset == "norm":
         fntoplot = varyFluxNormalizations
+    elif dataset == "bg":
+        fntoplot = varyBackgroundType
     nuespecs, nominalspec, plotspeckey = fntoplot(args,
             physicsparams)
     plot(nuespecs, plotspeckey, nominalspec, ratio, args.binstoplot, chiSquare, plotN, hardcodeaxes, outfilename)
