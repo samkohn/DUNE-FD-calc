@@ -201,11 +201,11 @@ if __name__ == "__main__":
     if args.flavor is None:
         if factored:
             if neutrinomode:
-                flavor = "e"
+                args.flavor = "e"
             else:
-                flavor = "ebar"
+                args.flavor = "ebar"
         else:
-            flavor = "eCC"
+            args.flavor = "eCC"
     else:
         flavor = args.flavor
 
