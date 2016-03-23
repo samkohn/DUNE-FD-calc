@@ -2,7 +2,7 @@ from dunesim import *
 import matplotlib.pyplot as plt
 import argparse
 
-def plot(nuespecs, plotspeckey, nominalspec, ratio, specrange, plotChiSquare, plotN, hardcodeaxes, outfilename):
+def plot(nuespecs, plotspeckey, nominalspec, bar, ratio, specrange, plotChiSquare, plotN, hardcodeaxes, outfilename):
 
     specstoplot = nuespecs[np.asarray(plotspeckey.keys()),specrange]
 
@@ -30,7 +30,7 @@ def plot(nuespecs, plotspeckey, nominalspec, ratio, specrange, plotChiSquare, pl
     plt.plot(bins, specstoplot.T, **plotkwargs)
     plt.errorbar(bins, nominalspec, fmt='k--', yerr=np.sqrt(nominalspec),
             **plotkwargs)
-    plt.ylabel('Neutrinos per $0.25$ GeV', **labelkwargs)
+    plt.ylabel(('Antin' if bar else 'N') + 'eutrinos per $0.25$ GeV', **labelkwargs)
     if hardcodeaxes == 'neutrinomode':
         plt.ylim([0, 120])
     elif hardcodeaxes == 'antineutrinomode':
@@ -38,8 +38,8 @@ def plot(nuespecs, plotspeckey, nominalspec, ratio, specrange, plotChiSquare, pl
     elif not hardcodeaxes:
         pass # hardcodeaxes is just False
     else:
-        raise ValueError("Bad hardocdeaxes", hardcodeaxes)
-    plt.title(r'Spectrum for 150 kt-MW-yr', **labelkwargs)
+        raise ValueError("Bad hardcodeaxes", hardcodeaxes)
+    plt.title(('Antin' if bar else 'N') + r'eutrino spectrum for 150 kt-MW-yr', **labelkwargs)
     legendextras = [''] * (len(specstoplot) + 1)
     if plotN:
         sums = [sum(spec) for spec in specstoplot]
@@ -347,5 +347,5 @@ if __name__ == "__main__":
         fntoplot = varyBackgroundType
     nuespecs, nominalspec, plotspeckey = fntoplot(args,
             physicsparams)
-    plot(nuespecs, plotspeckey, nominalspec, ratio, args.binstoplot, chiSquare, plotN, hardcodeaxes, outfilename)
+    plot(nuespecs, plotspeckey, nominalspec, args.bar, ratio, args.binstoplot, chiSquare, plotN, hardcodeaxes, outfilename)
 
