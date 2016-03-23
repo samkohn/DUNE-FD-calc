@@ -915,6 +915,10 @@ class Efficiency(SimulationComponent):
       [eCC->muCC-like, ..., tauNC->muCC-like],
       [eCC->NC-like, ..., tauNC->NC-like]]
 
+    If the files supplied in "block" form are column vectors, they will
+    be interpreted as diagonal matrices to satisfy the requirement in
+    the following paragraph.
+
     To ensure the separation between energy reconstruction and
     interaction channel ID, each sub-block of the matrix (corresponding
     to one of the blocks in the description above (e.g. eCC->eCC-like)
@@ -987,25 +991,11 @@ class Efficiency(SimulationComponent):
         thing = None
         n = self.bins.n
         if withEnergy:
-            thing = self.zipWithEnergy('matrix')
+            thing = self.zipWithEnergy()
         else:
             thing = self
-        if name == 'nue2nue':
-            return np.asarray(thing[0:n, 0:n])
-        if name == 'nue2numu':
-            return np.asarray(thing[n:2*n, 0:n])
-        if name == 'nue2nutau':
-            return np.asarray(thing[2*n:3*n, 0:n])
-        if name == 'numu2nue':
-            return np.asarray(thing[0:n, n:2*n])
-        if name == 'numu2numu':
-            return np.asarray(thing[n:2*n, n:2*n])
-        if name == 'numu2nutau':
-            return np.asarray(thing[2*n:3*n, n:2*n])
-        if name == 'nutau2nue':
-            return np.asarray(thing[0:n, 2*n:3*n])
-        if name == 'nutau2numu':
-            return np.asarray(thing[n:2*n, 2*n:3*n])
-        if name == 'nutau2nutau':
-            return np.asarray(thing[2*n:3*n, 2*n:3*n])
-        raise ValueError("Bad name")
+        # Split the given name into two parts, the "from" and the "to."
+        colname, rowname = name.split('2')
+        colslice = self.bins.index(colname)
+        rowslice = self.bins.index(rowname)
+        return np.asarray(thing[rowslice, colslice])
