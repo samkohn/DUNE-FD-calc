@@ -164,6 +164,10 @@ def varyOscillationParameters(CLargs, physicsparams):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--ratio", action="store_true", help="plot dS/S")
+    parser.add_argument("dataset", type=str,
+            choices=["oscparam", "norm"],
+            help="the data set to plot: varying oscillation " +
+            "parameters or normalization")
     parser.add_argument("--factored-drm", action="store_true",
             help="use factored DRM/efficiency")
     parser.add_argument("--x2", action="store_true", help="include " +
@@ -186,6 +190,7 @@ if __name__ == "__main__":
             default='', metavar="FILE")
     args = parser.parse_args()
     ratio = args.ratio
+    dataset = args.dataset
     factored = args.factored_drm
     chiSquare = args.x2
     plotN = args.total
@@ -244,7 +249,11 @@ if __name__ == "__main__":
     else:
         args.binstoplot = slice(binstoplot[0], binstoplot[1])
 
-    nuespecs, nominalspec, plotspeckey = varyFluxNormalizations(args,
+    if dataset == "oscparam":
+        fntoplot = varyOscillationParameters
+    elif dataset == "norm":
+        fntoplot = varyFluxNormalizations
+    nuespecs, nominalspec, plotspeckey = fntoplot(args,
             physicsparams)
     plot(nuespecs, plotspeckey, nominalspec, ratio, args.binstoplot, chiSquare, plotN, hardcodeaxes, outfilename)
 
