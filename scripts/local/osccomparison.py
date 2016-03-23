@@ -67,6 +67,52 @@ def plot(nuespecs, plotspeckey, nominalspec, ratio, specrange, plotChiSquare, pl
     else:
         plt.savefig(outfilename, bbox_inches='tight')
 
+def varyFluxNormalizations(CLargs, physicsparams):
+    flux = defaultBeamFlux(not CLargs.bar) * physicsparams['fluxweight']
+    originalflux = flux.copy()
+    osc = defaultOscillationProbability()
+    xsec = defaultCrossSection() * physicsparams['xsecweight']
+    drm = defaultDetectorResponse(CLargs.factored_drm)
+
+    if CLargs.factored_drm:
+            spectoextract = 'nu%sCC' % CLargs.flavor
+    else:
+        spectoextract = 'nu%s-like' % CLargs.flavor
+    variations = [
+            (flux.bins.index('nue'), 1.0),  # no change
+            (flux.bins.index('nue'), 1.1),
+            (flux.bins.index('nue'), 0.9),
+            (flux.bins.index('numu'), 1.1),
+            (flux.bins.index('numu'), 0.9),
+            (flux.bins.index('nuebar'), 1.1),
+            (flux.bins.index('nuebar'), 0.9),
+    ]
+    nuespecs = np.empty((len(variations), flux.bins.n), flux.dtype)
+    for i, (bins, change) in enumerate(variations):
+        flux = originalflux.copy()
+        flux[bins] *= change
+        for badflavor in CLargs.suppress:
+            col, row = badflavor.split('2')
+            osc[osc.bins.index(row), osc.bins.index(col)] = 0
+        spectrum = (flux
+                .evolve(osc)
+                .evolve(xsec)
+                .evolve(drm)
+        )
+        nuespecs[i, :] = spectrum.extract(spectoextract)
+
+    nominalspec = nuespecs[0, CLargs.binstoplot]
+
+    plotspeckey = {
+            1: r"beam $\nu_{e} \uparrow 10\%$",
+            2: r"beam $\nu_{e} \downarrow 10\%$",
+            3: r"beam $\nu_{\mu} \uparrow 10\%$",
+            4: r"beam $\nu_{\mu} \downarrow 10\%$",
+            5: r"beam $\bar{\nu}_{e} \uparrow 10\%$",
+            6: r"beam $\bar{\nu}_{e} \downarrow 10\%$",
+        }
+    return (nuespecs, nominalspec, plotspeckey)
+
 def varyOscillationParameters(CLargs, physicsparams):
     folderbase = ('/Users/skohn/Documents/DUNE/configs/Fast-Monte-Carlo/' +
         'Oscillation-Parameters/local/set2/oscvectors_')
@@ -102,7 +148,7 @@ def varyOscillationParameters(CLargs, physicsparams):
         )
         nuespecs[i, :] = spectrum.extract(spectoextract)
 
-    nominalspec = nuespecs[10, binstoplot]
+    nominalspec = nuespecs[10, CLargs.binstoplot]
 
     plotspeckey = {
             0: r"$\theta_{23}=40^{\circ}$",
@@ -193,12 +239,12 @@ if __name__ == "__main__":
 
     setEnergyBins(np.linspace(0, 10, num=41, endpoint=True))
     if binstoplot is None:
-        binstoplot = slice(0,
+        args.binstoplot = slice(0,
                 SimulationComponent.defaultBinning.n)
     else:
-        binstoplot = slice(binstoplot[0], binstoplot[1])
+        args.binstoplot = slice(binstoplot[0], binstoplot[1])
 
-    nuespecs, nominalspec, plotspeckey = varyOscillationParameters(args,
+    nuespecs, nominalspec, plotspeckey = varyFluxNormalizations(args,
             physicsparams)
-    plot(nuespecs, plotspeckey, nominalspec, ratio, binstoplot, chiSquare, plotN, hardcodeaxes, outfilename)
+    plot(nuespecs, plotspeckey, nominalspec, ratio, args.binstoplot, chiSquare, plotN, hardcodeaxes, outfilename)
 
