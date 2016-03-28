@@ -7,6 +7,6 @@
             "email": "skohn@lbl.gov"
         }
     ],
-    "data file source description": "DUNE CDR Physics Volume (2) Figure 3.4 [arXiv: 1512.06148v1]",
-    "data file source location": "http://arxiv.org/abs/1512.06148v1",
+    "data file source description": "DUNE Fast Monte Carlo outputs on the DUNE FNAL cluster",
+    "data file source location": "/dune/data/users/lblpwg_tools/FastMC_Data/outputs/cherdack/v3r2p4b/nominal/fastmcNtp_20160105_lbne_g4lbnev3r2p4b_LAr_1_g280_Ar40_5000_GENIE_2100_Test.root",
 }
