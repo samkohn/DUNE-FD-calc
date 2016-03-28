@@ -191,6 +191,34 @@ def defaultDetectorResponse(factored=True):
     drm = DetectorResponse(drmfiles)
     return drm
 
+def defaultEfficiency(neutrinomode=True):
+    _setUpRepositoryDir()
+    modestr = '' if neutrinomode else 'a'
+    pre = repositorydir + '/Fast-Monte-Carlo/Efficiencies/nuflux_numu'
+    files = [
+            ['flux_nue_nueCC-like_trueCC', 'flux_nue_nueCC-like_trueNC',
+             'flux_numu_nueCC-like_trueCC', 'flux_numu_nueCC-like_trueNC',
+             'flux_nutau_nueCC-like_trueCC', 'flux_nutau_nueCC-like_trueNC',
+             'barflux_nuebar_nueCC-like_trueCC', 'barflux_nuebar_nueCC-like_trueNC',
+             'barflux_numubar_nueCC-like_trueCC', 'barflux_numubar_nueCC-like_trueNC',
+             'barflux_nutaubar_nueCC-like_trueCC', 'barflux_nutaubar_nueCC-like_trueNC'],
+            ['flux_nue_numuCC-like_trueCC', 'flux_nue_numuCC-like_trueNC',
+             'flux_numu_numuCC-like_trueCC', 'flux_numu_numuCC-like_trueNC',
+             'flux_nutau_numuCC-like_trueCC', 'flux_nutau_numuCC-like_trueNC',
+             'barflux_nuebar_numuCC-like_trueCC', 'barflux_nuebar_numuCC-like_trueNC',
+             'barflux_numubar_numuCC-like_trueCC', 'barflux_numubar_numuCC-like_trueNC',
+             'barflux_nutaubar_numuCC-like_trueCC', 'barflux_nutaubar_numuCC-like_trueNC'],
+            ['flux_nue_NC-like_trueCC', 'flux_nue_NC-like_trueNC',
+             'flux_numu_NC-like_trueCC', 'flux_numu_NC-like_trueNC',
+             'flux_nutau_NC-like_trueCC', 'flux_nutau_NC-like_trueNC',
+             'barflux_nuebar_NC-like_trueCC', 'barflux_nuebar_NC-like_trueNC',
+             'barflux_numubar_NC-like_trueCC', 'barflux_numubar_NC-like_trueNC',
+             'barflux_nutaubar_NC-like_trueCC', 'barflux_nutaubar_NC-like_trueNC']
+        ]
+    files = [[pre + name + '40.csv' for name in row] for row in files]
+    efficiency = Efficiency(files)
+    return efficiency
+
 
 class SimulationComponent(np.matrix):
     """
@@ -911,9 +939,9 @@ class Efficiency(SimulationComponent):
 
     The supplied data should be of the form:
 
-     [[eCC->eCC-like, eNC->eCC-like, ..., tauNC->eCC-like],
-      [eCC->muCC-like, ..., tauNC->muCC-like],
-      [eCC->NC-like, ..., tauNC->NC-like]]
+     [[eCC->eCC-like, eNC->eCC-like, ..., taubarNC->eCC-like],
+      [eCC->muCC-like, ..., taubarNC->muCC-like],
+      [eCC->NC-like, ..., taubarNC->NC-like]]
 
     If the files supplied in "block" form are column vectors, they will
     be interpreted as diagonal matrices to satisfy the requirement in
@@ -944,6 +972,8 @@ class Efficiency(SimulationComponent):
         data = np.asarray(data)
         if data.ndim == 2:
             return data
+        elif data.ndim == 1:
+            return np.diag(data)
         else:
             raise ValueError("Incorrect ndim ", data.ndim, "!= 2")
 
@@ -951,7 +981,7 @@ class Efficiency(SimulationComponent):
     def _getBlockMatrixForm(data):
         data = np.asarray(data)
         shape = data.shape
-        if shape == (3, 6):
+        if shape == (3, 12):
             return data
         else:
             raise ValueError("Incorrect shape " + str(shape))

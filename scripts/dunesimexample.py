@@ -20,7 +20,7 @@ oscprob = defaultOscillationProbability()
 # which is 1e-42 m^2
 xsec = defaultCrossSection() * 1e-4
 detectorresponse = defaultDetectorResponse()
-# efficiency = \
+efficiency = defaultEfficiency()
 # Efficiency('../Fast-Monte-Carlo/Efficiencies/nueCCsig_efficiency.csv')
 oscflux = flux.evolve(oscprob)
 print "oscillated flux\nnue flux\n", oscflux.extract('nue')
@@ -34,7 +34,7 @@ NUM_AR_ATOMS = 6e32 # 40kt * 6e23/40g * 1000g/kg * 1000kg/t * 1000t/kt
 detectorspec *= NUM_AR_ATOMS
 print "True spectrum of CC nue events at detector"
 print detectorspec.extract('nueCC')
-signalspec = detectorspec.evolve(detectorresponse)
+signalspec = detectorspec.evolve(detectorresponse).evolve(efficiency)
 print "Python type of signal spectrum = ", type(signalspec)
 print "nue CC spectrum = "
 print signalspec.extract('nueCC', withEnergy=True)
