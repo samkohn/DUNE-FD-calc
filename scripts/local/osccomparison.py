@@ -76,11 +76,12 @@ def varyBackgroundType(CLargs, physicsparams):
     originalxsec = xsec.copy()
     drm = defaultDetectorResponse(CLargs.factored_drm)
     originaldrm = drm.copy()
-
     if CLargs.factored_drm:
         spectoextract = 'nu%sCC' % CLargs.flavor
+        efficiency = defaultEfficiency(not CLargs.bar)
     else:
         spectoextract = 'nu%s-like' % CLargs.flavor
+        efficiency = None
 
     # Different types of background:
     # - Beam nue and nuebar CC: set all other fluxes to 0 and only preserve
@@ -147,6 +148,10 @@ def varyBackgroundType(CLargs, physicsparams):
                 .evolve(xsec)
                 .evolve(drm)
         )
+        if CLargs.factored_drm:
+            spectrum = spectrum.evolve(efficiency)
+        else:
+            pass
         nuespecs[i, :] = spectrum.extract(spectoextract)
     nominalspec = nuespecs[0, CLargs.binstoplot]
     plotspeckey = {
@@ -163,11 +168,12 @@ def varyFluxNormalizations(CLargs, physicsparams):
     osc = defaultOscillationProbability()
     xsec = defaultCrossSection() * physicsparams['xsecweight']
     drm = defaultDetectorResponse(CLargs.factored_drm)
-
     if CLargs.factored_drm:
-            spectoextract = 'nu%sCC' % CLargs.flavor
+        spectoextract = 'nu%sCC' % CLargs.flavor
+        efficiency = defaultEfficiency(not CLargs.bar)
     else:
         spectoextract = 'nu%s-like' % CLargs.flavor
+        efficiency = None
     variations = [
             (flux.bins.index('nue'), 1.0),  # no change
             (flux.bins.index('nue'), 1.1),
@@ -189,6 +195,10 @@ def varyFluxNormalizations(CLargs, physicsparams):
                 .evolve(xsec)
                 .evolve(drm)
         )
+        if CLargs.factored_drm:
+            spectrum = spectrum.evolve(efficiency)
+        else:
+            pass
         nuespecs[i, :] = spectrum.extract(spectoextract)
 
     nominalspec = nuespecs[0, CLargs.binstoplot]
@@ -219,12 +229,14 @@ def varyOscillationParameters(CLargs, physicsparams):
     flux = defaultBeamFlux(not CLargs.bar) * physicsparams['fluxweight']
     xsec = defaultCrossSection() * physicsparams['xsecweight']
     drm = defaultDetectorResponse(CLargs.factored_drm)
-
-    nuespecs = np.empty((len(folders), flux.bins.n), flux.dtype)
     if CLargs.factored_drm:
-            spectoextract = 'nu%sCC' % CLargs.flavor
+        spectoextract = 'nu%sCC' % CLargs.flavor
+        efficiency = defaultEfficiency(not CLargs.bar)
     else:
         spectoextract = 'nu%s-like' % CLargs.flavor
+        efficiency = None
+
+    nuespecs = np.empty((len(folders), flux.bins.n), flux.dtype)
     for i, folder in enumerate(folders):
         oscfiles = [[folder + name for name in row] for row in filenames]
         oscprob = OscillationProbability(oscfiles)
@@ -236,6 +248,10 @@ def varyOscillationParameters(CLargs, physicsparams):
                 .evolve(xsec)
                 .evolve(drm)
         )
+        if CLargs.factored_drm:
+            spectrum = spectrum.evolve(efficiency)
+        else:
+            pass
         nuespecs[i, :] = spectrum.extract(spectoextract)
 
     nominalspec = nuespecs[10, CLargs.binstoplot]
