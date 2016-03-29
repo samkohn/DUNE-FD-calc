@@ -191,6 +191,7 @@ def defaultDetectorResponse(factored=True):
     drm = DetectorResponse(drmfiles)
     return drm
 
+
 def defaultEfficiency(neutrinomode=True):
     _setUpRepositoryDir()
     modestr = '' if neutrinomode else 'a'
