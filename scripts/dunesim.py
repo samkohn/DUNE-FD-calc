@@ -808,8 +808,7 @@ class DetectorResponse(SimulationComponent):
     column (i.e. the first index gives the reconstructed energy). The
     normalization should be that a true particle ends up somewhere
     (unitarity), so that the sum down a column is 1. I.e., sum(obj[:,i])
-    == 1 for all i. The exception is if some events are rejected as not
-    a neutrino event at all.
+    == 1 for all i. This normalization is enforced in the constructor.
 
     The detector response matrix converts a true spectrum into a
     reconstructed spectrum. Its input should be broken down into
@@ -847,6 +846,13 @@ class DetectorResponse(SimulationComponent):
     def __new__(cls, arg):
         obj = SimulationComponent.__new__(cls, arg)
         obj.bins = cls.defaultBinning
+        # Ignore divide by 0 errors and save the old error system
+        old_error_state = np.seterr(invalid='ignore')
+        # Normalize
+        obj = np.divide(obj, np.sum(obj, axis=0))
+        obj = np.nan_to_num(obj)
+        # Reset numpy error system
+        np.seterr(**old_error_state)
         return obj
 
     @staticmethod

@@ -40,10 +40,10 @@ information:
    vector by the matrix to get the reconstructed energy in those same 40
    bins of 250 MeV.
 
-Note: The matrix is normalized so that probability is conserved. This
-means each column is normalized to 1. One result of this is that the
-histograms will not match the matrices, since the columns are normalized
-independently.
+Note: The matrix should be normalized so that probability is conserved. This
+means each column should be normalized to 1. If the DRMs are to be
+stacked together to create a large DRM for all neutrino types, the
+normalization should happen *after* the large matrix is assembled.
 
 #### Algorithm Description
 The basic detector response [^1] is the energy/momentum/angle smearing, and
