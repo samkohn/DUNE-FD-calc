@@ -68,7 +68,7 @@ def _setUpRepositoryDir():
             sys.exit()
 
 
-def defaultBeamFlux(neutrinomode=True):
+def defaultBeamFlux(neutrinomode=True, loc=None):
     """
     Create a BeamFlux object from the flux data stored in this git
     repository.
@@ -76,16 +76,22 @@ def defaultBeamFlux(neutrinomode=True):
     If `neutrinomode` is False, return the flux used by the antineutrino
     mode.
 
+    If 'loc' is None, the default folder in the repository is used,
+    otherwise, the specified folder is used.
+
     """
-    _setUpRepositoryDir()
-    if neutrinomode:
-        directory = 'CD1-CDR-FHC/'
-        suffix = '_flux40.csv'
+    if loc is None:
+        _setUpRepositoryDir()
+        if neutrinomode:
+            directory = 'CD1-CDR-FHC/'
+            suffix = '_flux40.csv'
+        else:
+            directory = 'CDR-RHC/'
+            suffix = '_flux40_anumode.csv'
+        pre = os.path.join(repositorydir, 'Fast-Monte-Carlo/',
+            'Flux-Configuration/', directory, '')
     else:
-        directory = 'CDR-RHC/'
-        suffix = '_flux40_anumode.csv'
-    pre = (repositorydir +
-           '/Fast-Monte-Carlo/Flux-Configuration/' + directory)
+        pre = os.path.join(loc, '')
     fluxfiles = map(
             lambda x: pre + x + suffix,
             ['nue', 'numu', 'nutau', 'nuebar', 'numubar', 'nutaubar'])
@@ -93,7 +99,7 @@ def defaultBeamFlux(neutrinomode=True):
     return flux
 
 
-def defaultOscillationProbability():
+def defaultOscillationProbability(loc=None):
     """
     Create an OscillationProbability object from the files stored in
     this git repository.
@@ -101,9 +107,16 @@ def defaultOscillationProbability():
     These parameters are the Nu-Fit 2014 best fit values, normal
     ordering, with delta CP = 0.
 
+    If 'loc' is None, the default folder in the repository is used,
+    otherwise, the specified folder is used.
+
     """
-    _setUpRepositoryDir()
-    pre = repositorydir + '/Fast-Monte-Carlo/Oscillation-Parameters/nu'
+    if loc is None:
+        _setUpRepositoryDir()
+        pre = os.path.join(repositorydir, 'Fast-Monte-Carlo/',
+            'Oscillation-Parameters/nu')
+    else:
+        pre = os.path.join(loc, 'nu')
     oscfiles = [['e_nue40.csv', 'mu_nue40.csv', 'tau_nue40.csv'],
                 ['e_numu40.csv', 'mu_numu40.csv', 'tau_numu40.csv'],
                 ['e_nutau40.csv', 'mu_nutau40.csv', 'tau_nutau40.csv'],
@@ -115,7 +128,7 @@ def defaultOscillationProbability():
     return oscprob
 
 
-def defaultCrossSection():
+def defaultCrossSection(loc=None):
     """
     Create a CrossSection object from the files stored in this git
     repository.
@@ -123,9 +136,16 @@ def defaultCrossSection():
     Includes the total cross section broken down by NC and CC for
     neutrinos and antineutrinos on Argon 40.
 
+    If 'loc' is None, the default folder in the repository is used,
+    otherwise, the specified folder is used.
+
     """
-    _setUpRepositoryDir()
-    pre = repositorydir + '/Fast-Monte-Carlo/Cross-Sections/nu_'
+    if loc is None:
+        _setUpRepositoryDir()
+        pre = os.path.join(repositorydir, 'Fast-Monte-Carlo/',
+            'Cross-Sections/nu_')
+    else:
+        pre = os.path.join(loc, 'nu_')
     xsecfiles = map(
         lambda x: pre + x,
         ['e_Ar40__tot_cc40.csv', 'e_Ar40__tot_nc40.csv',
@@ -138,7 +158,7 @@ def defaultCrossSection():
     return xsec
 
 
-def defaultDetectorResponse(factored=True):
+def defaultDetectorResponse(factored=True, loc=None):
     """
     Create a DetectorResponse object from the files stored in this
     repository.
@@ -154,9 +174,16 @@ def defaultDetectorResponse(factored=True):
     I.e. a true nue CC event at 1.5 GeV may end up as a reconstructed
     NC-like event at 0.5 GeV.
 
+    If 'loc' is None, the default folder in the repository is used,
+    otherwise, the specified folder is used.
+
     """
-    _setUpRepositoryDir()
-    pre = repositorydir + '/Fast-Monte-Carlo/Detector-Response/nuflux_numu'
+    if loc is None:
+        _setUpRepositoryDir()
+        pre = os.path.join(repositorydir,
+                'Fast-Monte-Carlo/Detector-Response/nuflux_numu')
+    else:
+        pre = os.path.join(loc, 'nuflux_numu')
     if factored:
         drmfiles = ['flux_nue_trueCC', 'flux_nue_trueNC',
                     'flux_numu_trueCC', 'flux_numu_trueNC',
@@ -191,11 +218,19 @@ def defaultDetectorResponse(factored=True):
     drm = DetectorResponse(drmfiles)
     return drm
 
+def defaultEfficiency(neutrinomode=True, loc=None):
+    """
+    If 'loc' is None, the default folder in the repository is used,
+    otherwise, the specified folder is used.
 
-def defaultEfficiency(neutrinomode=True):
-    _setUpRepositoryDir()
+    """
     modestr = '' if neutrinomode else 'a'
-    pre = repositorydir + '/Fast-Monte-Carlo/Efficiencies/nuflux_numu'
+    if loc is None:
+        _setUpRepositoryDir()
+        pre = os.path.join(repositorydir, 'Fast-Monte-Carlo/',
+            'Efficiencies/nuflux_numu')
+    else:
+        pre = os.path.join(loc, 'nuflux_numu')
     files = [
             ['flux_nue_nueCC-like_trueCC', 'flux_nue_nueCC-like_trueNC',
              'flux_numu_nueCC-like_trueCC', 'flux_numu_nueCC-like_trueNC',
