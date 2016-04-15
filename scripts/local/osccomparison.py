@@ -94,6 +94,22 @@ def varyBackgroundType(CLargs, physicsparams):
     def zero(obj, *flavors):
         slices = map(sub, flavors)
         obj[slices] = 0
+    def sig_nue():
+        zero(flux, 'nue')
+        zero(flux, 'nutau')
+        zero(flux, 'nuebar')
+        zero(flux, 'numubar')
+        zero(flux, 'nutaubar')
+        zero(osc, 'numu', 'numu')
+        zero(osc, 'nutau', 'numu')
+    def sig_nuebar():
+        zero(flux, 'nue')
+        zero(flux, 'numu')
+        zero(flux, 'nutau')
+        zero(flux, 'nuebar')
+        zero(flux, 'nutaubar')
+        zero(osc, 'numubar', 'numubar')
+        zero(osc, 'nutaubar', 'numubar')
     def bg_beamnue():
         zero(flux, 'numu')
         zero(flux, 'nutau')
@@ -133,7 +149,7 @@ def varyBackgroundType(CLargs, physicsparams):
         zero(xsec, 'numubarNC')
         zero(xsec, 'nutaubarCC')
         zero(xsec, 'nutaubarNC')
-    variations = [lambda:None, bg_beamnue, bg_nc, bg_tauCC, bg_muCC]
+    variations = [lambda:None, sig_nue, sig_nuebar, bg_beamnue, bg_nc, bg_tauCC, bg_muCC]
     nuespecs = np.empty((len(variations), flux.bins.n), flux.dtype)
     for i, variation in enumerate(variations):
         flux = originalflux.copy()
@@ -156,10 +172,12 @@ def varyBackgroundType(CLargs, physicsparams):
         nuespecs[i, :] = spectrum.extract(spectoextract)
     nominalspec = nuespecs[0, CLargs.binstoplot]
     plotspeckey = {
-            1: r"beam $\nu_{e}$ and $\bar{\nu}_{e}$",
-            2: r"NC",
-            3: r"$\nu_{\tau}$ and $\bar{\nu}_{\tau}$ CC",
-            4: r"$\nu_{\mu}$ and $\bar{\nu}_{\mu}$ CC",
+            1: r"signal $\nu_{e}$",
+            2: r"signal $\bar{\nu}_{e}$",
+            3: r"beam $\nu_{e}$ and $\bar{\nu}_{e}$",
+            4: r"NC",
+            5: r"$\nu_{\tau}$ and $\bar{\nu}_{\tau}$ CC",
+            6: r"$\nu_{\mu}$ and $\bar{\nu}_{\mu}$ CC",
     }
     return (nuespecs, nominalspec, plotspeckey)
 
