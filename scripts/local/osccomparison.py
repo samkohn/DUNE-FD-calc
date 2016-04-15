@@ -27,7 +27,7 @@ def plot(nuespecs, plotspeckey, nominalspec, bar, ratio, specrange, plotChiSquar
     else:
         plt.xlabel('Energy [GeV]', **labelkwargs)
 
-    plt.plot(bins, specstoplot.T, **plotkwargs)
+    lines = plt.plot(bins, specstoplot.T, **plotkwargs)
     plt.errorbar(bins, nominalspec, fmt='k--', yerr=np.sqrt(nominalspec),
             **plotkwargs)
     plt.ylabel(('Antin' if bar else 'N') + 'eutrinos per $0.25$ GeV', **labelkwargs)
@@ -62,6 +62,7 @@ def plot(nuespecs, plotspeckey, nominalspec, bar, ratio, specrange, plotChiSquar
     legendnames = plotspeckey.values() + ['nominal']
     plt.legend([legendnames[i] + legendextras[i] for i in
         range(len(legendnames))])
+    plt.setp(lines, linestyle='steps-mid')
     if outfilename == '':
         plt.show()
     else:
