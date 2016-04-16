@@ -1,6 +1,7 @@
 from dunesim import *
 import matplotlib.pyplot as plt
 import argparse
+import subprocess
 
 def plot(nuespecs, plotspeckey, nominalspec, bar, ratio, specrange, plotChiSquare, plotN, hardcodeaxes, outfilename):
 
@@ -63,6 +64,18 @@ def plot(nuespecs, plotspeckey, nominalspec, bar, ratio, specrange, plotChiSquar
     plt.legend([legendnames[i] + legendextras[i] for i in
         range(len(legendnames))])
     plt.setp(lines, linestyle='steps-mid')
+
+    # This part's important: Include an annotation that gives the exact
+    # command used to generate this plot as well as the git commit with
+    # the code. This way the plot can always be reproduced.
+    commit_description = subprocess.check_output(['git', 'describe',
+    '--always']).strip()
+    command_used = ' '.join(sys.argv)
+    message = 'commit: %s\ncommand: %s' % (commit_description,
+            command_used)
+    fig.text(x=0.95,y=0.05, s=message, family='monospace',
+            ha='right', va='top')
+    #Save or display the figure
     if outfilename == '':
         plt.show()
     else:
@@ -76,6 +89,7 @@ def varyBackgroundType(CLargs, physicsparams):
     xsec = defaultCrossSection() * physicsparams['xsecweight']
     originalxsec = xsec.copy()
     drm = defaultDetectorResponse(CLargs.factored_drm)
+    #loc=os.path.expanduser('~/Documents/DUNE/configs/Fast-Monte-Carlo/Detector-Response-3'))
     originaldrm = drm.copy()
     if CLargs.factored_drm:
         spectoextract = 'nu%sCC' % CLargs.flavor
