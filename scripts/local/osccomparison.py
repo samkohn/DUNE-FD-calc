@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import argparse
 import subprocess
 
-def plot(nuespecs, plotspeckey, nominalspec, bar, ratio, specrange, plotChiSquare, plotN, hardcodeaxes, outfilename):
+def plot(nuespecs, plotspeckey, nominalspec, bar, ratio, nbins, specrange, plotChiSquare, plotN, hardcodeaxes, outfilename):
 
     specstoplot = nuespecs[np.asarray(plotspeckey.keys()),specrange]
 
@@ -19,7 +19,7 @@ def plot(nuespecs, plotspeckey, nominalspec, bar, ratio, specrange, plotChiSquar
         plt.subplot(212)
         plt.plot(bins,((specstoplot-nominalspec) / nominalspec).T,
                 **plotkwargs)
-        plt.errorbar(bins, [0]*40, fmt='k--',yerr=np.sqrt(nominalspec)/nominalspec,
+        plt.errorbar(bins, [0]*nbins, fmt='k--',yerr=np.sqrt(nominalspec)/nominalspec,
                 **plotkwargs)
         plt.ylabel(r'$\Delta S/S_{nominal}$', **labelkwargs)
         plt.legend(plotspeckey.values() + ['nominal'])
@@ -31,7 +31,8 @@ def plot(nuespecs, plotspeckey, nominalspec, bar, ratio, specrange, plotChiSquar
     lines = plt.plot(bins, specstoplot.T, **plotkwargs)
     plt.errorbar(bins, nominalspec, fmt='k--', yerr=np.sqrt(nominalspec),
             **plotkwargs)
-    plt.ylabel(('Antin' if bar else 'N') + 'eutrinos per $0.25$ GeV', **labelkwargs)
+    plt.ylabel(('Antin' if bar else 'N') + 'eutrinos per $%.3g$ GeV' %
+            round(10.0/nbins, 3), **labelkwargs)
     if hardcodeaxes == 'neutrinomode':
         plt.ylim([0, 120])
     elif hardcodeaxes == 'antineutrinomode':
@@ -82,18 +83,24 @@ def plot(nuespecs, plotspeckey, nominalspec, bar, ratio, specrange, plotChiSquar
         plt.savefig(outfilename, bbox_inches='tight')
 
 def varyBackgroundType(CLargs, physicsparams):
-    flux = defaultBeamFlux(not CLargs.bar) * physicsparams['fluxweight']
+    locbase = os.path.expanduser('~/Desktop/binning120/')
+    flux = defaultBeamFlux(not CLargs.bar, loc=os.path.join(locbase,
+            'flux')) * physicsparams['fluxweight']
     originalflux = flux.copy()
-    osc = defaultOscillationProbability()
+    osc = defaultOscillationProbability(loc=os.path.join(locbase,
+            'oscvectors'))
     originalosc = osc.copy()
-    xsec = defaultCrossSection() * physicsparams['xsecweight']
+    xsec = defaultCrossSection(loc=os.path.join(locbase,
+            'cross-sections')) * physicsparams['xsecweight']
     originalxsec = xsec.copy()
-    drm = defaultDetectorResponse(CLargs.factored_drm)
+    drm = defaultDetectorResponse(CLargs.factored_drm,
+            loc=os.path.join(locbase, 'detector-response'))
     #loc=os.path.expanduser('~/Documents/DUNE/configs/Fast-Monte-Carlo/Detector-Response-3'))
     originaldrm = drm.copy()
     if CLargs.factored_drm:
         spectoextract = 'nu%sCC' % CLargs.flavor
-        efficiency = defaultEfficiency(not CLargs.bar)
+        efficiency = defaultEfficiency(not CLargs.bar,
+                loc=os.path.join(locbase, 'efficiencies'))
     else:
         spectoextract = 'nu%s-like' % CLargs.flavor
         efficiency = None
@@ -252,13 +259,15 @@ def varyOscillationParameters(CLargs, physicsparams):
     foldersuffixes = [str(i) for i in range(1, 31)]
     folders = [folderbase + suffix + '/' for suffix in foldersuffixes]
 
-    filenames = [['nue_nue40.csv', 'numu_nue40.csv', 'nutau_nue40.csv'],
-            ['nue_numu40.csv', 'numu_numu40.csv', 'nutau_numu40.csv'],
-            ['nue_nutau40.csv', 'numu_nutau40.csv', 'nutau_nutau40.csv'],
-            ['nuebar_nuebar40.csv', 'numubar_nuebar40.csv', 'nutaubar_nuebar40.csv'],
-            ['nuebar_numubar40.csv', 'numubar_numubar40.csv', 'nutaubar_numubar40.csv'],
-            ['nuebar_nutaubar40.csv', 'numubar_nutaubar40.csv', 'nutaubar_nutaubar40.csv']]
+    filenames = [['nue_nue', 'numu_nue', 'nutau_nue'],
+            ['nue_numu', 'numu_numu', 'nutau_numu'],
+            ['nue_nutau', 'numu_nutau', 'nutau_nutau'],
+            ['nuebar_nuebar', 'numubar_nuebar', 'nutaubar_nuebar'],
+            ['nuebar_numubar', 'numubar_numubar', 'nutaubar_numubar'],
+            ['nuebar_nutaubar', 'numubar_nutaubar', 'nutaubar_nutaubar']]
 
+    suffix = '%d.csv' % nbins
+    filenames = [[name + suffix for name in row] for row in filenames]
     flux = defaultBeamFlux(not CLargs.bar) * physicsparams['fluxweight']
     xsec = defaultCrossSection() * physicsparams['xsecweight']
     drm = defaultDetectorResponse(CLargs.factored_drm)
@@ -303,6 +312,8 @@ def varyOscillationParameters(CLargs, physicsparams):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--ratio", action="store_true", help="plot dS/S")
+    parser.add_argument("--nbins", type=int, default=40,
+            help="number of energy bins")
     parser.add_argument("dataset", type=str,
             choices=["oscparam", "norm", "bg"],
             help="the data set to plot: varying oscillation " +
@@ -329,6 +340,7 @@ if __name__ == "__main__":
             default='', metavar="FILE")
     args = parser.parse_args()
     ratio = args.ratio
+    nbins = args.nbins
     dataset = args.dataset
     factored = args.factored_drm
     chiSquare = args.x2
@@ -372,7 +384,7 @@ if __name__ == "__main__":
     # there's 1.1e21 POT/yr
     NUM_POT = 1.1e21 * 3.125 # POT/yr * yrs
     FLUX_FILE_BIN_WIDTH = 0.125  # GeV
-    MY_BIN_WIDTH = 0.25  # GeV
+    MY_BIN_WIDTH = 10.0/nbins  # GeV
     NUM_TARGET_ATOMS = 6e32 # 40kt argon
     XSEC_UNITS_CMSQ2MSQ = 1e-4
     physicsparams = {
@@ -381,7 +393,7 @@ if __name__ == "__main__":
     }
 
 
-    setEnergyBins(np.linspace(0, 10, num=41, endpoint=True))
+    setEnergyBins(np.linspace(0, 10, num=nbins+1, endpoint=True))
     if binstoplot is None:
         args.binstoplot = slice(0,
                 SimulationComponent.defaultBinning.n)
@@ -396,5 +408,5 @@ if __name__ == "__main__":
         fntoplot = varyBackgroundType
     nuespecs, nominalspec, plotspeckey = fntoplot(args,
             physicsparams)
-    plot(nuespecs, plotspeckey, nominalspec, args.bar, ratio, args.binstoplot, chiSquare, plotN, hardcodeaxes, outfilename)
+    plot(nuespecs, plotspeckey, nominalspec, args.bar, ratio, nbins, args.binstoplot, chiSquare, plotN, hardcodeaxes, outfilename)
 
