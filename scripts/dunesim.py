@@ -92,6 +92,8 @@ def defaultBeamFlux(neutrinomode=True, loc=None):
             'Flux-Configuration/', directory, '')
     else:
         pre = os.path.join(loc, '')
+        suffix = '_flux%d_%snumode.csv' % (BeamFlux.defaultBinning.n,
+                '' if neutrinomode else 'a')
     fluxfiles = map(
             lambda x: pre + x + suffix,
             ['nue', 'numu', 'nutau', 'nuebar', 'numubar', 'nutaubar'])
@@ -117,13 +119,14 @@ def defaultOscillationProbability(loc=None):
             'Oscillation-Parameters/nu')
     else:
         pre = os.path.join(loc, 'nu')
-    oscfiles = [['e_nue40.csv', 'mu_nue40.csv', 'tau_nue40.csv'],
-                ['e_numu40.csv', 'mu_numu40.csv', 'tau_numu40.csv'],
-                ['e_nutau40.csv', 'mu_nutau40.csv', 'tau_nutau40.csv'],
-                ['ebar_nuebar40.csv', 'mubar_nuebar40.csv', 'taubar_nuebar40.csv'],
-                ['ebar_numubar40.csv', 'mubar_numubar40.csv', 'taubar_numubar40.csv'],
-                ['ebar_nutaubar40.csv', 'mubar_nutaubar40.csv', 'taubar_nutaubar40.csv']]
-    oscfiles = [[pre + name for name in row] for row in oscfiles]
+    oscfiles = [['e_nue', 'mu_nue', 'tau_nue'],
+                ['e_numu', 'mu_numu', 'tau_numu'],
+                ['e_nutau', 'mu_nutau', 'tau_nutau'],
+                ['ebar_nuebar', 'mubar_nuebar', 'taubar_nuebar'],
+                ['ebar_numubar', 'mubar_numubar', 'taubar_numubar'],
+                ['ebar_nutaubar', 'mubar_nutaubar', 'taubar_nutaubar']]
+    suffix = '%d.csv' % OscillationProbability.defaultBinning.n
+    oscfiles = [[pre + name + suffix for name in row] for row in oscfiles]
     oscprob = OscillationProbability(oscfiles)
     return oscprob
 
@@ -146,14 +149,15 @@ def defaultCrossSection(loc=None):
             'Cross-Sections/nu_')
     else:
         pre = os.path.join(loc, 'nu_')
+    suffix = '%d.csv' % CrossSection.defaultBinning.n
     xsecfiles = map(
-        lambda x: pre + x,
-        ['e_Ar40__tot_cc40.csv', 'e_Ar40__tot_nc40.csv',
-         'mu_Ar40__tot_cc40.csv', 'mu_Ar40__tot_nc40.csv',
-         'tau_Ar40__tot_cc40.csv', 'tau_Ar40__tot_nc40.csv',
-         'e_bar_Ar40__tot_cc40.csv', 'e_bar_Ar40__tot_nc40.csv',
-         'mu_bar_Ar40__tot_cc40.csv', 'mu_bar_Ar40__tot_nc40.csv',
-         'tau_bar_Ar40__tot_cc40.csv', 'tau_bar_Ar40__tot_nc40.csv'])
+        lambda x: pre + x + suffix,
+        ['e_Ar40__tot_cc', 'e_Ar40__tot_nc',
+         'mu_Ar40__tot_cc', 'mu_Ar40__tot_nc',
+         'tau_Ar40__tot_cc', 'tau_Ar40__tot_nc',
+         'e_bar_Ar40__tot_cc', 'e_bar_Ar40__tot_nc',
+         'mu_bar_Ar40__tot_cc', 'mu_bar_Ar40__tot_nc',
+         'tau_bar_Ar40__tot_cc', 'tau_bar_Ar40__tot_nc'])
     xsec = CrossSection(xsecfiles)
     return xsec
 
@@ -191,7 +195,8 @@ def defaultDetectorResponse(factored=True, loc=None):
                     'barflux_nuebar_trueCC', 'barflux_nuebar_trueNC',
                     'barflux_numubar_trueCC', 'barflux_numubar_trueNC',
                     'barflux_nutaubar_trueCC', 'barflux_nutaubar_trueNC']
-        drmfiles = [pre + name + '40.csv' for name in drmfiles]
+        suffix = '%d.csv' % DetectorResponse.defaultBinning.n
+        drmfiles = [pre + name + suffix for name in drmfiles]
     else:
         drmfiles = [
                 ['flux_nue_nueCC-like_trueCC', 'flux_nue_nueCC-like_trueNC',
@@ -213,7 +218,8 @@ def defaultDetectorResponse(factored=True, loc=None):
                  'barflux_numubar_NC-like_trueCC', 'barflux_numubar_NC-like_trueNC',
                  'barflux_nutaubar_NC-like_trueCC', 'barflux_nutaubar_NC-like_trueNC']
             ]
-        drmfiles = [[pre + name + '40.csv' for name in row]
+        suffix = '%d.csv' % DetectorResponse.defaultBinning.n
+        drmfiles = [[pre + name + suffix for name in row]
                     for row in drmfiles]
     drm = DetectorResponse(drmfiles)
     return drm
@@ -251,7 +257,8 @@ def defaultEfficiency(neutrinomode=True, loc=None):
              'barflux_numubar_NC-like_trueCC', 'barflux_numubar_NC-like_trueNC',
              'barflux_nutaubar_NC-like_trueCC', 'barflux_nutaubar_NC-like_trueNC']
         ]
-    files = [[pre + name + '40.csv' for name in row] for row in files]
+    suffix = '%d.csv' % Efficiency.defaultBinning.n
+    files = [[pre + name + suffix for name in row] for row in files]
     efficiency = Efficiency(files)
     return efficiency
 
