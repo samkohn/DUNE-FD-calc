@@ -309,7 +309,7 @@ def varyOscillationParameters(CLargs, physicsparams):
         }
     return (nuespecs, nominalspec, plotspeckey)
 
-if __name__ == "__main__":
+def getParser():
     parser = argparse.ArgumentParser()
     parser.add_argument("--ratio", action="store_true", help="plot dS/S")
     parser.add_argument("--nbins", type=int, default=40,
@@ -338,7 +338,9 @@ if __name__ == "__main__":
             help="use hard-coded axis range")
     parser.add_argument("-o", "--output", type=str, help="output location",
             default='', metavar="FILE")
-    args = parser.parse_args()
+    return parser
+
+def main(args):
     ratio = args.ratio
     nbins = args.nbins
     dataset = args.dataset
@@ -410,3 +412,7 @@ if __name__ == "__main__":
             physicsparams)
     plot(nuespecs, plotspeckey, nominalspec, args.bar, ratio, nbins, args.binstoplot, chiSquare, plotN, hardcodeaxes, outfilename)
 
+if __name__ == "__main__":
+    parser = getParser()
+    args = parser.parse_args()
+    main(args)
