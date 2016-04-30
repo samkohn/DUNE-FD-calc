@@ -83,13 +83,11 @@ def defaultBeamFlux(neutrinomode=True, loc=None):
     if loc is None:
         _setUpRepositoryDir()
         if neutrinomode:
-            directory = 'CD1-CDR-FHC/'
-            suffix = '_flux40.csv'
+            suffix = '_flux40_numode.csv'
         else:
-            directory = 'CDR-RHC/'
             suffix = '_flux40_anumode.csv'
         pre = os.path.join(repositorydir, 'Fast-Monte-Carlo/',
-            'Flux-Configuration/', directory, '')
+            'Fluxes/', '')
     else:
         pre = os.path.join(loc, '')
         suffix = '_flux%d_%snumode.csv' % (BeamFlux.defaultBinning.n,
