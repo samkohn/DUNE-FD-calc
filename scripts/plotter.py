@@ -57,7 +57,7 @@ def plot(nuespecs, plotspeckey, nominalspec, pot, bar, ratio, nbins, specrange, 
         chisquares = np.square(specstoplot-nominalspec) / specstoplot
         chisquares = np.sum(chisquares, axis=1)
         lastentry = legendextras[-1]
-        legendextras = [le + r", $\chi^{2}/NDF = %.1f/39$" % cs
+        legendextras = [le + r", $\chi^{2}/NDF = %.1f/%d$" % (cs,nbins)
                 for (le, cs) in zip(legendextras[:-1], chisquares)]
         legendextras += [lastentry]
     else:
