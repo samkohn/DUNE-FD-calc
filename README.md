@@ -19,7 +19,8 @@ python path information. Source the `setup` file with `source setup`.
 This needs to be done every time a new shell session is started or the
 code in the dunesim module will not work.
 
-The easiest script to start with is the plotter.py script. You can run
+The easiest script to start with is the plotter.py script, located in
+the scripts folder. `cd` there and then you can run
 `python plotter.py --help` to get a summary of the available commands.
 Here are some examples:
 
