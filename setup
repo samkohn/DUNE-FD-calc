@@ -10,7 +10,35 @@ then
     export PYTHONPATH=$DUNECONFIGSROOT/scripts:$PYTHONPATH
     echo "INFO: export PYTHONPATH=$PYTHONPATH"
 else
-    echo $DUNECONFIGSROOT
-    echo $PYTHONPATH
-    echo "INFO: Already set up. Exiting..."
+    echo "INFO: \$DUNECONFIGSROOT=$DUNECONFIGSROOT"
+    echo "INFO: \$PYTHONPATH=$PYTHONPATH"
+    echo "INFO: Already set up."
+fi
+
+# Check to ensure numpy is installed
+exitval=0
+module="numpy"
+cat >tmp_bootstrap.py<< EOF
+try:
+    import $module
+    exit(0)
+except ImportError:
+    exit(1)
+EOF
+if python -m tmp_bootstrap
+then
+    echo "INFO: Found $module"
+else
+    echo "ERROR: Missing $module"
+    echo "INFO: attempting to install $module via pip"
+    echo "INFO: pip install $module"
+    pip install $module
+    exitval=$?
+fi
+rm tmp_bootstrap.py
+if [ $exitval -eq 0 ]
+then
+    echo "INFO: Good to go!"
+else
+    echo "WARNING: Not good to go!"
 fi
