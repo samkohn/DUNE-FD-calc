@@ -83,24 +83,24 @@ def plot(nuespecs, plotspeckey, nominalspec, bar, ratio, nbins, specrange, plotC
         plt.savefig(outfilename, bbox_inches='tight')
 
 def varyBackgroundType(CLargs, physicsparams):
-    locbase = os.path.expanduser('~/Desktop/binning120/')
+    locbase = CLargs.loc
     flux = defaultBeamFlux(not CLargs.bar, loc=os.path.join(locbase,
-            'flux')) * physicsparams['fluxweight']
+            'Fluxes')) * physicsparams['fluxweight']
     originalflux = flux.copy()
     osc = defaultOscillationProbability(loc=os.path.join(locbase,
-            'oscvectors'))
+            'Oscillation-Parameters'))
     originalosc = osc.copy()
     xsec = defaultCrossSection(loc=os.path.join(locbase,
-            'cross-sections')) * physicsparams['xsecweight']
+            'Cross-Sections')) * physicsparams['xsecweight']
     originalxsec = xsec.copy()
     drm = defaultDetectorResponse(CLargs.factored_drm,
-            loc=os.path.join(locbase, 'detector-response'))
+            loc=os.path.join(locbase, 'Detector-Response'))
     #loc=os.path.expanduser('~/Documents/DUNE/configs/Fast-Monte-Carlo/Detector-Response-3'))
     originaldrm = drm.copy()
     if CLargs.factored_drm:
         spectoextract = 'nu%sCC' % CLargs.flavor
         efficiency = defaultEfficiency(not CLargs.bar,
-                loc=os.path.join(locbase, 'efficiencies'))
+                loc=os.path.join(locbase, 'Efficiencies'))
     else:
         spectoextract = 'nu%s-like' % CLargs.flavor
         efficiency = None
@@ -203,14 +203,22 @@ def varyBackgroundType(CLargs, physicsparams):
     return (nuespecs, nominalspec, plotspeckey)
 
 def varyFluxNormalizations(CLargs, physicsparams):
-    flux = defaultBeamFlux(not CLargs.bar) * physicsparams['fluxweight']
+    locbase = CLargs.loc
+    flux = defaultBeamFlux(not CLargs.bar, loc=os.path.join(locbase,
+            'Fluxes')) * physicsparams['fluxweight']
     originalflux = flux.copy()
-    osc = defaultOscillationProbability()
-    xsec = defaultCrossSection() * physicsparams['xsecweight']
-    drm = defaultDetectorResponse(CLargs.factored_drm)
+    osc = defaultOscillationProbability(loc=os.path.join(locbase,
+            'Oscillation-Parameters'))
+    originalosc = osc.copy()
+    xsec = defaultCrossSection(loc=os.path.join(locbase,
+            'Cross-Sections')) * physicsparams['xsecweight']
+    originalxsec = xsec.copy()
+    drm = defaultDetectorResponse(CLargs.factored_drm,
+            loc=os.path.join(locbase, 'Detector-Response'))
     if CLargs.factored_drm:
         spectoextract = 'nu%sCC' % CLargs.flavor
-        efficiency = defaultEfficiency(not CLargs.bar)
+        efficiency = defaultEfficiency(not CLargs.bar,
+                loc=os.path.join(locbase, 'Efficiencies'))
     else:
         spectoextract = 'nu%s-like' % CLargs.flavor
         efficiency = None
@@ -254,8 +262,9 @@ def varyFluxNormalizations(CLargs, physicsparams):
     return (nuespecs, nominalspec, plotspeckey)
 
 def varyOscillationParameters(CLargs, physicsparams):
-    folderbase = ('/Users/skohn/Documents/DUNE/configs/Fast-Monte-Carlo/' +
-        'Oscillation-Parameters/local/set2/oscvectors_')
+    locbase = CLargs.loc
+    folderbase = os.path.join(locbase,
+        'Oscillation-Parameters/Parameter-Sets/oscvectors_')
     foldersuffixes = [str(i) for i in range(1, 31)]
     folders = [folderbase + suffix + '/' for suffix in foldersuffixes]
 
@@ -266,14 +275,18 @@ def varyOscillationParameters(CLargs, physicsparams):
             ['nuebar_numubar', 'numubar_numubar', 'nutaubar_numubar'],
             ['nuebar_nutaubar', 'numubar_nutaubar', 'nutaubar_nutaubar']]
 
-    suffix = '%d.csv' % nbins
+    suffix = '%d.csv' % CLargs.nbins
     filenames = [[name + suffix for name in row] for row in filenames]
-    flux = defaultBeamFlux(not CLargs.bar) * physicsparams['fluxweight']
-    xsec = defaultCrossSection() * physicsparams['xsecweight']
-    drm = defaultDetectorResponse(CLargs.factored_drm)
+    flux = defaultBeamFlux(not CLargs.bar, loc=os.path.join(locbase,
+        'Fluxes')) * physicsparams['fluxweight']
+    xsec = defaultCrossSection(loc=os.path.join(locbase,
+        'Cross-Sections')) * physicsparams['xsecweight']
+    drm = defaultDetectorResponse(CLargs.factored_drm,
+            loc=os.path.join(locbase, 'Detector-Response'))
     if CLargs.factored_drm:
         spectoextract = 'nu%sCC' % CLargs.flavor
-        efficiency = defaultEfficiency(not CLargs.bar)
+        efficiency = defaultEfficiency(not CLargs.bar,
+                loc=os.path.join(locbase, 'Efficiencies'))
     else:
         spectoextract = 'nu%s-like' % CLargs.flavor
         efficiency = None
@@ -310,14 +323,28 @@ def varyOscillationParameters(CLargs, physicsparams):
     return (nuespecs, nominalspec, plotspeckey)
 
 def getParser():
+    class LocAction(argparse.Action):
+        def __call__(self, parser, namespace, values,
+                option_string=None):
+            try:
+                setattr(namespace, self.dest, os.path.expanduser(values))
+            except:
+                raise ValueError("You probably specified the wrong number of" +
+                      " arguments to -l. Run again with --help.")
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--ratio", action="store_true", help="plot dS/S")
     parser.add_argument("--nbins", type=int, default=40,
             help="number of energy bins")
-    parser.add_argument("dataset", type=str,
+    parser.add_argument("analysis", type=str,
             choices=["oscparam", "norm", "bg"],
-            help="the data set to plot: varying oscillation " +
+            help="the analysis to plot: varying oscillation " +
             "parameters, normalization, or background source")
+    parser.add_argument("--loc", "-l", type=str,
+            default=os.path.expanduser("~/Documents/DUNE/configs/Fast-Monte-Carlo"),
+            action=LocAction,
+            nargs=1,
+            help="the location of the input files")
     parser.add_argument("--factored-drm", action="store_true",
             help="use factored DRM/efficiency")
     parser.add_argument("--x2", action="store_true", help="include " +
@@ -343,7 +370,7 @@ def getParser():
 def main(args):
     ratio = args.ratio
     nbins = args.nbins
-    dataset = args.dataset
+    dataset = args.analysis
     factored = args.factored_drm
     chiSquare = args.x2
     plotN = args.total
