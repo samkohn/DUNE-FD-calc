@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import argparse
 import subprocess
 
-def plot(nuespecs, plotspeckey, nominalspec, bar, ratio, nbins, specrange, plotChiSquare, plotN, hardcodeaxes, outfilename):
+def plot(nuespecs, plotspeckey, nominalspec, pot, bar, ratio, nbins, specrange, plotChiSquare, plotN, hardcodeaxes, outfilename):
 
     specstoplot = nuespecs[np.asarray(plotspeckey.keys()),specrange]
 
@@ -41,7 +41,8 @@ def plot(nuespecs, plotspeckey, nominalspec, bar, ratio, nbins, specrange, plotC
         pass # hardcodeaxes is just False
     else:
         raise ValueError("Bad hardcodeaxes", hardcodeaxes)
-    plt.title(('Antin' if bar else 'N') + r'eutrino spectrum for 150 kt-MW-yr', **labelkwargs)
+    plt.title(('Antin' if bar else 'N') + 'eutrino spectrum for' +
+            ' %g POT'%pot, **labelkwargs)
     legendextras = [''] * (len(specstoplot) + 1)
     if plotN:
         sums = [sum(spec) for spec in specstoplot]
@@ -81,6 +82,48 @@ def plot(nuespecs, plotspeckey, nominalspec, bar, ratio, nbins, specrange, plotC
         plt.show()
     else:
         plt.savefig(outfilename, bbox_inches='tight')
+
+def manualVariation(CLargs, physicsparams):
+    locbase = CLargs.loc
+    flux = defaultBeamFlux(not CLargs.bar, loc=os.path.join(locbase,
+            'Fluxes')) * physicsparams['fluxweight']
+    originalflux = flux.copy()
+    osc = defaultOscillationProbability(loc=os.path.join(locbase,
+            'Oscillation-Parameters'))
+    originalosc = osc.copy()
+    xsec = defaultCrossSection(loc=os.path.join(locbase,
+            'Cross-Sections')) * physicsparams['xsecweight']
+    originalxsec = xsec.copy()
+    drm = defaultDetectorResponse(CLargs.factored_drm,
+            loc=os.path.join(locbase, 'Detector-Response'))
+    #loc=os.path.expanduser('~/Documents/DUNE/configs/Fast-Monte-Carlo/Detector-Response-3'))
+    originaldrm = drm.copy()
+    if CLargs.factored_drm:
+        spectoextract = 'nu%sCC' % CLargs.flavor
+        efficiency = defaultEfficiency(not CLargs.bar,
+                loc=os.path.join(locbase, 'Efficiencies'))
+    else:
+        spectoextract = 'nu%s-like' % CLargs.flavor
+        efficiency = None
+
+    specstoplot = np.array(
+                [SimulationComponent._parseFile(
+                    os.path.expanduser(CLargs.manual_spectrum))])
+    nominalspec = (flux
+            .evolve(osc)
+            .evolve(xsec)
+            .evolve(drm))
+    if CLargs.factored_drm:
+        nominalspec = (nominalspec
+                .evolve(efficiency)
+                .extract('nueCC-like'))
+    else:
+        nominalspec = nominalspec.extract('nueCC-like')
+
+    plotspeckey = {
+            0: 'Manual'
+    }
+    return (specstoplot, nominalspec, plotspeckey)
 
 def varyBackgroundType(CLargs, physicsparams):
     locbase = CLargs.loc
@@ -337,9 +380,18 @@ def getParser():
     parser.add_argument("--nbins", type=int, default=40,
             help="number of energy bins")
     parser.add_argument("analysis", type=str,
-            choices=["oscparam", "norm", "bg"],
+            choices=["oscparam", "norm", "bg", "manual"],
             help="the analysis to plot: varying oscillation " +
-            "parameters, normalization, or background source")
+            "parameters, normalization, background source, or " +
+            " a manually specified spectrum")
+    parser.add_argument("--pot-per-year", "-p", type=float,
+            default=1.1e21, help="number of POT per year")
+    parser.add_argument("--years", "-y", type=float, default=3.125,
+            help="number of years to run")
+    parser.add_argument("--manual-spectrum", type=str, default="",
+            help="the csv file containing the manual spectrum to plot" +
+            ". Required for manual" +
+            " analysis. Ignored for all other analyses.")
     parser.add_argument("--loc", "-l", type=str,
             default=os.path.expanduser("~/Documents/DUNE/configs/Fast-Monte-Carlo"),
             action=LocAction,
@@ -411,7 +463,7 @@ def main(args):
     # CDR Vol 2 figure 3.5 uses 150 kt-MW-yr and 120 GeV protons
     # For 40 kt that's 3.75 MW-yr, at 1.2 MW that's 3.125yr, and
     # there's 1.1e21 POT/yr
-    NUM_POT = 1.1e21 * 3.125 # POT/yr * yrs
+    NUM_POT = args.pot_per_year * args.years
     FLUX_FILE_BIN_WIDTH = 0.125  # GeV
     MY_BIN_WIDTH = 10.0/nbins  # GeV
     NUM_TARGET_ATOMS = 6e32 # 40kt argon
@@ -435,9 +487,11 @@ def main(args):
         fntoplot = varyFluxNormalizations
     elif dataset == "bg":
         fntoplot = varyBackgroundType
+    elif dataset == "manual":
+        fntoplot = manualVariation
     nuespecs, nominalspec, plotspeckey = fntoplot(args,
             physicsparams)
-    plot(nuespecs, plotspeckey, nominalspec, args.bar, ratio, nbins, args.binstoplot, chiSquare, plotN, hardcodeaxes, outfilename)
+    plot(nuespecs, plotspeckey, nominalspec, NUM_POT, args.bar, ratio, nbins, args.binstoplot, chiSquare, plotN, hardcodeaxes, outfilename)
 
 if __name__ == "__main__":
     parser = getParser()
