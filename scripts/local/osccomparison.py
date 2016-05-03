@@ -30,7 +30,7 @@ def plot(nuespecs, plotspeckey, nominalspec, pot, bar, ratio, nbins, specrange, 
 
     lines = plt.plot(bins, specstoplot.T, **plotkwargs)
     plt.errorbar(bins, nominalspec, fmt='k--', yerr=np.sqrt(nominalspec),
-            **plotkwargs)
+            ecolor='0.5', **plotkwargs)
     plt.ylabel(('Antin' if bar else 'N') + 'eutrinos per $%.3g$ GeV' %
             round(10.0/nbins, 3), **labelkwargs)
     if hardcodeaxes == 'neutrinomode':
@@ -377,7 +377,7 @@ def getParser():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--ratio", action="store_true", help="plot dS/S")
-    parser.add_argument("--nbins", type=int, default=40,
+    parser.add_argument("--nbins", type=int, default=120,
             help="number of energy bins")
     parser.add_argument("analysis", type=str,
             choices=["oscparam", "norm", "bg", "manual"],
