@@ -12,12 +12,27 @@ ROOT macros that performs some primitive calculations.
 To generate new input .csv files, check out my Extractor repository,
 [DUNE-FMC-Extract](https://github.com/samkohn/DUNE-FMC-Extract).
 
+### Download
+To download this repository, either clone it or download a packaged
+version. To clone, use the git command
+
+```
+$ git clone https://github.com/samkohn/DUNE-configs.git
+```
+
+You can download the latest (unstable) version
+[here](https://github.com/samkohn/DUNE-configs/archive/master.zip) or
+using the "Download ZIP" button at the top of this page. To download a
+stable release version, go to the
+[releases](https://github.com/samkohn/DUNE-configs/releases) page and
+click on either the zip or tar.gz link.
+
 ### Scripts
-To run the scripts, first clone or download this repository. Then,
-ensure that your system is configured correctly and set up the correct
-python path information. Source the `setup` file with `source setup`.
-This needs to be done every time a new shell session is started or the
-code in the dunesim module will not work.
+To run the scripts, first clone or download this repository (see above
+instructions). Then, ensure that your system is configured correctly and
+set up the correct python path information. Source the `setup` file with
+`source setup`. This needs to be done every time a new shell session is
+started or the code in the dunesim module will not work.
 
 The easiest script to start with is the plotter.py script, located in
 the scripts folder. `cd` there and then you can run
