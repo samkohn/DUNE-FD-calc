@@ -30,7 +30,8 @@ Here are some examples:
 $ python plotter.py oscparam -N --x2
 
 # Antineutrino mode (automatically plots nuebar spectrum)
-$ python plotter.py oscparam --bar
+# Also include a ratio plot comparing to the nominal spectrum
+$ python plotter.py oscparam --bar --ratio
 
 # Plot numu CC-like spectrum
 $ python plotter.py oscparam --flavor muCC
@@ -45,12 +46,49 @@ $ python plotter.py oscparam --suppress nue2nue numu2nue nutau2nue
 $ python plotter.py norm -N
 ```
 
-Each plot is labeled with the git commit description representing the
-version used to make the plot. Also included is the specific python
-command that was called.
+To adjust the beam run parameters, use the command-line arguments
+`--pot-per-year` and `--years` (or `-p` and `-y`, respectively).
+
+The plotting script also allows for comparisons between calculated data
+sourced from this repository and externally derived data. To make such a
+comparison, first create a plain-text file with the spectrum data binned
+the same way it is here (in 120 bins from 0 to 10 GeV). The file should
+have the value for each bin on its own line. Then you can refer to it
+using the following command:
+
+```
+# Compare a calculated spectrum to a manually specified spectrum
+$ python plotter.py manual --manual-spectrum path/to/manual/spectrum
+```
+
+All of the usual command line arguments (`--ratio`, `--bar`, `--suppress`,
+`--flavor`, etc.) can be used here as well.
+
+Lastly, to use the plotter with different inputs, simply set up your own
+directory with similar contents to this repository's
+[Fast-Monte-Carlo](https://github.com/samkohn/DUNE-configs/tree/master/Fast-Monte-Carlo)
+directory. If you won't be using the `oscparam` analysis, then the
+nested `Oscillation-Parameters/Parameter-Sets` folders are not
+necessary. In any event, check out the DUNE-FMC-Extract module
+mentioned above if you want to generate inputs based on the DUNE Fast
+Monte Carlo and you have access to the FNAL cluster's `/dune` file
+system.
 
 The plotter module can be extended to include new analyses. Pull
 requests are welcome!
+
+### Provenance and maintenance information
+Each plot is labeled with the git commit description representing the
+version used to make the plot. Also included is the specific python
+command that was called to generate the plot. This allows us to recover
+the inputs and assumptions that went into each plot. The only tricky
+part is that plots are made with clean git working trees, so that the
+files represented by the commit descriptor are exactly the same as the
+files used to create the plot.
+
+If you use external files not in the git repository, then make sure to
+preserve them. In some cases I may accept a pull request to add them to
+this repository if they are important to the experiment.
 
 
 ### Physics and Detector Configurations
