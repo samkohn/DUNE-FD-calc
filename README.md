@@ -1,15 +1,19 @@
 # DUNE-configs
 
-This repository holds all the information I can find about experimental,
-theoretical and software settings, parameters, and configurations
-related to calculations of the DUNE experiment's sensitivity to CP
-violation and the neutrino mass ordering.
+This repository contains human- and machine-readable data related to the
+DUNE neutrino oscillation measurement, including detector response
+information, cross sections, and beam flux simulation results.
 
-It also contains some scripts to aid manipulation of the data using
-python/numpy/matplotlib. There is also some legacy code in the form of
-ROOT macros that performs some primitive calculations.
+It also contains a python module for performing calculations with this
+data and a flexible yet powerful plotting program for performing common
+calculations and comparisons. *The only dependencies for this software
+are numpy and matplotlib*. If you are not sure if you have these
+python packages installed, the provided `setup` script will check for
+you as it sets up your environment. It will even try to install them for
+you using [pip](https://pypi.python.org/pypi/pip/) if they are missing.
 
-To generate new input .csv files, check out my Extractor repository,
+To generate new custom data (.csv) files, check out my Extractor
+repository,
 [DUNE-FMC-Extract](https://github.com/samkohn/DUNE-FMC-Extract).
 
 ### Download
