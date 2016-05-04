@@ -393,9 +393,8 @@ def getParser():
             ". Required for manual" +
             " analysis. Ignored for all other analyses.")
     parser.add_argument("--loc", "-l", type=str,
-            default=os.path.expanduser("~/Documents/DUNE/configs/Fast-Monte-Carlo"),
+            default=os.path.join(os.environ['DUNECONFIGSROOT'], "Fast-Monte-Carlo"),
             action=LocAction,
-            nargs=1,
             help="the location of the input files")
     parser.add_argument("--factored-drm", action="store_true",
             help="use factored DRM/efficiency")
