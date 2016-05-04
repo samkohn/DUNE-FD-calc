@@ -96,7 +96,6 @@ def manualVariation(CLargs, physicsparams):
     originalxsec = xsec.copy()
     drm = defaultDetectorResponse(CLargs.factored_drm,
             loc=os.path.join(locbase, 'Detector-Response'))
-    #loc=os.path.expanduser('~/Documents/DUNE/configs/Fast-Monte-Carlo/Detector-Response-3'))
     originaldrm = drm.copy()
     if CLargs.factored_drm:
         spectoextract = 'nu%sCC' % CLargs.flavor
@@ -138,7 +137,6 @@ def varyBackgroundType(CLargs, physicsparams):
     originalxsec = xsec.copy()
     drm = defaultDetectorResponse(CLargs.factored_drm,
             loc=os.path.join(locbase, 'Detector-Response'))
-    #loc=os.path.expanduser('~/Documents/DUNE/configs/Fast-Monte-Carlo/Detector-Response-3'))
     originaldrm = drm.copy()
     if CLargs.factored_drm:
         spectoextract = 'nu%sCC' % CLargs.flavor
