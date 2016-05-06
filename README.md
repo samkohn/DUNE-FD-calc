@@ -1,4 +1,4 @@
-# DUNE-configs
+# DUNE-FD-calc
 
 This repository contains human- and machine-readable data related to the
 DUNE neutrino oscillation measurement, including detector response
