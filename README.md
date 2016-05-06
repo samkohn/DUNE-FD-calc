@@ -96,6 +96,24 @@ system.
 The plotter module can be extended to include new analyses. Pull
 requests are welcome!
 
+### Public API
+The public API for the dunesim.py module is:
+
+ - any global function that does not start with `_`
+
+ - the class constructors
+
+ - the evolve function
+
+ - the extract function
+
+ - all of the methods and fields of the Binning object that do not begin
+ with `-`
+
+The public API for the plotter.py module is any functionality accessible
+from the command line arguments. The exact signatures of the functions
+in the module are subject to change at any time.
+
 ### Provenance and maintenance information
 Each plot is labeled with the git commit description representing the
 version used to make the plot. Also included is the specific python
