@@ -21,14 +21,14 @@ To download this repository, either clone it or download a packaged
 version. To clone, use the git command
 
 ```
-$ git clone https://github.com/samkohn/DUNE-configs.git
+$ git clone https://github.com/samkohn/DUNE-FD-calc.git
 ```
 
 You can download the latest (unstable) version
-[here](https://github.com/samkohn/DUNE-configs/archive/master.zip) or
+[here](https://github.com/samkohn/DUNE-FD-calc/archive/master.zip) or
 using the "Download ZIP" button at the top of this page. To download a
 stable release version, go to the
-[releases](https://github.com/samkohn/DUNE-configs/releases) page and
+[releases](https://github.com/samkohn/DUNE-FD-calc/releases) page and
 click on either the zip or tar.gz link.
 
 ### Scripts
@@ -85,7 +85,7 @@ All of the usual command line arguments (`--ratio`, `--bar`, `--suppress`,
 
 Lastly, to use the plotter with different inputs, simply set up your own
 directory with similar contents to this repository's
-[Fast-Monte-Carlo](https://github.com/samkohn/DUNE-configs/tree/master/Fast-Monte-Carlo)
+[Fast-Monte-Carlo](https://github.com/samkohn/DUNE-FD-calc/tree/master/Fast-Monte-Carlo)
 directory. If you won't be using the `oscparam` analysis, then the
 nested `Oscillation-Parameters/Parameter-Sets` folders are not
 necessary. In any event, check out the DUNE-FMC-Extract module
