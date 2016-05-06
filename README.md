@@ -108,7 +108,7 @@ The public API for the dunesim.py module is:
  - the extract function
 
  - all of the methods and fields of the Binning object that do not begin
- with `-`
+ with `_`
 
 The public API for the plotter.py module is any functionality accessible
 from the command line arguments. The exact signatures of the functions
