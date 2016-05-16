@@ -1,7 +1,9 @@
 from dunesim import *
 import matplotlib.pyplot as plt
+import matplotlib
 import argparse
 import subprocess
+from distutils.version import StrictVersion
 
 def plot(nuespecs, plotspeckey, nominalspec, pot, bar, ratio, nbins, specrange, plotChiSquare, plotN, hardcodeaxes, outfilename):
 
@@ -75,8 +77,12 @@ def plot(nuespecs, plotspeckey, nominalspec, pot, bar, ratio, nbins, specrange, 
     command_used = ' '.join(sys.argv)
     message = 'commit: %s\ncommand: %s' % (commit_description,
             command_used)
+    if StrictVersion(matplotlib.__version__) >= StrictVersion('1.5.1'):
+        extra_args = {'wrap': True}
+    else:
+        extra_args = {}
     fig.text(x=0.95,y=0.05, s=message, family='monospace',
-            ha='right', va='top')
+            ha='right', va='top', **extra_args)
     #Save or display the figure
     if outfilename == '':
         plt.show()
