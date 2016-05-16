@@ -848,7 +848,10 @@ class DetectorResponse(SimulationComponent):
     column (i.e. the first index gives the reconstructed energy). The
     normalization should be that a true particle ends up somewhere
     (unitarity), so that the sum down a column is 1. I.e., sum(obj[:,i])
-    == 1 for all i. This normalization is enforced in the constructor.
+    == 1 for all i. This normalization is enforced in the constructor,
+    but can be called again via the `normalize` method to restore
+    normalization after a transformation is performed (e.g. after
+    reducing or increasing energy resolution).
 
     The detector response matrix converts a true spectrum into a
     reconstructed spectrum. Its input should be broken down into
@@ -886,13 +889,7 @@ class DetectorResponse(SimulationComponent):
     def __new__(cls, arg):
         obj = SimulationComponent.__new__(cls, arg)
         obj.bins = cls.defaultBinning
-        # Ignore divide by 0 errors and save the old error system
-        old_error_state = np.seterr(invalid='ignore')
-        # Normalize
-        obj = np.divide(obj, np.sum(obj, axis=0))
-        obj = np.nan_to_num(obj)
-        # Reset numpy error system
-        np.seterr(**old_error_state)
+        obj.normalize()
         return obj
 
     @staticmethod
@@ -922,6 +919,23 @@ class DetectorResponse(SimulationComponent):
             return np.diag(data)
         else:
             raise ValueError("Incorrect shape " + str(shape))
+
+    def normalize(self):
+        """
+        Enforce unitarity/normalization: that each column should sum to
+        1 so that each neutrino ends up somewhere with probability 1.
+
+        The exception is if a column is entirely 0's, in which case that
+        column stays as 0's.
+
+        """
+        # Ignore divide by 0 errors and save the old error system
+        old_error_state = np.seterr(invalid='ignore')
+        # Normalize
+        temp = np.divide(self, np.sum(self, axis=0))
+        self[:, :] = np.nan_to_num(temp)
+        # Reset numpy error system
+        np.seterr(**old_error_state)
 
     def zipWithEnergy(self, form='list'):
         """
