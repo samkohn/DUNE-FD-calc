@@ -20,7 +20,6 @@ import numpy as np
 import csv
 import os
 import sys
-import pdb
 
 
 def setEnergyBins(bins):
@@ -83,9 +82,9 @@ def defaultBeamFlux(neutrinomode=True, loc=None):
     if loc is None:
         _setUpRepositoryDir()
         if neutrinomode:
-            suffix = '_flux40_numode.csv'
+            suffix = '_flux%d_numode.csv' % BeamFlux.defaultBinning.n
         else:
-            suffix = '_flux40_anumode.csv'
+            suffix = '_flux%d_anumode.csv' % BeamFlux.defaultBinning.n
         pre = os.path.join(repositorydir, 'Fast-Monte-Carlo/',
             'Fluxes/', '')
     else:
