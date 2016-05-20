@@ -33,8 +33,8 @@ def plot(nuespecs, plotspeckey, nominalspec, pot, bar, ratio, nbins, specrange, 
     lines = plt.plot(bins, specstoplot.T, **plotkwargs)
     plt.errorbar(bins, nominalspec, fmt='k--', yerr=np.sqrt(nominalspec),
             ecolor='0.5', **plotkwargs)
-    plt.ylabel(('Antin' if bar else 'N') + 'eutrinos per $%.3g$ GeV' %
-            round(10.0/nbins, 3), **labelkwargs)
+    plt.ylabel('Neutrinos per $%.3g$ GeV' % round(10.0/nbins, 3),
+            **labelkwargs)
     if hardcodeaxes == 'neutrinomode':
         plt.ylim([0, 120])
     elif hardcodeaxes == 'antineutrinomode':
@@ -43,8 +43,8 @@ def plot(nuespecs, plotspeckey, nominalspec, pot, bar, ratio, nbins, specrange, 
         pass # hardcodeaxes is just False
     else:
         raise ValueError("Bad hardcodeaxes", hardcodeaxes)
-    plt.title(('Antin' if bar else 'N') + 'eutrino spectrum for' +
-            ' %g POT'%pot, **labelkwargs)
+    plt.title('Neutrino spectrum for %g POT (%sneutrino mode)' %
+            (pot, 'anti' if bar else ''), **labelkwargs)
     legendextras = [''] * (len(specstoplot) + 1)
     if plotN:
         sums = [sum(spec) for spec in specstoplot]
