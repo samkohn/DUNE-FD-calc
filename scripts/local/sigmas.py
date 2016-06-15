@@ -4,6 +4,7 @@ flux, DRM, and efficiency given by the default* methods in dunesim.
 
 """
 from dunesim import *
+import math
 
 setEnergyBins(np.linspace(0, 10, 121))
 
@@ -43,9 +44,13 @@ oscprob['-1sigma'] = oscprob['default'].copy()
 
 # Define a "focusing" function that reduces the spread
 # I choose a Gaussian
-def focus(n, center, width, low=None, up=None):
+def focus(peak, width, n=None, low=None, up=None):
     """
-    Specify the center and width in real coordinates (energy).
+    Create an array whose entries are proportional to the Gaussian
+    distribution.
+
+    Specify the peak and width in real coordinates (energy), not in
+    bin indices.
 
     If low and up are provided, they are used as the range of energy
     being considered. If they are not provided, then the default binning
@@ -56,16 +61,34 @@ def focus(n, center, width, low=None, up=None):
         low = SimulationComponent.defaultBinning.start
     if up is None:
         up = SimulationComponent.defaultBinning.end
-    centerBin = int((center-low)/(up-low) * n)
-    widthInBins = int(width/(up-low) * n)
-    lowBin = -centerBin/widthInBins
-    upBin = (n-centerBin)/widthInBins
-    x = np.linspace(lowBin, upBin, n)
+    if n is None:
+        n = SimulationComponent.defaultBinning.n
+    peakIndex = math.floor((peak-low)/(up-low) * n)
+    widthInBins = math.floor(width/(up-low) * n)
+    lowBinValue = -peakIndex/widthInBins
+    upBinValue = (n-peakIndex)/widthInBins
+    x = np.linspace(lowBinValue, upBinValue, n)
     exponent = -np.square(x)/2
     return np.exp(exponent)
 
+blockstofocus = ['nueCC2nueCC',
+        'numuCC2numuCC',
+        'nuebarCC2nuebarCC',
+        'numubarCC2numubarCC']
 
 drm['+1sigma'] = drm['default'].copy()
+
+# tighten up the energy response centered on the true energy
+width = 1 # width in GeV
+bins = SimulationComponent.defaultBinning.centers
+for blockname in blockstofocus:
+    block = drm['+1sigma'].extract(blockname)
+    focuser = np.zeros_like(block)
+    for i, energy in enumerate(bins):
+        focuser[:, i] = focus(energy, width)
+    block *= focuser
+
+drm['+1sigma'].normalize()
 drm['-1sigma'] = drm['default'].copy()
 
 eff['+1sigma'] = eff['default'].copy()
