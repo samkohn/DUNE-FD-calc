@@ -71,25 +71,54 @@ def focus(peak, width, n=None, low=None, up=None):
     exponent = -np.square(x)/2
     return np.exp(exponent)
 
+# For the smearer, I want to divide the center by a larger number, and
+# then decrease the reduction factor down to 1 as we move away from the
+# center. The function that accomplishes this is division by (1 +
+# gaussian), or multiplication by 1/(1 + gaussian).
+# I will use the focusing function as a generic "gaussian" function.
+def smear(normalization, peak, width, n=None, low=None, up=None):
+    """
+    Create an array whose entries are 1/(1 + prop-to-gaussian).
+
+    The normalization gives the value of the peak of the gaussian, so
+    that min(smear(x, ...)) == 1/(1 + x). A suggested value is 1./3.
+
+    Specify the peak and width in real coordinates (energy), not in
+    bin indices.
+
+    If low and up are provided, they are used as the range of energy
+    being considered. If they are not provided, then the default binning
+    from the dunesim module is used.
+
+    """
+    focuser = focus(peak, width, n, low, up)
+    return 1/(1 + normalization * focuser)
+
 blockstofocus = ['nueCC2nueCC',
         'numuCC2numuCC',
         'nuebarCC2nuebarCC',
         'numubarCC2numubarCC']
 
 drm['+1sigma'] = drm['default'].copy()
+drm['-1sigma'] = drm['default'].copy()
 
 # tighten up the energy response centered on the true energy
 width = 1 # width in GeV
+smear_normalization= 1.0/3
 bins = SimulationComponent.defaultBinning.centers
 for blockname in blockstofocus:
-    block = drm['+1sigma'].extract(blockname)
-    focuser = np.zeros_like(block)
+    focus_block = drm['+1sigma'].extract(blockname)
+    smear_block = drm['-1sigma'].extract(blockname)
+    focuser = np.zeros_like(focus_block)
+    smearer = np.zeros_like(smear_block)
     for i, energy in enumerate(bins):
         focuser[:, i] = focus(energy, width)
-    block *= focuser
+        smearer[:, i] = smear(smear_normalization, energy, width)
+    focus_block *= focuser
+    smear_block *= smearer
 
 drm['+1sigma'].normalize()
-drm['-1sigma'] = drm['default'].copy()
+drm['-1sigma'].normalize()
 
 eff['+1sigma'] = eff['default'].copy()
 eff['-1sigma'] = eff['default'].copy()
