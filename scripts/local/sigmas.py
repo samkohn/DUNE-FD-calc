@@ -6,6 +6,8 @@ flux, DRM, and efficiency given by the default* methods in dunesim.
 from dunesim import *
 import math
 
+__all__=['flux', 'anuflux', 'oscprob', 'xsec', 'drm', 'eff', 'smear', 'focus']
+
 setEnergyBins(np.linspace(0, 10, 121))
 
 flux0 = defaultBeamFlux(neutrinomode=True)
