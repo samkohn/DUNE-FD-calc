@@ -122,5 +122,50 @@ for blockname in blockstofocus:
 drm['+1sigma'].normalize()
 drm['-1sigma'].normalize()
 
+# Increase and decrease the selection efficiency for signal and
+# background channels
 eff['+1sigma'] = eff['default'].copy()
 eff['-1sigma'] = eff['default'].copy()
+correct_ids = [
+        'nueCC2nueCC-like',
+        'numuCC2numuCC-like',
+        'nutauCC2NC-like',
+        'nueNC2NC-like',
+        'numuNC2NC-like',
+        'nutauNC2NC-like',
+        'nuebarCC2nueCC-like',
+        'numubarCC2numuCC-like',
+        'nutaubarCC2NC-like',
+        'nuebarNC2NC-like',
+        'numubarNC2NC-like',
+        'nutaubarNC2NC-like',
+    ]
+# For better ID, assume the false negative rate decreases by half for
+# each true event type. The actual change will not be truly half because
+# I do not correctly normalize.
+for selection in correct_ids:
+    block = eff['+1sigma'].extract(selection)
+    data = block.diagonal()
+    false_negative = 1 - data
+    correction = false_negative / 2
+    np.fill_diagonal(block, data + correction)
+eff['+1sigma'].normalize()
+# For worse ID, assume the following sources of background are
+# amplified. I chose these backgrounds based on which forecast
+# improvements seem hardest to implement.
+backgrounds = [
+        'nueNC2nueCC-like',
+        'numuNC2nueCC-like',
+        'nutauCC2nueCC-like',
+        'nutauNC2nueCC-like',
+        'nuebarNC2nueCC-like',
+        'numubarNC2nueCC-like',
+        'nutaubarCC2nueCC-like',
+        'nutaubarNC2nueCC-like',
+    ]
+for background in backgrounds:
+    block = eff['-1sigma'].extract(background)
+    data = block.diagonal()
+    correction = data
+    np.fill_diagonal(block, data + correction)
+eff['-1sigma'].normalize()
