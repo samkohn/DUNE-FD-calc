@@ -1035,6 +1035,7 @@ class Efficiency(SimulationComponent):
     def __new__(cls, arg):
         obj = SimulationComponent.__new__(cls, arg)
         obj.bins = cls.defaultBinning
+        obj.normalize()
         return obj
 
     @staticmethod
@@ -1091,6 +1092,23 @@ class Efficiency(SimulationComponent):
             efficiencies = self.flatten()
             return zip(energymatrix, drm)
         raise ValueError("Did not recognize form " + str(form))
+
+    def normalize(self):
+        """
+        Enforce unitarity/normalization: that each column should sum to
+        1 so that each neutrino ends up somewhere with probability 1.
+
+        The exception is if a column is entirely 0's, in which case that
+        column stays as 0's.
+
+        """
+        # Ignore divide by 0 errors and save the old error system
+        old_error_state = np.seterr(invalid='ignore')
+        # Normalize
+        temp = np.divide(self, np.sum(self, axis=0))
+        self[:, :] = np.nan_to_num(temp)
+        # Reset numpy error system
+        np.seterr(**old_error_state)
 
     def extract(self, name, withEnergy=False):
         thing = None
