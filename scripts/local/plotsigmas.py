@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 bins = Spectrum.defaultBinning.centers
 quantities = {
         'flux': sigmas.flux,
-        'oscillation parameters': sigmas.oscprob,
+        r'oscillation parameters ($\pm3\sigma$ on $\theta_{23}$)': sigmas.oscprob,
         'cross section': sigmas.xsec,
         'energy response/reconstruction': sigmas.drm,
         'interaction channel ID efficiency': sigmas.eff

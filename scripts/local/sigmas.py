@@ -5,6 +5,7 @@ flux, DRM, and efficiency given by the default* methods in dunesim.
 """
 from dunesim import *
 import math
+import os
 
 __all__=['flux', 'anuflux', 'oscprob', 'xsec', 'drm', 'eff', 'smear', 'focus']
 
@@ -41,8 +42,13 @@ tmp *= 0.7
 # xsec['+1sigma'].extract('nueNC') *= 1.5
 # xsec['-1sigma'].extract('nueNC') *= 0.5
 
-oscprob['+1sigma'] = oscprob['default'].copy()
-oscprob['-1sigma'] = oscprob['default'].copy()
+# Fetch the oscprob changes from the oscvectorsets
+oscparamsdir = os.path.join(os.environ['DUNECONFIGSROOT'],
+        'Fast-Monte-Carlo/Oscillation-Parameters/Parameter-Sets/')
+oscprob['+1sigma'] = defaultOscillationProbability(loc=os.path.join(
+        oscparamsdir, 'oscvectors_21'))
+oscprob['-1sigma'] = defaultOscillationProbability(loc=os.path.join(
+        oscparamsdir, 'oscvectors_1'))
 
 # Define a "focusing" function that reduces the spread
 # I choose a Gaussian
