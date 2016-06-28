@@ -213,7 +213,13 @@ def defaultDetectorResponse(factored=True, loc=None):
                  'flux_nutau_NC-like_trueCC', 'flux_nutau_NC-like_trueNC',
                  'barflux_nuebar_NC-like_trueCC', 'barflux_nuebar_NC-like_trueNC',
                  'barflux_numubar_NC-like_trueCC', 'barflux_numubar_NC-like_trueNC',
-                 'barflux_nutaubar_NC-like_trueCC', 'barflux_nutaubar_NC-like_trueNC']
+                 'barflux_nutaubar_NC-like_trueCC', 'barflux_nutaubar_NC-like_trueNC'],
+                ['flux_nue_other-like_trueCC', 'flux_nue_other-like_trueNC',
+                 'flux_numu_other-like_trueCC', 'flux_numu_other-like_trueNC',
+                 'flux_nutau_other-like_trueCC', 'flux_nutau_other-like_trueNC',
+                 'barflux_nuebar_other-like_trueCC', 'barflux_nuebar_other-like_trueNC',
+                 'barflux_numubar_other-like_trueCC', 'barflux_numubar_other-like_trueNC',
+                 'barflux_nutaubar_other-like_trueCC', 'barflux_nutaubar_other-like_trueNC']
             ]
         suffix = '%d.csv' % DetectorResponse.defaultBinning.n
         drmfiles = [[pre + name + suffix for name in row]
@@ -252,7 +258,13 @@ def defaultEfficiency(neutrinomode=True, loc=None):
              'flux_nutau_NC-like_trueCC', 'flux_nutau_NC-like_trueNC',
              'barflux_nuebar_NC-like_trueCC', 'barflux_nuebar_NC-like_trueNC',
              'barflux_numubar_NC-like_trueCC', 'barflux_numubar_NC-like_trueNC',
-             'barflux_nutaubar_NC-like_trueCC', 'barflux_nutaubar_NC-like_trueNC']
+             'barflux_nutaubar_NC-like_trueCC', 'barflux_nutaubar_NC-like_trueNC'],
+            ['flux_nue_other-like_trueCC', 'flux_nue_other-like_trueNC',
+             'flux_numu_other-like_trueCC', 'flux_numu_other-like_trueNC',
+             'flux_nutau_other-like_trueCC', 'flux_nutau_other-like_trueNC',
+             'barflux_nuebar_other-like_trueCC', 'barflux_nuebar_other-like_trueNC',
+             'barflux_numubar_other-like_trueCC', 'barflux_numubar_other-like_trueNC',
+             'barflux_nutaubar_other-like_trueCC', 'barflux_nutaubar_other-like_trueNC']
         ]
     suffix = '%d.csv' % Efficiency.defaultBinning.n
     files = [[pre + name + suffix for name in row] for row in files]
@@ -480,7 +492,8 @@ class Binning(object):
             'nutaubarNC': (11, 12),
             'nueCC-like': (0, 1),
             'numuCC-like': (1, 2),
-            'NC-like': (2, 3)
+            'NC-like': (2, 3),
+            'other-like': (3, 4)
         }.iteritems()}
     """
     This dict translates between the name of a section of the matrix
@@ -597,7 +610,7 @@ class Spectrum(SimulationComponent):
         """
         data = np.asarray(data)
         shape = data.shape
-        if shape == (3,) or shape == (12,):
+        if shape == (4,) or shape == (12,):
             return data
         else:
             raise ValueError("Incorrect shape " + str(shape))
@@ -856,8 +869,8 @@ class DetectorResponse(SimulationComponent):
     reconstructed spectrum. Its input should be broken down into
     interactions by flavor and channel (e.g. nueCC, nutauNC). Its output
     will be broken down either in the same way, or by reconstructed
-    channel (namely nueCC-like, numuCC-like, NC-like), depending on the
-    form of the matrix (see next paragraph).
+    channel (namely nueCC-like, numuCC-like, NC-like, other-like),
+    depending on the form of the matrix (see next paragraph).
 
     The matrix should be supplied in one of the following forms:
      - More precise: if the detector response, including event channel
@@ -866,10 +879,11 @@ class DetectorResponse(SimulationComponent):
        [[eCC->eCC-like, eNC->eCC-like, ..., tauNC->eCC-like,
        ebarCC->eCC-like, ebarNC->eCC-like, ..., taubarNC->eCC-like],
         [eCC->muCC-like, ..., taubarNC->muCC-like],
-        [eCC->NC-like, ..., taubarNC->NC-like]]
+        [eCC->NC-like, ..., taubarNC->NC-like],
+        [eCC->other-like, ..., taubarNC->other-like]]
 
        Output is a reconstructed spectrum (eCC-like, muCC-like,
-       NC-like).
+       NC-like, other-like).
 
      - Less precise: if the energy response and the event
        classification are to be used separately (approximately true),
@@ -911,7 +925,7 @@ class DetectorResponse(SimulationComponent):
     def _getBlockMatrixForm(data):
         data = np.asarray(data)
         shape = data.shape
-        if shape == (3, 12):  # full DRM
+        if shape == (4, 12):  # full DRM
             return data
         elif shape == (12,):  # factored DRM + channel ID
             # Create a block-diagonal matrix
@@ -1001,7 +1015,8 @@ class Efficiency(SimulationComponent):
 
      [[eCC->eCC-like, eNC->eCC-like, ..., taubarNC->eCC-like],
       [eCC->muCC-like, ..., taubarNC->muCC-like],
-      [eCC->NC-like, ..., taubarNC->NC-like]]
+      [eCC->NC-like, ..., taubarNC->NC-like],
+      [eCC->other-like, ..., taubarNC->other-like]]
 
     If the files supplied in "block" form are column vectors, they will
     be interpreted as diagonal matrices to satisfy the requirement in
@@ -1041,7 +1056,7 @@ class Efficiency(SimulationComponent):
     def _getBlockMatrixForm(data):
         data = np.asarray(data)
         shape = data.shape
-        if shape == (3, 12):
+        if shape == (4, 12):
             return data
         else:
             raise ValueError("Incorrect shape " + str(shape))
