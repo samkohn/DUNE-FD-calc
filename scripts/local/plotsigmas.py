@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 bins = Spectrum.defaultBinning.centers
 quantities = {
         'flux': sigmas.flux,
-        r'oscillation parameters ($\pm3\sigma$ on $\theta_{23}$)': sigmas.oscprob,
+        r'oscillation parameters ($\theta_{23}$)': sigmas.oscprob,
         'cross section': sigmas.xsec,
         'energy response/reconstruction': sigmas.drm,
         'interaction channel ID efficiency': sigmas.eff
@@ -64,5 +64,8 @@ for plotnum, (name, quantity_to_adjust) in enumerate(quantities.iteritems()):
     ax.set_xlabel("Energy [GeV]")
     ax.set_ylabel("Neutrino events per 0.083 GeV")
     ax.set_title(name)
-    ax.legend(["Nominal", r"$+1\sigma$", r"$-1\sigma$"])
+    if name == r'oscillation parameters ($\theta_{23}$)':
+        ax.legend(["nominal", r"$+3\sigma$", r"$-3\sigma$"])
+    else:
+        ax.legend(["Nominal", r"$+1\sigma$", r"$-1\sigma$"])
 plt.show()
