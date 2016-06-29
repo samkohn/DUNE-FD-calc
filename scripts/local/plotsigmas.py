@@ -9,14 +9,16 @@ quantities = {
         r'oscillation parameters ($\theta_{23}$)': sigmas.oscprob,
         'cross section': sigmas.xsec,
         'energy response/reconstruction': sigmas.drm,
-        'interaction channel ID efficiency': sigmas.eff
+        'interaction channel ID efficiency': sigmas.eff,
+        r'$\delta_{CP}$': sigmas.dcp
 }
 quantitieslist = [
         sigmas.flux,
         sigmas.oscprob,
         sigmas.xsec,
         sigmas.drm,
-        sigmas.eff
+        sigmas.eff,
+        sigmas.dcp
 ]
 
 pot_per_year = 1.1e21
@@ -35,6 +37,8 @@ defaultspectrum = physicsfactor * (sigmas.flux['default']
         .evolve(sigmas.eff['default']))
 
 fig = plt.figure(1)
+fig.suptitle(r"$\nu_{e}$ spectra for 3.125 years at $1.1\times 10^{2" +
+        r"1}$ POT/yr for 40 kt FD ($\approx 150$ kt-MW-yr)", fontsize=20)
 for plotnum, (name, quantity_to_adjust) in enumerate(quantities.iteritems()):
     ax = plt.subplot(2, 3, plotnum+1)
     if quantity_to_adjust is sigmas.flux:
@@ -43,7 +47,11 @@ for plotnum, (name, quantity_to_adjust) in enumerate(quantities.iteritems()):
     else:
         spectrum_plus = physicsfactor * sigmas.flux['default']
         spectrum_minus = physicsfactor * sigmas.flux['default']
-    for nextquantity in quantitieslist[1:]:
+    if quantity_to_adjust is sigmas.dcp:
+        # Swap out the theta-23 variation for the delta-cp variation
+        quantitieslist[1], quantitieslist[-1] = (quantitieslist[-1],
+            quantitieslist[1])
+    for nextquantity in quantitieslist[1:-1]:
         if quantity_to_adjust is nextquantity:
             spectrum_plus = spectrum_plus.evolve(
                 nextquantity['+1sigma'])
@@ -54,6 +62,10 @@ for plotnum, (name, quantity_to_adjust) in enumerate(quantities.iteritems()):
                 nextquantity['default'])
             spectrum_minus = spectrum_minus.evolve(
                 nextquantity['default'])
+    if quantity_to_adjust is sigmas.dcp:
+        # Swap back the theta-23 variation for the delta-cp variation
+        quantitieslist[1], quantitieslist[-1] = (quantitieslist[-1],
+            quantitieslist[1])
     im = ax.plot(bins, defaultspectrum.extract('nue'))
     flux_plus_im = ax.plot(bins, spectrum_plus.extract('nue'),
             'b--')
@@ -66,6 +78,9 @@ for plotnum, (name, quantity_to_adjust) in enumerate(quantities.iteritems()):
     ax.set_title(name)
     if name == r'oscillation parameters ($\theta_{23}$)':
         ax.legend(["nominal", r"$+3\sigma$", r"$-3\sigma$"])
+    elif name == r'$\delta_{CP}$':
+        ax.legend([r'$\delta_{CP} = 0$', r'$\delta_{CP} = \pi/2$',
+            r'$\delta_{CP} = -\pi/2$'])
     else:
         ax.legend(["Nominal", r"$+1\sigma$", r"$-1\sigma$"])
 plt.show()

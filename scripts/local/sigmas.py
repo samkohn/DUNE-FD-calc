@@ -7,10 +7,11 @@ from dunesim import *
 import math
 import os
 
-__all__=['flux', 'anuflux', 'oscprob', 'xsec', 'drm', 'eff', 'smear', 'focus']
+__all__=['dcp', 'flux', 'anuflux', 'oscprob', 'xsec', 'drm', 'eff', 'smear', 'focus']
 
 setEnergyBins(np.linspace(0, 10, 121))
 
+dcp0 = defaultOscillationProbability()
 flux0 = defaultBeamFlux(neutrinomode=True)
 anuflux0 = defaultBeamFlux(neutrinomode=False)
 oscprob0 = defaultOscillationProbability()
@@ -18,12 +19,21 @@ xsec0 = defaultCrossSection()
 drm0 = defaultDetectorResponse()
 eff0 = defaultEfficiency()
 
+dcp = {'default': dcp0}
 flux = {'default': flux0}
 anuflux = {'default': anuflux0}
 oscprob = {'default': oscprob0}
 xsec = {'default': xsec0}
 drm = {'default': drm0}
 eff = {'default': eff0}
+
+# Fetch variations in delta-cp from the oscvectorsets
+oscparamsdir = os.path.join(os.environ['DUNECONFIGSROOT'],
+        'Fast-Monte-Carlo/Oscillation-Parameters/Parameter-Sets/')
+dcp['+1sigma'] = defaultOscillationProbability(loc=os.path.join(
+        oscparamsdir, 'oscvectors_13'))
+dcp['-1sigma'] = defaultOscillationProbability(loc=os.path.join(
+        oscparamsdir, 'oscvectors_14'))
 
 flux['+1sigma'] = flux['default'] * 1.1
 flux['-1sigma'] = flux['default'] * 0.9
@@ -43,8 +53,6 @@ tmp *= 0.7
 # xsec['-1sigma'].extract('nueNC') *= 0.5
 
 # Fetch the oscprob changes from the oscvectorsets
-oscparamsdir = os.path.join(os.environ['DUNECONFIGSROOT'],
-        'Fast-Monte-Carlo/Oscillation-Parameters/Parameter-Sets/')
 oscprob['+1sigma'] = defaultOscillationProbability(loc=os.path.join(
         oscparamsdir, 'oscvectors_21'))
 oscprob['-1sigma'] = defaultOscillationProbability(loc=os.path.join(
