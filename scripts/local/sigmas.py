@@ -111,19 +111,20 @@ drm['+1sigma'] = drm['default'].copy()
 drm['-1sigma'] = drm['default'].copy()
 
 # tighten up the energy response centered on the true energy
-width = 1 # width in GeV
-smear_normalization= 1.0/3
+focus_width = 0.5 # width in GeV
 bins = SimulationComponent.defaultBinning.centers
 for blockname in blockstofocus:
     focus_block = drm['+1sigma'].extract(blockname)
-    smear_block = drm['-1sigma'].extract(blockname)
     focuser = np.zeros_like(focus_block)
-    smearer = np.zeros_like(smear_block)
     for i, energy in enumerate(bins):
-        focuser[:, i] = focus(energy, width)
-        smearer[:, i] = smear(smear_normalization, energy, width)
+        focuser[:, i] = focus(energy, focus_width)
     focus_block *= focuser
-    smear_block *= smearer
+
+# worsen the -1 sigma case by allowing for the possibility of missing
+# energy. approximate this by adding the nueNC energy response
+for blockname in blockstofocus:
+    smear_block = drm['-1sigma'].extract(blockname)
+    smear_block += drm['default'].extract('nueNC2nueNC') * 0.1
 
 drm['+1sigma'].normalize()
 drm['-1sigma'].normalize()
